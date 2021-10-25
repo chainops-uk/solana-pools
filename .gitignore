@@ -1,0 +1,6 @@
+.idea/
+vendor/**/
+solana-pools
+backups
+.env
+.cache
