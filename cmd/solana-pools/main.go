@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/dfuse-io/solana-go/rpc"
-	"github.com/everstake/solana-pools/internal/services/pools/parrot"
+	"github.com/everstake/solana-pools/pkg/pools/parrot"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -20,7 +20,7 @@ func main()  {
 			if err != nil {
 				return fmt.Errorf("pool.GetData: %s", err.Error())
 			}
-			_ = poolData
+			fmt.Printf("%+v \n", poolData)
 			return nil
 		},
 	}
