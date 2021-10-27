@@ -1,0 +1,118 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/pool/{name}": {
+            "get": {
+                "description": "get pool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.PoolDetails"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "v1.PoolDetails": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "apr": {
+                    "type": "number"
+                },
+                "avg_score": {
+                    "type": "integer"
+                },
+                "avg_skipped_slots": {
+                    "type": "number"
+                },
+                "delinquent": {
+                    "type": "number"
+                },
+                "depossit_fee": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "integer"
+                },
+                "rewards_fee": {
+                    "type": "number"
+                },
+                "tokens_supply": {
+                    "type": "number"
+                },
+                "unstake_liquidity": {
+                    "type": "number"
+                },
+                "validators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.Validator"
+                    }
+                },
+                "withdrawal_fee": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.Validator": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "apr": {
+                    "type": "number"
+                },
+                "data_center": {
+                    "type": "string"
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "node_pk": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "skipped_slots": {
+                    "type": "number"
+                },
+                "vote_pk": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

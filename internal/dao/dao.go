@@ -1,8 +1,10 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
+	"github.com/everstake/solana-pools/internal/dao/postgres"
 )
 
 type (
@@ -10,54 +12,25 @@ type (
 		Postgres
 	}
 	Postgres interface {
-		// pools
 		GetPool(name string) (pool dmodels.Pool, err error)
 		GetPools() (pools []dmodels.Pool, err error)
 		UpdatePool(pool dmodels.Pool) error
 
-		// validators
-		GetValidator(name string) (v dmodels.Validator, err error)
-		GetValidators() (pools []dmodels.Validator, err error)
+		GetValidators(poolID uint64) (pools []dmodels.Validator, err error)
 		CreateValidators(pools []dmodels.Validator) error
 		DeleteValidators(poolID uint64) error
 	}
 	Imp struct {
+		*postgres.DB
 	}
 )
 
 func NewDAO(cfg config.Env) (d DAO, err error) {
-	return Imp{}, nil
-}
-
-// todo delete & implement
-func (i Imp) GetPool(name string) (pool dmodels.Pool, err error) {
-	panic("implement me")
-}
-
-func (i Imp) GetPools() (pools []dmodels.Pool, err error) {
-	panic("implement me")
-}
-
-func (i Imp) UpdatePool(pool dmodels.Pool) error {
-	panic("implement me")
-}
-
-func (i Imp) GetValidator(name string) (v dmodels.Validator, err error) {
-	panic("implement me")
-}
-
-func (i Imp) GetValidators() (pools []dmodels.Validator, err error) {
-	panic("implement me")
-}
-
-func (i Imp) UpdateValidator(pool dmodels.Validator) error {
-	panic("implement me")
-}
-
-func (i Imp) CreateValidators(pools []dmodels.Validator) error {
-	panic("implement me")
-}
-
-func (i Imp) DeleteValidators(poolID uint64) error {
-	panic("implement me")
+	p, err := postgres.NewDB(cfg.PostgresDSN)
+	if err != nil {
+		return d, fmt.Errorf("postgres.NewDB: %s", err.Error())
+	}
+	return &Imp{
+		p,
+	}, nil
 }

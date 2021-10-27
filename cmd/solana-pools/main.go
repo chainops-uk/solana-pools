@@ -2,26 +2,47 @@ package main
 
 import (
 	"fmt"
-	"github.com/dfuse-io/solana-go/rpc"
-	"github.com/everstake/solana-pools/pkg/pools/parrot"
+	"github.com/everstake/solana-pools/config"
+	"github.com/everstake/solana-pools/internal/dao"
+	"github.com/everstake/solana-pools/internal/delivery/httpserv"
+	"github.com/everstake/solana-pools/internal/services"
+	"github.com/go-co-op/gocron"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 	"os"
+	"time"
 )
 
-func main()  {
+func main() {
 	var command = &cobra.Command{
 		Use:   "solana pools",
 		Short: "start solana pools application",
 		Long:  `start solana pools application`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rpcCli := rpc.NewClient("https://api.mainnet-beta.solana.com")
-			pool := parrot.New(rpcCli)
-			poolData, err  := pool.GetData("AMjGNE12gNoZnrU68AGxUibYEjrGPgpPk3EYG5MZCiZQ")
+			log, _ := zap.NewProduction()
+			defer log.Sync() // flushes buffer, if any
+			cfg, err := config.NewEnv()
 			if err != nil {
-				return fmt.Errorf("pool.GetData: %s", err.Error())
+				log.Fatal("RUN: config.NewEnv", zap.Error(err))
 			}
-			fmt.Printf("%+v \n", poolData)
-			return nil
+			d, err := dao.NewDAO(cfg)
+			if err != nil {
+				log.Fatal("RUN: dao.NewDAO", zap.Error(err))
+			}
+			s := services.NewService(cfg, d, log)
+			cron := gocron.NewScheduler(time.UTC)
+			cron.Every(time.Minute * 30).Do(func() {
+				err = s.UpdatePools()
+				if err != nil {
+					log.Error("UpdatePools", zap.Error(err))
+				}
+			})
+			cron.StartAsync()
+			api, err := httpserv.NewAPI(cfg, s, log)
+			if err != nil {
+				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))
+			}
+			return api.Run()
 		},
 	}
 

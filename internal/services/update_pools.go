@@ -117,10 +117,10 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 	if len(validators) > 0 {
 		dPool.Delinquent = decimal.NewFromInt(delinquent).Div(decimal.NewFromInt(int64(len(validators))))
 	}
-	dPool.TokensSupply = decimal.New(int64(data.TokenSupply), 0)
-	dPool.DepossitFee = decimal.NewFromFloat(data.DepositFee).Truncate(2)
-	dPool.WithdrawalFee = decimal.NewFromFloat(data.WithdrawalFee).Truncate(2)
-	dPool.RewardsFee = decimal.NewFromFloat(data.RewardsFee).Truncate(2)
+	dPool.TokensSupply = decimal.New(int64(data.TokenSupply), -9)
+	dPool.DepossitFee = decimal.NewFromFloat(data.DepositFee).Truncate(-2)
+	dPool.WithdrawalFee = decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2)
+	dPool.RewardsFee = decimal.NewFromFloat(data.RewardsFee).Truncate(-2)
 	// todo
 	//dPool.UnstakeLiquidity =
 	//dPool.APR =

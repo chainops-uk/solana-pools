@@ -6,22 +6,22 @@ import (
 )
 
 type Pool struct {
-	ID               uint64
-	Address          string
-	Network          string
-	Active           bool
-	Name             string
-	ActiveStake      decimal.Decimal
-	TokensSupply     decimal.Decimal
-	APR              decimal.Decimal
-	Nodes            uint64
-	AVGSkippedSlots  decimal.Decimal
-	AVGScore         int64
-	Delinquent       decimal.Decimal
-	UnstakeLiquidity decimal.Decimal
-	DepossitFee      decimal.Decimal
-	WithdrawalFee    decimal.Decimal
-	RewardsFee       decimal.Decimal
-	UpdatedAt        time.Time
-	CreatedAt        time.Time
+	ID               uint64          `gorm:"primaryKey, type:not null;"`
+	Address          string          `gorm:"index, not null;"`
+	Network          string          `gorm:"type:varchar(50);not null;"`
+	Active           bool            `gorm:"not null"`
+	Name             string          `gorm:"type:varchar(100);not null;"`
+	ActiveStake      decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	TokensSupply     decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	APR              decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	Nodes            uint64          `gorm:"type:int;not null;"`
+	AVGSkippedSlots  decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	AVGScore         int64           `gorm:"type:int;not null;"`
+	Delinquent       decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	UnstakeLiquidity decimal.Decimal `gorm:"type:decimal(24,9);not null;"`
+	DepossitFee      decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
+	WithdrawalFee    decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
+	RewardsFee       decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
+	UpdatedAt        time.Time       `gorm:"not null"`
+	CreatedAt        time.Time       `gorm:"not null"`
 }
