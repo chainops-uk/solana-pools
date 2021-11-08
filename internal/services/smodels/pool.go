@@ -11,7 +11,6 @@ type (
 		ActiveStake      decimal.Decimal
 		TokensSupply     decimal.Decimal
 		APR              decimal.Decimal
-		Nodes            uint64
 		AVGSkippedSlots  decimal.Decimal
 		AVGScore         int64
 		Delinquent       decimal.Decimal

@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/dfuse-io/solana-go"
-	"github.com/dfuse-io/solana-go/rpc"
 	"github.com/everstake/solana-pools/pkg/pools/types"
 	"github.com/near/borsh-go"
+	"github.com/portto/solana-go-sdk/client"
 )
 
 type (
 	Pool struct {
-		solanaRPC *rpc.Client
+		solanaRPC *client.Client
 	}
 	PoolData struct {
 		AccountType                           uint8
@@ -71,30 +71,30 @@ type (
 	}
 )
 
-func New(sRPC *rpc.Client) *Pool {
+func New(sRPC *client.Client) *Pool {
 	return &Pool{solanaRPC: sRPC}
 }
 
-func (p Pool) GetData(address string) (data types.Pool, err error) {
+func (p Pool) GetData(address string) (data *types.Pool, err error) {
 	scAddress, err := solana.PublicKeyFromBase58(address)
 	if err != nil {
 		return data, fmt.Errorf("solana.PublicKeyFromBase58: %s", err.Error())
 	}
-	poolInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), scAddress)
+	poolInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), scAddress.String())
 	if err != nil {
 		return data, fmt.Errorf("solanaRPC.GetAccountInfo: %s", err.Error())
 	}
 	var poolData PoolData
-	err = borsh.Deserialize(&poolData, poolInfo.Value.Data)
+	err = borsh.Deserialize(&poolData, poolInfo.Data)
 	if err != nil {
 		return data, fmt.Errorf("borsh.Deserialize(PoolData): %s", err.Error())
 	}
-	valAccountInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), poolData.ValidatorList)
+	valAccountInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), poolData.ValidatorList.String())
 	if err != nil {
 		return data, fmt.Errorf("solanaRPC.GetAccountInfo: %s", err.Error())
 	}
 	var validatorsData ValidatorsData
-	err = borsh.Deserialize(&validatorsData, valAccountInfo.Value.Data)
+	err = borsh.Deserialize(&validatorsData, valAccountInfo.Data)
 	if err != nil {
 		return data, fmt.Errorf("borsh.Deserialize(ValidatorData): %s", err.Error())
 	}
@@ -117,7 +117,7 @@ func (p Pool) GetData(address string) (data types.Pool, err error) {
 	if poolData.EpochFee.Denominator != 0 {
 		rewardsFee = float64(poolData.EpochFee.Numerator) / float64(poolData.EpochFee.Denominator)
 	}
-	return types.Pool{
+	return &types.Pool{
 		Address:       solana.MustPublicKeyFromBase58(address),
 		SolanaStake:   totalActiveStake,
 		TokenSupply:   poolData.PoolTokenSupply,

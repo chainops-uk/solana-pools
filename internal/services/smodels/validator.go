@@ -6,7 +6,7 @@ import (
 
 type Validator struct {
 	NodePK       string
-	APR          decimal.Decimal
+	APY          decimal.Decimal
 	VotePK       string
 	ActiveStake  decimal.Decimal
 	Fee          decimal.Decimal

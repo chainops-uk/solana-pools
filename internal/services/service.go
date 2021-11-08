@@ -1,11 +1,11 @@
 package services
 
 import (
-	"github.com/dfuse-io/solana-go/rpc"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
+	"github.com/portto/solana-go-sdk/client"
 	"go.uber.org/zap"
 )
 
@@ -15,7 +15,7 @@ type (
 		GetPool(name string) (pool smodels.PoolDetails, err error)
 	}
 	Imp struct {
-		rpcClients    map[config.Network]*rpc.Client
+		rpcClients    map[config.Network]*client.Client
 		cfg           config.Env
 		dao           dao.DAO
 		log           *zap.Logger
@@ -25,9 +25,9 @@ type (
 
 func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 	return &Imp{
-		rpcClients: map[config.Network]*rpc.Client{
-			config.Mainnet: rpc.NewClient(cfg.MainnetNode),
-			config.Testnet: rpc.NewClient(cfg.TestnetNode),
+		rpcClients: map[config.Network]*client.Client{
+			config.Mainnet: client.NewClient(cfg.MainnetNode),
+			config.Testnet: client.NewClient(cfg.TestnetNode),
 		},
 		cfg:           cfg,
 		dao:           d,

@@ -2,16 +2,20 @@ package services
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dfuse-io/solana-go"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
+	solana_sdk "github.com/everstake/solana-pools/pkg/extension/solana-sdk"
 	"github.com/everstake/solana-pools/pkg/pools"
 	"github.com/everstake/solana-pools/pkg/pools/types"
 	"github.com/portto/solana-go-sdk/client"
+	"github.com/portto/solana-go-sdk/rpc"
+	uuid "github.com/satori/go.uuid"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
+	"math"
 	"time"
 )
 
@@ -26,8 +30,8 @@ func (s Imp) UpdatePools() error {
 		if !p.Active {
 			continue
 		}
-		err = s.updatePool(p)
-		if err != nil {
+
+		if s.updatePool(p) != nil {
 			s.log.Error(
 				"Update Pools",
 				zap.String("pool_name", p.Name),
@@ -50,6 +54,7 @@ func (s Imp) UpdatePools() error {
 }
 
 func (s Imp) updatePool(dPool dmodels.Pool) error {
+	ctx := context.Background()
 	net := config.Network(dPool.Network)
 	rpcCli, ok := s.rpcClients[net]
 	if !ok {
@@ -64,26 +69,64 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 	if err != nil {
 		return fmt.Errorf("pool.GetData: %s", err.Error())
 	}
-	validatorsMap, err := s.makeValidatorsKeyMap(net)
+
+rep:
+	ei1, err := rpcCli.RpcClient.GetEpochInfo(ctx)
 	if err != nil {
-		return fmt.Errorf("makeValidatorsKeyMap: %s", err.Error())
+		return fmt.Errorf("GetEpochInfo: %w", err)
 	}
-	var validators []dmodels.Validator
+
+	t1 := time.Now()
+
+	<-time.After(time.Minute * 1)
+
+	ei2, err := rpcCli.RpcClient.GetEpochInfo(ctx)
+	if err != nil {
+		return fmt.Errorf("GetEpochInfo: %w", err)
+	}
+
+	t2 := time.Now()
+
+	if ei1.Result.Epoch != ei2.Result.Epoch {
+		goto rep
+	}
+
+	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
+
+	epochTime := float64(ei2.Result.SlotsInEpoch) / sps
+
+	epochInYear := 31557600 / epochTime
+
+	dmodel := &dmodels.PoolData{
+		ID:            uuid.NewV4(),
+		PoolID:        dPool.ID,
+		ActiveStake:   lampToSol(data.SolanaStake),
+		TokensSupply:  decimal.New(int64(data.TokenSupply), -9),
+		DepossitFee:   decimal.NewFromFloat(data.DepositFee).Truncate(-2),
+		WithdrawalFee: decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2),
+		RewardsFee:    decimal.NewFromFloat(data.RewardsFee).Truncate(-2),
+		UpdatedAt:     time.Now(),
+		CreatedAt:     time.Now(),
+	}
+
 	var avgSkippedSlots decimal.Decimal
 	var avgScore int64
 	var delinquent int64
-	for _, v := range data.Validators {
+	validators := make([]*dmodels.Validator, len(data.Validators))
+	for i, v := range data.Validators {
 		if v.NodePK == types.EmptyAddress {
-			v.NodePK = solana.MustPublicKeyFromBase58(validatorsMap[v.VotePK.String()])
+			v.NodePK, err = getNodeAddress(rpcCli, ctx, v.VotePK)
+			if err != nil {
+				return fmt.Errorf("getNodeAddress(%s): %s", v.VotePK, err.Error())
+			}
 		}
 		vInfo, err := s.validatorsApp.GetValidatorInfo(dPool.Network, v.NodePK.String())
 		if err != nil {
 			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %s", v.NodePK, err.Error())
 		}
 		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		validators = append(validators, dmodels.Validator{
-			PoolID: dPool.ID,
-			//APR:          0, todo
+		validators[i] = &dmodels.Validator{
+			PoolDataID:   dmodel.ID,
 			VotePK:       v.VotePK.String(),
 			NodePK:       v.NodePK.String(),
 			ActiveStake:  lampToSol(v.ActiveStake),
@@ -91,83 +134,131 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 			Score:        vInfo.TotalScore,
 			SkippedSlots: skippedSlots,
 			DataCenter:   vInfo.DataCenterHost,
-		})
+		}
+
+		validators[i].APY, validators[i].StakeAccounts, err = getAPY(rpcCli, ctx, v.VotePK, epochInYear)
+		if err != nil {
+			return fmt.Errorf("getAPY: %w", err)
+		}
+
 		if vInfo.Delinquent {
 			delinquent++
 		}
 		avgSkippedSlots = avgSkippedSlots.Add(skippedSlots)
 		avgScore += vInfo.TotalScore
 	}
+
+	dmodel.AVGScore = avgScore
+	dmodel.AVGSkippedSlots = avgSkippedSlots
 	if len(validators) > 0 {
 		avgSkippedSlots = avgSkippedSlots.Div(decimal.New(int64(len(validators)), 0))
 		avgScore = avgScore / int64(len(validators))
 	}
-	err = s.dao.DeleteValidators(dPool.ID)
-	if err != nil {
-		return fmt.Errorf("dao.DeleteValidators: %s", err.Error())
-	}
-	err = s.dao.CreateValidators(validators)
-	if err != nil {
-		return fmt.Errorf("dao.CreateValidators: %s", err.Error())
-	}
-	dPool.AVGSkippedSlots = avgSkippedSlots
-	dPool.AVGScore = avgScore
-	dPool.ActiveStake = lampToSol(data.SolanaStake)
-	dPool.Nodes = uint64(len(validators))
+	/*	err = s.dao.DeleteValidators(dPool.ID)
+		if err != nil {
+			return fmt.Errorf("dao.DeleteValidators: %s", err.Error())
+		}*/
+
 	if len(validators) > 0 {
-		dPool.Delinquent = decimal.NewFromInt(delinquent).Div(decimal.NewFromInt(int64(len(validators))))
+		dmodel.Delinquent = decimal.NewFromInt(delinquent).Div(decimal.NewFromInt(int64(len(validators))))
 	}
-	dPool.TokensSupply = decimal.New(int64(data.TokenSupply), -9)
-	dPool.DepossitFee = decimal.NewFromFloat(data.DepositFee).Truncate(-2)
-	dPool.WithdrawalFee = decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2)
-	dPool.RewardsFee = decimal.NewFromFloat(data.RewardsFee).Truncate(-2)
+
 	// todo
 	//dPool.UnstakeLiquidity =
-	//dPool.APR =
-	err = s.dao.UpdatePool(dPool)
+	err = s.dao.UpdatePoolData(dmodel)
 	if err != nil {
-		return fmt.Errorf("dao.UpdatePool: %s", err.Error())
+		return fmt.Errorf("dao.UpdatePoolData: %s", err.Error())
+	}
+	err = s.dao.CreateValidator(validators...)
+	if err != nil {
+		return fmt.Errorf("dao.CreateValidators: %s", err.Error())
 	}
 	return nil
 }
 
-// makeValidatorsKeyMap provide map with node and account public keys
-func (s Imp) makeValidatorsKeyMap(network config.Network) (mp map[string]string, err error) {
-	var cli *client.Client
-	switch network {
-	case config.Testnet:
-		cli = client.NewClient(s.cfg.TestnetNode)
-	case config.Mainnet:
-		cli = client.NewClient(s.cfg.MainnetNode)
-	default:
-		return nil, fmt.Errorf("network %s not found", network)
-	}
-	resp, err := cli.RpcClient.Call(context.Background(), "getVoteAccounts", map[string]string{"commitment": "confirmed"})
+func getNodeAddress(client *client.Client, ctx context.Context, voteAddress solana.PublicKey) (solana.PublicKey, error) {
+	r, err := solana_sdk.GetVoteAccounts(client.RpcClient.Call(ctx, "getVoteAccounts", map[string]interface{}{
+		"votePubkey": voteAddress.String(),
+	}))
 	if err != nil {
-		return mp, fmt.Errorf("c.Call: %s", err.Error())
+		return solana.PublicKey{}, err
 	}
-	type (
-		VotesAccount struct {
-			ActivatedStake uint64 `json:"activatedStake"`
-			VotePubkey     string `json:"votePubkey"`
-			NodePubkey     string `json:"nodePubkey"`
-			Commission     uint64 `json:"commission"`
-		}
-		VotesAccounts struct {
-			Result struct {
-				Current    []VotesAccount `json:"current"`
-				Delinquent []VotesAccount `json:"delinquent"`
-			} `json:"result"`
-		}
+	if len(r.Current) > 0 {
+		return solana.PublicKeyFromBase58(r.Current[0].NodePubKey)
+	}
+	if len(r.Delinquent) > 0 {
+		return solana.PublicKeyFromBase58(r.Delinquent[0].NodePubKey)
+	}
+
+	return solana.PublicKey{}, errors.New("bad vote address")
+}
+
+func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, epochInYear float64) (decimal.Decimal, uint64, error) {
+	tes, err := client.RpcClient.GetProgramAccountsWithContextAndConfig(ctx, "Stake11111111111111111111111111111111111111",
+		rpc.GetProgramAccountsConfig{
+			Encoding: "base64",
+			Filters: []rpc.GetProgramAccountsConfigFilter{
+				{
+					MemCmp: &rpc.GetProgramAccountsConfigFilterMemCmp{
+						Offset: 124,
+						Bytes:  key.String(),
+					},
+				},
+			},
+		},
 	)
-	var voteAccounts VotesAccounts
-	err = json.Unmarshal(resp, &voteAccounts)
 	if err != nil {
-		return mp, fmt.Errorf("json.Unmarshal: %s", err.Error())
+		return decimal.Decimal{}, 0, err
 	}
-	mp = make(map[string]string)
-	for _, acc := range append(voteAccounts.Result.Current, voteAccounts.Result.Delinquent...) {
-		mp[acc.VotePubkey] = acc.NodePubkey
+
+	arrAddress := make([]string, len(tes.Result.Value))
+	for i, v := range tes.Result.Value {
+		arrAddress[i] = v.Pubkey
 	}
-	return mp, nil
+
+	var amount, balance int64
+
+	if len(arrAddress) > 500 {
+		n := int(math.Ceil(float64(len(arrAddress)) / 500))
+		offset := 0
+		var resp []solana_sdk.GetInflationRewardResult
+		for i := 0; i < n; i++ {
+			if offset+500 > len(arrAddress) {
+				resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:]))
+				if err != nil {
+					return decimal.Decimal{}, 0, err
+				}
+			} else {
+				resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:offset+500]))
+				if err != nil {
+					return decimal.Decimal{}, 0, err
+				}
+			}
+
+			for _, v := range resp {
+				amount += v.Amount
+				balance += v.PostBalance
+			}
+
+			offset += 500
+		}
+	} else {
+		resp, err := solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress))
+		if err != nil {
+			return decimal.Decimal{}, 0, err
+		}
+
+		for _, v := range resp {
+			amount += v.Amount
+			balance += v.PostBalance
+		}
+	}
+
+	if amount == 0 || balance == 0 {
+		return decimal.Decimal{}, 0, nil
+	}
+
+	coefficient := decimal.NewFromInt(amount).Div(decimal.NewFromInt(balance - amount))
+
+	return coefficient.Add(decimal.NewFromInt(1)).Pow(decimal.NewFromFloat(epochInYear)).Sub(decimal.NewFromInt(1)), uint64(len(arrAddress)), nil
 }

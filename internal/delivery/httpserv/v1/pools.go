@@ -14,7 +14,6 @@ type (
 		ActiveStake      decimal.Decimal `json:"active_stake"`
 		TokensSupply     decimal.Decimal `json:"tokens_supply"`
 		APR              decimal.Decimal `json:"apr"`
-		Nodes            uint64          `json:"nodes"`
 		AVGSkippedSlots  decimal.Decimal `json:"avg_skipped_slots"`
 		AVGScore         int64           `json:"avg_score"`
 		Delinquent       decimal.Decimal `json:"delinquent"`
@@ -56,7 +55,7 @@ func (h Handler) GetPool(g *gin.Context) {
 	}
 	pool, err := h.svc.GetPool(name)
 	if err != nil {
-		h.log.Error("API GetPool", zap.Error(err))
+		h.log.Error("API GetPoolData", zap.Error(err))
 		g.JSON(http.StatusInternalServerError, nil)
 		return
 	}
@@ -64,7 +63,7 @@ func (h Handler) GetPool(g *gin.Context) {
 	for i, v := range pool.Validators {
 		validators[i] = Validator{
 			NodePK:       v.NodePK,
-			APR:          v.APR,
+			APR:          v.APY,
 			VotePK:       v.VotePK,
 			ActiveStake:  v.ActiveStake,
 			Fee:          v.Fee,
@@ -80,7 +79,6 @@ func (h Handler) GetPool(g *gin.Context) {
 			ActiveStake:      pool.ActiveStake,
 			TokensSupply:     pool.TokensSupply,
 			APR:              pool.APR,
-			Nodes:            pool.Nodes,
 			AVGSkippedSlots:  pool.AVGSkippedSlots,
 			AVGScore:         pool.AVGScore,
 			Delinquent:       pool.Delinquent,

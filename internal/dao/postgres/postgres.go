@@ -13,6 +13,7 @@ type DB struct {
 
 var autoMigrateModels = []interface{}{
 	&dmodels.Pool{},
+	&dmodels.PoolData{},
 	&dmodels.Validator{},
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/dao/postgres"
+	uuid "github.com/satori/go.uuid"
 )
 
 type (
@@ -13,12 +14,13 @@ type (
 	}
 	Postgres interface {
 		GetPool(name string) (pool dmodels.Pool, err error)
+		GetLastPoolData(uuid.UUID) (pool *dmodels.PoolData, err error)
 		GetPools() (pools []dmodels.Pool, err error)
-		UpdatePool(pool dmodels.Pool) error
+		UpdatePoolData(pool *dmodels.PoolData) error
 
-		GetValidators(poolID uint64) (pools []dmodels.Validator, err error)
-		CreateValidators(pools []dmodels.Validator) error
-		DeleteValidators(poolID uint64) error
+		GetValidators(poolDataID uuid.UUID) (pools []*dmodels.Validator, err error)
+		CreateValidator(pools ...*dmodels.Validator) error
+		DeleteValidators(poolID uuid.UUID) error
 	}
 	Imp struct {
 		*postgres.DB

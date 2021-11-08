@@ -8,6 +8,9 @@ const (
 	ParrotPool   = "parrot"
 	MarinadePool = "marinade"
 	SolidoPool   = "solido"
+	EverSOL      = "everSOL"
+	JPool        = "jpool"
+	Socean       = "socean"
 )
 
 type (
