@@ -44,9 +44,184 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Ok",
                         "schema": {
-                            "$ref": "#/definitions/v1.PoolDetails"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.PoolDetails"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/pools": {
+            "get": {
+                "description": "get pools",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get pools",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "default": 1,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stake-pool name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.PoolDetails"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/pools-statistic": {
+            "get": {
+                "description": "get statistic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get statistic",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.TotalPoolsStatistic"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
                         }
                     }
                 }
@@ -54,6 +229,22 @@ var doc = `{
         }
     },
     "definitions": {
+        "tools.ResponseData": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                }
+            }
+        },
+        "tools.ResponseError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.PoolDetails": {
             "type": "object",
             "properties": {
@@ -81,9 +272,6 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
-                "nodes": {
-                    "type": "integer"
-                },
                 "rewards_fee": {
                     "type": "number"
                 },
@@ -104,13 +292,51 @@ var doc = `{
                 }
             }
         },
+        "v1.TotalPoolsStatistic": {
+            "type": "object",
+            "properties": {
+                "avg_performance_score": {
+                    "type": "integer"
+                },
+                "max_performance_score": {
+                    "type": "integer"
+                },
+                "min_performance_score": {
+                    "type": "integer"
+                },
+                "network_apy": {
+                    "type": "number"
+                },
+                "pools": {
+                    "type": "integer"
+                },
+                "skipped_slot": {
+                    "type": "number"
+                },
+                "total_active_stake": {
+                    "type": "number"
+                },
+                "total_active_stake_pool": {
+                    "type": "number"
+                },
+                "total_unstake_liquidity": {
+                    "type": "number"
+                },
+                "total_validators": {
+                    "type": "integer"
+                },
+                "usd": {
+                    "type": "number"
+                }
+            }
+        },
         "v1.Validator": {
             "type": "object",
             "properties": {
                 "active_stake": {
                     "type": "number"
                 },
-                "apr": {
+                "apy": {
                     "type": "number"
                 },
                 "data_center": {
@@ -149,7 +375,7 @@ type swaggerInfo struct {
 var SwaggerInfo = swaggerInfo{
 	Version:     "",
 	Host:        "",
-	BasePath:    "",
+	BasePath:    "/v1",
 	Schemes:     []string{},
 	Title:       "",
 	Description: "",
@@ -187,5 +413,5 @@ func (s *s) ReadDoc() string {
 }
 
 func init() {
-	swag.Register("swagger", &s{})
+	swag.Register(swag.Name, &s{})
 }

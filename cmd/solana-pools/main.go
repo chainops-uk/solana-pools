@@ -32,9 +32,23 @@ func main() {
 			s := services.NewService(cfg, d, log)
 			cron := gocron.NewScheduler(time.UTC)
 			cron.Every(time.Minute * 30).Do(func() {
-				err = s.UpdatePools()
-				if err != nil {
+				if err := s.UpdatePools(); err != nil {
 					log.Error("UpdatePools", zap.Error(err))
+				}
+			})
+			cron.Every(time.Minute * 30).Do(func() {
+				if err := s.UpdatePrice(); err != nil {
+					log.Error("UpdatePrice", zap.Error(err))
+				}
+			})
+			cron.Every(time.Minute * 30).Do(func() {
+				if err := s.UpdateAPY(); err != nil {
+					log.Error("UpdateAPY", zap.Error(err))
+				}
+			})
+			cron.Every(time.Minute * 30).Do(func() {
+				if err := s.UpdateValidators(); err != nil {
+					log.Error("UpdateValidators", zap.Error(err))
 				}
 			})
 			cron.StartAsync()

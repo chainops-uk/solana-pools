@@ -19,5 +19,5 @@ type Validator struct {
 	SkippedSlots  decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
 	DataCenter    string          `gorm:"not null"`
 	UpdatedAt     time.Time       `gorm:"not null"`
-	CreatedAt     time.Time       `gorm:"not null"`
+	CreatedAt     time.Time       `gorm:"index;not null"`
 }

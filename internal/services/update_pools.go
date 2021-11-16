@@ -10,6 +10,7 @@ import (
 	solana_sdk "github.com/everstake/solana-pools/pkg/extension/solana-sdk"
 	"github.com/everstake/solana-pools/pkg/pools"
 	"github.com/everstake/solana-pools/pkg/pools/types"
+	"github.com/everstake/solana-pools/pkg/validatorsapp"
 	"github.com/portto/solana-go-sdk/client"
 	"github.com/portto/solana-go-sdk/rpc"
 	uuid "github.com/satori/go.uuid"
@@ -20,7 +21,7 @@ import (
 )
 
 func (s Imp) UpdatePools() error {
-	dPools, err := s.dao.GetPools()
+	dPools, err := s.dao.GetPools(nil)
 	if err != nil {
 		return fmt.Errorf("dao.GetPools: %s", err.Error())
 	}
@@ -30,8 +31,7 @@ func (s Imp) UpdatePools() error {
 		if !p.Active {
 			continue
 		}
-
-		if s.updatePool(p) != nil {
+		if err := s.updatePool(p); err != nil {
 			s.log.Error(
 				"Update Pools",
 				zap.String("pool_name", p.Name),
@@ -120,7 +120,11 @@ rep:
 				return fmt.Errorf("getNodeAddress(%s): %s", v.VotePK, err.Error())
 			}
 		}
-		vInfo, err := s.validatorsApp.GetValidatorInfo(dPool.Network, v.NodePK.String())
+		var vInfo validatorsapp.ValidatorAppInfo
+		err = rep(func() error {
+			vInfo, err = s.validatorsApp.GetValidatorInfo(dPool.Network, v.NodePK.String())
+			return err
+		}, 10, time.Minute*1)
 		if err != nil {
 			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %s", v.NodePK, err.Error())
 		}
@@ -194,19 +198,24 @@ func getNodeAddress(client *client.Client, ctx context.Context, voteAddress sola
 }
 
 func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, epochInYear float64) (decimal.Decimal, uint64, error) {
-	tes, err := client.RpcClient.GetProgramAccountsWithContextAndConfig(ctx, "Stake11111111111111111111111111111111111111",
-		rpc.GetProgramAccountsConfig{
-			Encoding: "base64",
-			Filters: []rpc.GetProgramAccountsConfigFilter{
-				{
-					MemCmp: &rpc.GetProgramAccountsConfigFilterMemCmp{
-						Offset: 124,
-						Bytes:  key.String(),
+	var tes rpc.GetProgramAccountsWithContextResponse
+	err := rep(func() error {
+		var err error
+		tes, err = client.RpcClient.GetProgramAccountsWithContextAndConfig(ctx, "Stake11111111111111111111111111111111111111",
+			rpc.GetProgramAccountsConfig{
+				Encoding: "base64",
+				Filters: []rpc.GetProgramAccountsConfigFilter{
+					{
+						MemCmp: &rpc.GetProgramAccountsConfigFilterMemCmp{
+							Offset: 124,
+							Bytes:  key.String(),
+						},
 					},
 				},
 			},
-		},
-	)
+		)
+		return err
+	}, 10, time.Minute*1)
 	if err != nil {
 		return decimal.Decimal{}, 0, err
 	}
@@ -224,12 +233,18 @@ func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, ep
 		var resp []solana_sdk.GetInflationRewardResult
 		for i := 0; i < n; i++ {
 			if offset+500 > len(arrAddress) {
-				resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:]))
+				err = rep(func() error {
+					resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:]))
+					return err
+				}, 10, time.Minute*1)
 				if err != nil {
 					return decimal.Decimal{}, 0, err
 				}
 			} else {
-				resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:offset+500]))
+				err = rep(func() error {
+					resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress[offset:offset+500]))
+					return err
+				}, 10, time.Minute*1)
 				if err != nil {
 					return decimal.Decimal{}, 0, err
 				}
@@ -243,7 +258,11 @@ func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, ep
 			offset += 500
 		}
 	} else {
-		resp, err := solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress))
+		var resp []solana_sdk.GetInflationRewardResult
+		err = rep(func() error {
+			resp, err = solana_sdk.GetInflationReward(client.RpcClient.Call(ctx, "getInflationReward", arrAddress))
+			return err
+		}, 10, time.Minute*1)
 		if err != nil {
 			return decimal.Decimal{}, 0, err
 		}
@@ -261,4 +280,18 @@ func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, ep
 	coefficient := decimal.NewFromInt(amount).Div(decimal.NewFromInt(balance - amount))
 
 	return coefficient.Add(decimal.NewFromInt(1)).Pow(decimal.NewFromFloat(epochInYear)).Sub(decimal.NewFromInt(1)), uint64(len(arrAddress)), nil
+}
+
+func rep(f func() error, t uint64, timeout time.Duration) error {
+	var err error
+	for i := uint64(0); i < t; i++ {
+		err = f()
+		if err == nil {
+			return nil
+		}
+		if i+1 < t {
+			<-time.After(timeout)
+		}
+	}
+	return err
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/docs"
+	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	v1 "github.com/everstake/solana-pools/internal/delivery/httpserv/v1"
 	"github.com/everstake/solana-pools/internal/services"
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,9 @@ func (api API) Run() error {
 	router := gin.Default()
 	docs.SwaggerInfo.BasePath = "/v1"
 	v1g := router.Group("/v1")
-	v1g.GET("/pool/:name", api.v1.GetPool)
+	v1g.GET("/pools", tools.Must(api.v1.GetPools))
+	v1g.GET("/pool/:name", tools.Must(api.v1.GetPool))
+	v1g.GET("/pools-statistic", tools.Must(api.v1.GetTotalPoolsStatistic))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	api.log.Info("Starting API server", zap.Uint64("port", api.cfg.HttpPort))
 	return router.Run(fmt.Sprintf(":%d", api.cfg.HttpPort))

@@ -2,6 +2,7 @@ package marinade
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"github.com/dfuse-io/solana-go"
 	"github.com/everstake/solana-pools/pkg/pools/types"
@@ -10,7 +11,6 @@ import (
 )
 
 /*
-
 	https://github.com/marinade-finance/marinade-ts-cli/tree/main/src
  	+ https://project-serum.github.io/anchor/cli/commands.html#deploy
 */
@@ -84,11 +84,6 @@ type (
 		StakingSolCap             uint64
 		EmergencyCoolingDown      uint64
 	}
-	ValidatorsData struct {
-		Type       byte
-		MaxSize    uint32
-		Validators []Validator
-	}
 	Validator struct {
 		Address solana.PublicKey
 		Stake   uint64
@@ -101,10 +96,6 @@ func New(client *client.Client) *Pool {
 		solanaRPC: client,
 	}
 }
-
-/*
-const ValidatorsAppAPIKey = "QpwmsNAJZrZ3ENmxz7BVF6PT"
-const poolAddress = "8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC"*/
 
 func (p Pool) GetData(address string) (*types.Pool, error) {
 	scAddress, err := solana.PublicKeyFromBase58(address)
@@ -120,18 +111,28 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("borsh.Deserialize(PoolData): %s", err.Error())
 	}
-	valAccountInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), poolData.ValidatorSystem.ManagerAuthority.String())
+	valAccountInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), poolData.ValidatorSystem.ValidatorList.Account.String())
 	if err != nil {
-		return nil, fmt.Errorf("solanaRPC.GetAccountInfo: %s", err.Error())
+		return nil, fmt.Errorf("solanaRPC.GetAccountInfo: %w", err)
 	}
-	var validatorsData ValidatorsData
-	err = borsh.Deserialize(&validatorsData, valAccountInfo.Data)
-	if err != nil {
-		return nil, fmt.Errorf("borsh.Deserialize(ValidatorData): %s", err.Error())
+	validatorsData := make([]*Validator, 0)
+
+	validatorInfoSize := binary.Size(Validator{})
+	for i := 8; i+validatorInfoSize <= len(valAccountInfo.Data); i += validatorInfoSize {
+		d := valAccountInfo.Data[i : i+validatorInfoSize]
+		var v Validator
+		if err := borsh.Deserialize(&v, d); err != nil {
+			return nil, fmt.Errorf("borsh.Deserialize: %w", err)
+		}
+		if v.Address.String() == "11111111111111111111111111111111" {
+			continue
+		}
+		validatorsData = append(validatorsData, &v)
 	}
+
 	var totalActiveStake uint64
 	var validators []types.PoolValidator
-	for _, v := range validatorsData.Validators {
+	for _, v := range validatorsData {
 		validators = append(validators, types.PoolValidator{
 			ActiveStake: v.Stake,
 			VotePK:      v.Address,

@@ -127,12 +127,10 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		return nil, fmt.Errorf("borsh.Deserialize(ValidatorData): %s", err.Error())
 	}
 	var totalActiveStake uint64
-	var validators []types.PoolValidator
-	for _, v := range validatorsData {
-		validators = append(validators, types.PoolValidator{
-			ActiveStake: v.ActiveStakeLamports,
-			VotePK:      v.VoteAccountAddress,
-		})
+	validators := make([]types.PoolValidator, len(validatorsData))
+	for i, v := range validatorsData {
+		validators[i].ActiveStake = v.ActiveStakeLamports
+		validators[i].VotePK = v.VoteAccountAddress
 		totalActiveStake += v.ActiveStakeLamports
 	}
 

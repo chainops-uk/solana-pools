@@ -10,7 +10,7 @@ type (
 		Name             string
 		ActiveStake      decimal.Decimal
 		TokensSupply     decimal.Decimal
-		APR              decimal.Decimal
+		APY              decimal.Decimal
 		AVGSkippedSlots  decimal.Decimal
 		AVGScore         int64
 		Delinquent       decimal.Decimal
@@ -21,6 +21,15 @@ type (
 	}
 	PoolDetails struct {
 		Pool
-		Validators []Validator
+		Validators []*Validator
+	}
+	Statistic struct {
+		ActiveStake      decimal.Decimal
+		AVGSkippedSlots  decimal.Decimal
+		MAXScore         int64
+		AVGScore         int64
+		MINScore         int64
+		Delinquent       decimal.Decimal
+		UnstakeLiquidity decimal.Decimal
 	}
 )

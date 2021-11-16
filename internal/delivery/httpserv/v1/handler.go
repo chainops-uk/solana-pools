@@ -5,6 +5,8 @@ import (
 	"go.uber.org/zap"
 )
 
+//go:generate swag init -g ./handler.go -d ./,../tools -o ../../../../docs
+
 // @BasePath /v1
 
 type Handler struct {

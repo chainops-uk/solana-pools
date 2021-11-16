@@ -14,8 +14,9 @@ type (
 	}
 	Postgres interface {
 		GetPool(name string) (pool dmodels.Pool, err error)
+		GetPoolCount(*postgres.Condition) (int64, error)
 		GetLastPoolData(uuid.UUID) (pool *dmodels.PoolData, err error)
-		GetPools() (pools []dmodels.Pool, err error)
+		GetPools(cond *postgres.Condition) (pools []dmodels.Pool, err error)
 		UpdatePoolData(pool *dmodels.PoolData) error
 
 		GetValidators(poolDataID uuid.UUID) (pools []*dmodels.Validator, err error)

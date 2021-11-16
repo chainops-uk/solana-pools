@@ -1,4 +1,15 @@
+basePath: /v1
 definitions:
+  tools.ResponseData:
+    properties:
+      data:
+        type: object
+    type: object
+  tools.ResponseError:
+    properties:
+      error:
+        type: string
+    type: object
   v1.PoolDetails:
     properties:
       active_stake:
@@ -17,8 +28,6 @@ definitions:
         type: number
       name:
         type: string
-      nodes:
-        type: integer
       rewards_fee:
         type: number
       tokens_supply:
@@ -32,11 +41,36 @@ definitions:
       withdrawal_fee:
         type: number
     type: object
+  v1.TotalPoolsStatistic:
+    properties:
+      avg_performance_score:
+        type: integer
+      max_performance_score:
+        type: integer
+      min_performance_score:
+        type: integer
+      network_apy:
+        type: number
+      pools:
+        type: integer
+      skipped_slot:
+        type: number
+      total_active_stake:
+        type: number
+      total_active_stake_pool:
+        type: number
+      total_unstake_liquidity:
+        type: number
+      total_validators:
+        type: integer
+      usd:
+        type: number
+    type: object
   v1.Validator:
     properties:
       active_stake:
         type: number
-      apr:
+      apy:
         type: number
       data_center:
         type: string
@@ -69,8 +103,116 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Ok
           schema:
-            $ref: '#/definitions/v1.PoolDetails'
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.PoolDetails'
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
       summary: get pool
+  /pools:
+    get:
+      consumes:
+      - application/json
+      description: get pools
+      parameters:
+      - default: 1
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: stake-pool name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.PoolDetails'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: get pools
+  /pools-statistic:
+    get:
+      consumes:
+      - application/json
+      description: get statistic
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.TotalPoolsStatistic'
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: get statistic
 swagger: "2.0"

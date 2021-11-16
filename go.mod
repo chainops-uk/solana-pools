@@ -8,13 +8,14 @@ require (
 	github.com/dfuse-io/solana-go v0.2.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-co-op/gocron v1.9.0
-	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/joho/godotenv v1.4.0
 	github.com/near/borsh-go v0.3.1-0.20210831082424-4377deff6791
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/portto/solana-go-sdk v1.9.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v1.2.1
+	github.com/superoo7/go-gecko v1.0.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.3.2
 	github.com/swaggo/swag v1.7.4
@@ -71,7 +72,6 @@ require (
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v1.0.2 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
-	github.com/ybbus/jsonrpc v2.1.2+incompatible // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
