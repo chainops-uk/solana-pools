@@ -6,6 +6,7 @@ import (
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/shopspring/decimal"
 	"sync"
+	"time"
 )
 
 func (s *Imp) GetPool(name string) (pool smodels.PoolDetails, err error) {
@@ -13,7 +14,7 @@ func (s *Imp) GetPool(name string) (pool smodels.PoolDetails, err error) {
 	if err != nil {
 		return pool, fmt.Errorf("dao.GetPool: %s", err.Error())
 	}
-	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID)
+	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID, nil)
 	if err != nil {
 		return pool, fmt.Errorf("dao.GetPoolData: %s", err.Error())
 	}
@@ -39,7 +40,7 @@ func (s *Imp) GetPool(name string) (pool smodels.PoolDetails, err error) {
 			Address:          dPool.Address,
 			Name:             dPool.Name,
 			ActiveStake:      dLastPoolData.ActiveStake,
-			TokensSupply:     dLastPoolData.TokensSupply,
+			TokensSupply:     dLastPoolData.TotalTokensSupply,
 			APY:              dLastPoolData.APY,
 			AVGSkippedSlots:  dLastPoolData.AVGSkippedSlots,
 			AVGScore:         dLastPoolData.AVGScore,
@@ -76,13 +77,15 @@ func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.Poo
 			},
 		}
 
-		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID)
+		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
+		pools[i].Set(dLastPoolData, &v1)
+
 		pools[i].ActiveStake = dLastPoolData.ActiveStake
-		pools[i].TokensSupply = dLastPoolData.TokensSupply
+		pools[i].TokensSupply = dLastPoolData.TotalTokensSupply
 		pools[i].APY = dLastPoolData.APY
 		pools[i].AVGSkippedSlots = dLastPoolData.AVGSkippedSlots
 		pools[i].AVGScore = dLastPoolData.AVGScore
@@ -117,7 +120,7 @@ func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.Poo
 	return pools, nil
 }
 
-func (s *Imp) GetPoolsStatistic() (*smodels.Statistic, error) {
+func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	dPools, err := s.dao.GetPools(nil)
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPool: %w", err)
@@ -130,7 +133,7 @@ func (s *Imp) GetPoolsStatistic() (*smodels.Statistic, error) {
 
 	once := sync.Once{}
 	for _, v := range dPools {
-		dLastPoolData, err := s.dao.GetLastPoolData(v.ID)
+		dLastPoolData, err := s.dao.GetLastPoolData(v.ID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
@@ -140,6 +143,7 @@ func (s *Imp) GetPoolsStatistic() (*smodels.Statistic, error) {
 
 		once.Do(func() {
 			minS = dLastPoolData.AVGScore
+			maxS = dLastPoolData.AVGScore
 		})
 
 		if dLastPoolData.AVGScore > maxS {
@@ -160,6 +164,25 @@ func (s *Imp) GetPoolsStatistic() (*smodels.Statistic, error) {
 	stat.AVGScore /= int64(len(dPools))
 
 	return stat, nil
+}
+
+func (s *Imp) GetPoolsStatistic(name string, aggregate string, from time.Time, to time.Time) ([]*smodels.Pool, error) {
+	pool, err := s.dao.GetPool(name)
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := s.dao.GetPoolStatistic(pool.ID, postgres.SearchAggregate(aggregate), from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]*smodels.Pool, len(a))
+	for i, v := range a {
+		data[i] = (&smodels.Pool{}).Set(v, &pool)
+	}
+
+	return data, nil
 }
 
 func (s *Imp) GetPoolCount() (int64, error) {

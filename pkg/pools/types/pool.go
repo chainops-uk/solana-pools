@@ -15,13 +15,16 @@ const (
 
 type (
 	Pool struct {
-		Address       solana.PublicKey
-		SolanaStake   uint64
-		TokenSupply   uint64
-		DepositFee    float64
-		WithdrawalFee float64
-		RewardsFee    float64
-		Validators    []PoolValidator
+		Address          solana.PublicKey
+		Epoch            uint64
+		SolanaStake      uint64
+		TotalTokenSupply uint64
+		TotalLamports    uint64
+		UnstakeLiquidity uint64
+		DepositFee       float64
+		WithdrawalFee    float64
+		RewardsFee       float64
+		Validators       []PoolValidator
 	}
 	PoolValidator struct {
 		ActiveStake uint64

@@ -100,11 +100,11 @@ func New(client *client.Client) *Pool {
 func (p Pool) GetData(address string) (*types.Pool, error) {
 	scAddress, err := solana.PublicKeyFromBase58(address)
 	if err != nil {
-		return nil, fmt.Errorf("solana.PublicKeyFromBase58: %s", err.Error())
+		return nil, fmt.Errorf("solana.PublicKeyFromBase58: %w", err)
 	}
 	poolInfo, err := p.solanaRPC.GetAccountInfo(context.Background(), scAddress.String())
 	if err != nil {
-		return nil, fmt.Errorf("solanaRPC.GetAccountInfo: %s", err.Error())
+		return nil, fmt.Errorf("solanaRPC.GetAccountInfo: %w", err)
 	}
 	var poolData PoolData
 	err = borsh.Deserialize(&poolData, poolInfo.Data)
@@ -141,9 +141,13 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 	}
 
 	return &types.Pool{
-		Address:     solana.MustPublicKeyFromBase58(address),
-		SolanaStake: totalActiveStake,
-		TokenSupply: poolData.MsolSupply,
-		Validators:  validators,
+		Address:          solana.MustPublicKeyFromBase58(address),
+		Epoch:            poolData.StakeSystem.LastStakeDeltaEpoch,
+		SolanaStake:      totalActiveStake,
+		TotalTokenSupply: poolData.MsolSupply,
+		TotalLamports:    poolData.ValidatorSystem.TotalActiveBalance,
+		UnstakeLiquidity: poolData.LiquiditySolCap,
+		RewardsFee:       float64(poolData.RewardFee) / 100,
+		Validators:       validators,
 	}, nil
 }

@@ -37,6 +37,7 @@ func (api API) Run() error {
 	v1g := router.Group("/v1")
 	v1g.GET("/pools", tools.Must(api.v1.GetPools))
 	v1g.GET("/pool/:name", tools.Must(api.v1.GetPool))
+	v1g.GET("/pool-statistic", tools.Must(api.v1.GetPoolsStatistic))
 	v1g.GET("/pools-statistic", tools.Must(api.v1.GetTotalPoolsStatistic))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	api.log.Info("Starting API server", zap.Uint64("port", api.cfg.HttpPort))

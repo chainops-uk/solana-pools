@@ -88,6 +88,69 @@ definitions:
 info:
   contact: {}
 paths:
+  /pool-statistic:
+    get:
+      consumes:
+      - application/json
+      description: get statistic by pool
+      parameters:
+      - default: "2021-01-01T15:04:05Z"
+        description: first date for aggregation
+        in: query
+        name: from
+        required: true
+        type: string
+      - default: "2021-12-01T15:04:05Z"
+        description: second date for aggregation
+        in: query
+        name: to
+        required: true
+        type: string
+      - default: everSOL
+        description: pool name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: aggregation
+        enum:
+        - day
+        - week
+        - month
+        - year
+        in: query
+        name: aggregation
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.TotalPoolsStatistic'
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: get statistic by pool
   /pool/{name}:
     get:
       consumes:

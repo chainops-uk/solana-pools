@@ -20,6 +20,17 @@ import (
 	"time"
 )
 
+const (
+	DefaultTicksPerSecond = 160
+	DefaultTicksPerSlot   = 64
+	SecondsPerDay         = 60 * 60 * 24
+	DefaultSPerSlot       = float64(DefaultTicksPerSlot) / float64(DefaultTicksPerSecond)
+	TicksPerDay           = DefaultTicksPerSecond * SecondsPerDay
+	DefaultSlotsPerEpoch  = 2 * TicksPerDay / DefaultTicksPerSlot
+	SecondsPerEpoch       = DefaultSlotsPerEpoch * DefaultSPerSlot
+	EpochsPerYear         = SecondsPerDay * 365.25 / SecondsPerEpoch
+)
+
 func (s Imp) UpdatePools() error {
 	dPools, err := s.dao.GetPools(nil)
 	if err != nil {
@@ -98,15 +109,17 @@ rep:
 	epochInYear := 31557600 / epochTime
 
 	dmodel := &dmodels.PoolData{
-		ID:            uuid.NewV4(),
-		PoolID:        dPool.ID,
-		ActiveStake:   lampToSol(data.SolanaStake),
-		TokensSupply:  decimal.New(int64(data.TokenSupply), -9),
-		DepossitFee:   decimal.NewFromFloat(data.DepositFee).Truncate(-2),
-		WithdrawalFee: decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2),
-		RewardsFee:    decimal.NewFromFloat(data.RewardsFee).Truncate(-2),
-		UpdatedAt:     time.Now(),
-		CreatedAt:     time.Now(),
+		ID:                uuid.NewV4(),
+		PoolID:            dPool.ID,
+		ActiveStake:       lampToSol(data.SolanaStake),
+		TotalTokensSupply: decimal.New(int64(data.TotalTokenSupply), -9),
+		TotalLamports:     decimal.New(int64(data.TotalLamports), -9),
+		UnstakeLiquidity:  decimal.New(int64(data.UnstakeLiquidity), -9),
+		DepossitFee:       decimal.NewFromFloat(data.DepositFee).Truncate(-2),
+		WithdrawalFee:     decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2),
+		RewardsFee:        decimal.NewFromFloat(data.RewardsFee).Truncate(-2),
+		UpdatedAt:         time.Now(),
+		CreatedAt:         time.Now(),
 	}
 
 	var avgSkippedSlots decimal.Decimal
@@ -167,8 +180,25 @@ rep:
 		dmodel.Delinquent = decimal.NewFromInt(delinquent).Div(decimal.NewFromInt(int64(len(validators))))
 	}
 
-	// todo
-	//dPool.UnstakeLiquidity =
+	d, err := s.dao.GetLastEpochPoolData(dmodel.PoolID, dmodel.Epoch)
+	if err != nil {
+		return fmt.Errorf("dao.UpdatePoolData: %w", err)
+	}
+	if d != nil {
+		var epochRate decimal.Decimal
+		if !d.ActiveStake.IsZero() {
+			lastEpochPoolTokenValue := d.TotalLamports.Div(d.TotalTokensSupply)
+			TokenValue := dmodel.TotalLamports.Div(dmodel.TotalTokensSupply)
+			epochRate = TokenValue.Div(lastEpochPoolTokenValue).Sub(decimal.NewFromInt(1))
+			epochRate = epochRate.Mul(decimal.NewFromInt(int64(dmodel.Epoch - d.Epoch)))
+		} else {
+			epochRate = decimal.NewFromInt(0)
+		}
+		dmodel.APY = epochRate.Mul(decimal.NewFromFloat(EpochsPerYear))
+	} else {
+		dmodel.APY = decimal.NewFromInt(0)
+	}
+
 	err = s.dao.UpdatePoolData(dmodel)
 	if err != nil {
 		return fmt.Errorf("dao.UpdatePoolData: %s", err.Error())

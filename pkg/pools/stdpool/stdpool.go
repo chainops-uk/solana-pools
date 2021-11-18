@@ -134,10 +134,18 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		totalActiveStake += v.ActiveStakeLamports
 	}
 
+	l, err := p.solanaRPC.GetBalance(context.Background(), poolData.ReserveStake.String())
+	if err != nil {
+		return nil, fmt.Errorf("client.GetBalance: %s", err.Error())
+	}
+
 	return &types.Pool{
-		Address:     solana.MustPublicKeyFromBase58(address),
-		SolanaStake: totalActiveStake,
-		TokenSupply: poolData.PoolTokenSupply,
-		Validators:  validators,
+		Address:          solana.MustPublicKeyFromBase58(address),
+		Epoch:            poolData.LastUpdateEpoch,
+		SolanaStake:      totalActiveStake,
+		TotalTokenSupply: poolData.PoolTokenSupply,
+		TotalLamports:    poolData.TotalLamports,
+		UnstakeLiquidity: l,
+		Validators:       validators,
 	}, nil
 }

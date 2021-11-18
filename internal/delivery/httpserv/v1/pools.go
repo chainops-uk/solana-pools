@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"math"
 	"net/http"
+	"time"
 )
 
 // GetPool godoc
@@ -99,7 +101,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 		return nil, err
 	}
 
-	sc, err := h.svc.GetPoolsStatistic()
+	sc, err := h.svc.GetPoolsCurrentStatistic()
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +134,53 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 	}, nil
 }
 
+// GetPoolsStatistic godoc
+// @Summary get statistic by pool
+// @Schemes
+// @Description get statistic by pool
+// @Accept json
+// @Produce json
+// @Param from query string true "first date for aggregation" default(2021-01-01T15:04:05Z)
+// @Param to query string true "second date for aggregation" default(2021-12-01T15:04:05Z)
+// @Param name query string true "pool name" default(everSOL)
+// @Param aggregation query string true "aggregation" Enums(day, week, month, year)
+// @Success 200 {object} tools.ResponseData{data=TotalPoolsStatistic} "Ok"
+// @Failure 400,404 {object} tools.ResponseError "bad request"
+// @Failure 500 {object} tools.ResponseError "internal server error"
+// @Failure default {object} tools.ResponseError "default response"
+// @Router /pool-statistic [get]
+func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
+	request := struct {
+		Name        string    `form:"name" binding:"required"`
+		From        time.Time `form:"from" binding:"required"`
+		To          time.Time `form:"to" binding:"required"`
+		Aggregation string    `form:"aggregation" binding:"required"`
+	}{}
+
+	if err := ctx.ShouldBind(&request); err != nil {
+		return nil, tools.NewStatus(http.StatusNotAcceptable, fmt.Errorf("bad request %w", err))
+	}
+
+	arr, err := h.svc.GetPoolsStatistic(request.Name, request.Aggregation, request.From, request.To)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]*poolStatistic, len(arr))
+	for i, v := range arr {
+		data[i] = (&poolStatistic{}).Set(v)
+	}
+
+	return data, err
+}
+
 type (
+	poolStatistic struct {
+		ActiveStake        float64
+		APY                float64
+		UnstackedLiquidity float64
+		CreatedAt          time.Time
+	}
 	TotalPoolsStatistic struct {
 		TotalActiveStakePool  float64 `json:"total_active_stake_pool"`
 		TotalActiveStake      float64 `json:"total_active_stake"`
@@ -175,6 +223,14 @@ type (
 		DataCenter   string          `json:"data_center"`
 	}
 )
+
+func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
+	ps.APY, _ = data.APY.Float64()
+	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
+	ps.ActiveStake, _ = data.ActiveStake.Float64()
+	ps.CreatedAt = data.CreatedAt
+	return ps
+}
 
 func (pd *PoolDetails) Set(details *smodels.PoolDetails) *PoolDetails {
 	pd.Pool.Set(&details.Pool)

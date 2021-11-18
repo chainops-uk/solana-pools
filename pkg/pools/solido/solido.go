@@ -29,8 +29,7 @@ type (
 		DeveloperAccount solana.PublicKey
 	}
 	Validator struct {
-		PubKey solana.PublicKey
-
+		PubKey                 solana.PublicKey
 		FeeCredit              uint64
 		FeeAddress             solana.PublicKey
 		StakeSeeds             [16]byte
@@ -74,20 +73,29 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 		return data, fmt.Errorf("borsh.Deserialize(PoolData): %s", err.Error())
 	}
 	var validators []types.PoolValidator
+
+	totalStake := uint64(0)
+	totalUnStake := uint64(0)
 	for _, v := range poolData.Validators {
+		totalStake += v.StakeAccountsBalance
+		totalUnStake += v.UnstakeAccountsBalance
 		validators = append(validators, types.PoolValidator{
 			ActiveStake: v.StakeAccountsBalance,
 			NodePK:      v.PubKey,
 		})
 	}
 	rewardsFee := poolData.RewardDistribution.DeveloperFee + poolData.RewardDistribution.TreasuryFee + poolData.RewardDistribution.ValidationFee
+
 	return &types.Pool{
-		Address:       solana.MustPublicKeyFromBase58(address),
-		TokenSupply:   poolData.ExchangeRate.StSolSupply,
-		SolanaStake:   poolData.ExchangeRate.SolBalance,
-		DepositFee:    0,
-		WithdrawalFee: 0,
-		RewardsFee:    float64(rewardsFee) / 100,
-		Validators:    validators,
+		Address:          solana.MustPublicKeyFromBase58(address),
+		Epoch:            poolData.ExchangeRate.ComputedInEpoch,
+		SolanaStake:      totalStake,
+		TotalTokenSupply: poolData.ExchangeRate.StSolSupply,
+		TotalLamports:    poolData.ExchangeRate.SolBalance,
+		UnstakeLiquidity: totalUnStake,
+		DepositFee:       0,
+		WithdrawalFee:    0,
+		RewardsFee:       float64(rewardsFee) / 100,
+		Validators:       validators,
 	}, nil
 }

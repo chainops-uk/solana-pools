@@ -6,6 +6,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/dao/postgres"
 	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 type (
@@ -13,13 +14,15 @@ type (
 		Postgres
 	}
 	Postgres interface {
-		GetPool(name string) (pool dmodels.Pool, err error)
+		GetPool(name string) (dmodels.Pool, error)
 		GetPoolCount(*postgres.Condition) (int64, error)
-		GetLastPoolData(uuid.UUID) (pool *dmodels.PoolData, err error)
-		GetPools(cond *postgres.Condition) (pools []dmodels.Pool, err error)
-		UpdatePoolData(pool *dmodels.PoolData) error
+		GetLastPoolData(poolID uuid.UUID, condition *postgres.Condition) (*dmodels.PoolData, error)
+		GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
+		GetPools(*postgres.Condition) ([]dmodels.Pool, error)
+		UpdatePoolData(*dmodels.PoolData) error
+		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate, from time.Time, to time.Time) ([]*dmodels.PoolData, error)
 
-		GetValidators(poolDataID uuid.UUID) (pools []*dmodels.Validator, err error)
+		GetValidators(poolDataID uuid.UUID) ([]*dmodels.Validator, error)
 		CreateValidator(pools ...*dmodels.Validator) error
 		DeleteValidators(poolID uuid.UUID) error
 	}

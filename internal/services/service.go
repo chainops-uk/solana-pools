@@ -22,12 +22,13 @@ type (
 	Service interface {
 		GetPoolCount() (int64, error)
 		GetActiveStake() uint64
-		GetPoolsStatistic() (*smodels.Statistic, error)
+		GetPoolsCurrentStatistic() (*smodels.Statistic, error)
+		GetPoolsStatistic(name string, aggregate string, from time.Time, to time.Time) ([]*smodels.Pool, error)
 		GetPrice() (decimal.Decimal, error)
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)
-		GetPool(name string) (pool smodels.PoolDetails, err error)
-		GetPools(string, uint64, uint64) ([]*smodels.PoolDetails, error)
+		GetPool(name string) (smodels.PoolDetails, error)
+		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, error)
 		UpdatePrice() error
 		UpdatePools() error
 		UpdateAPY() error

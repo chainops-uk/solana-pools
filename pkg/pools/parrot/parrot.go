@@ -117,13 +117,22 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 	if poolData.EpochFee.Denominator != 0 {
 		rewardsFee = float64(poolData.EpochFee.Numerator) / float64(poolData.EpochFee.Denominator)
 	}
+
+	l, err := p.solanaRPC.GetBalance(context.Background(), poolData.ReserveStake.String())
+	if err != nil {
+		return nil, fmt.Errorf("client.GetBalance: %s", err.Error())
+	}
+
 	return &types.Pool{
-		Address:       solana.MustPublicKeyFromBase58(address),
-		SolanaStake:   totalActiveStake,
-		TokenSupply:   poolData.PoolTokenSupply,
-		DepositFee:    depositFee,
-		WithdrawalFee: withdrawalFee,
-		RewardsFee:    rewardsFee,
-		Validators:    validators,
+		Address:          solana.MustPublicKeyFromBase58(address),
+		Epoch:            poolData.LastUpdateEpoch,
+		TotalLamports:    poolData.TotalLamports,
+		SolanaStake:      totalActiveStake,
+		TotalTokenSupply: poolData.PoolTokenSupply,
+		UnstakeLiquidity: l,
+		DepositFee:       depositFee,
+		WithdrawalFee:    withdrawalFee,
+		RewardsFee:       rewardsFee,
+		Validators:       validators,
 	}, nil
 }

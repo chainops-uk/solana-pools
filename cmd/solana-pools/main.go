@@ -51,7 +51,7 @@ func main() {
 					log.Error("UpdateValidators", zap.Error(err))
 				}
 			})
-			cron.StartAsync()
+			cron.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
 			api, err := httpserv.NewAPI(cfg, s, log)
 			if err != nil {
 				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))
