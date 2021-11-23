@@ -31,9 +31,17 @@ func main() {
 			}
 			s := services.NewService(cfg, d, log)
 			cron := gocron.NewScheduler(time.UTC)
-			cron.Every(time.Minute * 30).Do(func() {
-				if err := s.UpdatePools(); err != nil {
-					log.Error("UpdatePools", zap.Error(err))
+
+			up := false
+			cron.Every(time.Minute * 120).Do(func() {
+				if !up {
+					defer func() {
+						up = false
+					}()
+					up = true
+					if err := s.UpdatePools(); err != nil {
+						log.Error("UpdatePools", zap.Error(err))
+					}
 				}
 			})
 			cron.Every(time.Minute * 30).Do(func() {
@@ -52,6 +60,7 @@ func main() {
 				}
 			})
 			cron.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
+			cron.StartAsync()
 			api, err := httpserv.NewAPI(cfg, s, log)
 			if err != nil {
 				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))

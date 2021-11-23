@@ -65,6 +65,7 @@ func (s Imp) UpdatePools() error {
 }
 
 func (s Imp) updatePool(dPool dmodels.Pool) error {
+	fmt.Println("start: ", dPool.Name)
 	ctx := context.Background()
 	net := config.Network(dPool.Network)
 	rpcCli, ok := s.rpcClients[net]
@@ -115,6 +116,7 @@ rep:
 		TotalTokensSupply: decimal.New(int64(data.TotalTokenSupply), -9),
 		TotalLamports:     decimal.New(int64(data.TotalLamports), -9),
 		UnstakeLiquidity:  decimal.New(int64(data.UnstakeLiquidity), -9),
+		Epoch:             data.Epoch,
 		DepossitFee:       decimal.NewFromFloat(data.DepositFee).Truncate(-2),
 		WithdrawalFee:     decimal.NewFromFloat(data.WithdrawalFee).Truncate(-2),
 		RewardsFee:        decimal.NewFromFloat(data.RewardsFee).Truncate(-2),

@@ -40,7 +40,7 @@ func (db *DB) GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmod
 	pool := &dmodels.PoolData{}
 	if err := db.Where(`pool_id = ?`, PoolID).
 		Where(`epoch < ?`, currentEpoch).
-		Order("created_at desc").First(pool).Error; err != nil {
+		Order("created_at desc").Limit(1).First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
