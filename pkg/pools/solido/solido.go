@@ -81,7 +81,7 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 		totalUnStake += v.UnstakeAccountsBalance
 		validators = append(validators, types.PoolValidator{
 			ActiveStake: v.StakeAccountsBalance,
-			NodePK:      v.PubKey,
+			VotePK:      v.PubKey,
 		})
 	}
 	rewardsFee := poolData.RewardDistribution.DeveloperFee + poolData.RewardDistribution.TreasuryFee + poolData.RewardDistribution.ValidationFee

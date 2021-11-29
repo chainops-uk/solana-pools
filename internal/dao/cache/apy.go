@@ -14,7 +14,7 @@ func (c *Cache) SetAPY(apy decimal.Decimal) {
 func (c *Cache) GetAPY() (decimal.Decimal, error) {
 	v, b := c.cache.Get(apyKey)
 	if !b {
-		return decimal.Decimal{}, fmt.Errorf("%w: %s", keyWasNotFound, apyKey)
+		return decimal.Decimal{}, fmt.Errorf("%w: %s", KeyWasNotFound, apyKey)
 	}
 
 	return v.(decimal.Decimal), nil

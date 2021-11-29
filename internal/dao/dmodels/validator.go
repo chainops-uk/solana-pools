@@ -18,6 +18,6 @@ type Validator struct {
 	Score         int64           `gorm:"type:int;not null;"`
 	SkippedSlots  decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
 	DataCenter    string          `gorm:"not null"`
-	UpdatedAt     time.Time       `gorm:"not null"`
 	CreatedAt     time.Time       `gorm:"index;not null"`
+	UpdatedAt     time.Time       `gorm:"not null"`
 }

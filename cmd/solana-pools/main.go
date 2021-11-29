@@ -30,10 +30,10 @@ func main() {
 				log.Fatal("RUN: dao.NewDAO", zap.Error(err))
 			}
 			s := services.NewService(cfg, d, log)
-			cron := gocron.NewScheduler(time.UTC)
+			cron1 := gocron.NewScheduler(time.UTC)
 
 			up := false
-			cron.Every(time.Minute * 120).Do(func() {
+			cron1.Every(time.Minute * 120).Do(func() {
 				if !up {
 					defer func() {
 						up = false
@@ -44,23 +44,25 @@ func main() {
 					}
 				}
 			})
-			cron.Every(time.Minute * 30).Do(func() {
+			cron2 := gocron.NewScheduler(time.UTC)
+			cron2.Every(time.Minute * 30).Do(func() {
 				if err := s.UpdatePrice(); err != nil {
 					log.Error("UpdatePrice", zap.Error(err))
 				}
 			})
-			cron.Every(time.Minute * 30).Do(func() {
+			cron2.Every(time.Minute * 30).Do(func() {
 				if err := s.UpdateAPY(); err != nil {
 					log.Error("UpdateAPY", zap.Error(err))
 				}
 			})
-			cron.Every(time.Minute * 30).Do(func() {
+			cron2.Every(time.Minute * 30).Do(func() {
 				if err := s.UpdateValidators(); err != nil {
 					log.Error("UpdateValidators", zap.Error(err))
 				}
 			})
-			cron.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
-			cron.StartAsync()
+			cron1.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
+			cron1.StartAsync()
+			cron2.StartAsync()
 			api, err := httpserv.NewAPI(cfg, s, log)
 			if err != nil {
 				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))

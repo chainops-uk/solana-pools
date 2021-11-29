@@ -9,7 +9,7 @@ import (
 const storageTime = time.Hour * 24
 
 var (
-	keyWasNotFound = errors.New("the key was not found")
+	KeyWasNotFound = errors.New("the key was not found")
 )
 
 type Cache struct {

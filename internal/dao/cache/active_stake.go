@@ -13,7 +13,7 @@ func (c *Cache) SetActiveStake(activeStake uint64) {
 func (c *Cache) GetActiveStake() (uint64, error) {
 	v, b := c.cache.Get(activeStakeKey)
 	if !b {
-		return 0, fmt.Errorf("%w: %s", keyWasNotFound, activeStakeKey)
+		return 0, fmt.Errorf("%w: %s", KeyWasNotFound, activeStakeKey)
 	}
 	return v.(uint64), nil
 }

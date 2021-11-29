@@ -129,7 +129,6 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		return nil, nil
 	}
 	stat := &smodels.Statistic{}
-	var minS, maxS int64
 
 	once := sync.Once{}
 	for _, v := range dPools {
@@ -142,15 +141,15 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		}
 
 		once.Do(func() {
-			minS = dLastPoolData.AVGScore
-			maxS = dLastPoolData.AVGScore
+			stat.MINScore = dLastPoolData.AVGScore
+			stat.MAXScore = dLastPoolData.AVGScore
 		})
 
-		if dLastPoolData.AVGScore > maxS {
-			maxS = dLastPoolData.AVGScore
+		if dLastPoolData.AVGScore > stat.MAXScore {
+			stat.MAXScore = dLastPoolData.AVGScore
 		}
-		if dLastPoolData.AVGScore < minS {
-			minS = dLastPoolData.AVGScore
+		if dLastPoolData.AVGScore < stat.MINScore {
+			stat.MINScore = dLastPoolData.AVGScore
 		}
 
 		stat.ActiveStake = stat.ActiveStake.Add(dLastPoolData.ActiveStake)

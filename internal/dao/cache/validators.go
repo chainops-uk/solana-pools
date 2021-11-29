@@ -13,7 +13,7 @@ func (c *Cache) SetValidatorCount(count int64) {
 func (c *Cache) GetValidatorsCount() (int64, error) {
 	v, b := c.cache.Get(validatorsKey)
 	if !b {
-		return 0, fmt.Errorf("%w: %s", keyWasNotFound, validatorsKey)
+		return 0, fmt.Errorf("%w: %s", KeyWasNotFound, validatorsKey)
 	}
 
 	return v.(int64), nil

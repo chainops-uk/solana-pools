@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"errors"
 	"fmt"
+	"github.com/everstake/solana-pools/internal/dao/cache"
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
@@ -93,11 +95,17 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 
 	apy, err := h.svc.GetAPY()
 	if err != nil {
+		if errors.Is(err, cache.KeyWasNotFound) {
+			return nil, tools.NewStatus(500, fmt.Errorf("apy metric is empty"))
+		}
 		return nil, err
 	}
 
 	validators, err := h.svc.GetValidators()
 	if err != nil {
+		if errors.Is(err, cache.KeyWasNotFound) {
+			return nil, tools.NewStatus(500, fmt.Errorf("validator metric is empty"))
+		}
 		return nil, err
 	}
 
@@ -120,8 +128,8 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 	USD, _ := usd.Float64()
 
 	return &TotalPoolsStatistic{
-		TotalActiveStake:      ta,
-		TotalActiveStakePool:  float64(h.svc.GetActiveStake()) * math.Pow(10, -9),
+		TotalActiveStake:      float64(h.svc.GetActiveStake()) * math.Pow(10, -9),
+		TotalActiveStakePool:  ta,
 		TotalUnstakeLiquidity: tu,
 		TotalValidators:       validators,
 		NetworkAPY:            APY,

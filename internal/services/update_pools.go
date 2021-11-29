@@ -31,6 +31,10 @@ const (
 	EpochsPerYear         = SecondsPerDay * 365.25 / SecondsPerEpoch
 )
 
+var (
+	nodeAddressNotFounded = errors.New("node address not founded")
+)
+
 func (s Imp) UpdatePools() error {
 	dPools, err := s.dao.GetPools(nil)
 	if err != nil {
@@ -127,12 +131,15 @@ rep:
 	var avgSkippedSlots decimal.Decimal
 	var avgScore int64
 	var delinquent int64
-	validators := make([]*dmodels.Validator, len(data.Validators))
-	for i, v := range data.Validators {
+	validators := make([]*dmodels.Validator, 0, len(data.Validators))
+	for _, v := range data.Validators {
 		if v.NodePK == types.EmptyAddress {
 			v.NodePK, err = getNodeAddress(rpcCli, ctx, v.VotePK)
 			if err != nil {
-				return fmt.Errorf("getNodeAddress(%s): %s", v.VotePK, err.Error())
+				if errors.Is(err, nodeAddressNotFounded) {
+					continue
+				}
+				return fmt.Errorf("getNodeAddress(%s): %w", v.VotePK, err)
 			}
 		}
 		var vInfo validatorsapp.ValidatorAppInfo
@@ -141,24 +148,29 @@ rep:
 			return err
 		}, 10, time.Minute*1)
 		if err != nil {
-			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %s", v.NodePK, err.Error())
+			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %w", v.NodePK, err)
 		}
 		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		validators[i] = &dmodels.Validator{
-			PoolDataID:   dmodel.ID,
-			VotePK:       v.VotePK.String(),
-			NodePK:       v.NodePK.String(),
-			ActiveStake:  lampToSol(v.ActiveStake),
-			Fee:          decimal.New(vInfo.Commission, 0),
-			Score:        vInfo.TotalScore,
-			SkippedSlots: skippedSlots,
-			DataCenter:   vInfo.DataCenterHost,
-		}
-
-		validators[i].APY, validators[i].StakeAccounts, err = getAPY(rpcCli, ctx, v.VotePK, epochInYear)
+		apy, stakeAccounts, err := getAPY(rpcCli, ctx, v.VotePK, epochInYear)
 		if err != nil {
 			return fmt.Errorf("getAPY: %w", err)
 		}
+		if stakeAccounts == 0 {
+			continue
+		}
+
+		validators = append(validators, &dmodels.Validator{
+			APY:           apy,
+			StakeAccounts: stakeAccounts,
+			PoolDataID:    dmodel.ID,
+			VotePK:        v.VotePK.String(),
+			NodePK:        v.NodePK.String(),
+			ActiveStake:   lampToSol(v.ActiveStake),
+			Fee:           decimal.New(vInfo.Commission, 0),
+			Score:         vInfo.TotalScore,
+			SkippedSlots:  skippedSlots,
+			DataCenter:    vInfo.DataCenterHost,
+		})
 
 		if vInfo.Delinquent {
 			delinquent++
@@ -226,7 +238,7 @@ func getNodeAddress(client *client.Client, ctx context.Context, voteAddress sola
 		return solana.PublicKeyFromBase58(r.Delinquent[0].NodePubKey)
 	}
 
-	return solana.PublicKey{}, errors.New("bad vote address")
+	return solana.PublicKey{}, nodeAddressNotFounded
 }
 
 func getAPY(client *client.Client, ctx context.Context, key solana.PublicKey, epochInYear float64) (decimal.Decimal, uint64, error) {
