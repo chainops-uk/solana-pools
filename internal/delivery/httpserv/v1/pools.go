@@ -14,7 +14,7 @@ import (
 )
 
 // GetPool godoc
-// @Summary get pool
+// @Summary WebSocket
 // @Schemes
 // @Description get pool
 // @Param name path string true "Pool name"
@@ -38,7 +38,7 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 }
 
 // GetPools godoc
-// @Summary get pools
+// @Summary RestAPI
 // @Schemes
 // @Description get pools
 // @Accept json
@@ -76,7 +76,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 }
 
 // GetTotalPoolsStatistic godoc
-// @Summary get statistic
+// @Summary WebSocket
 // @Schemes
 // @Description get statistic
 // @Accept json
@@ -142,7 +142,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 }
 
 // GetPoolsStatistic godoc
-// @Summary get statistic by pool
+// @Summary RestAPI
 // @Schemes
 // @Description get statistic by pool
 // @Accept json

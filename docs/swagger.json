@@ -14,7 +14,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get statistic by pool",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
@@ -112,7 +112,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get pool",
+                "summary": "WebSocket",
                 "parameters": [
                     {
                         "type": "string",
@@ -177,7 +177,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get pools",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "number",
@@ -260,7 +260,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get statistic",
+                "summary": "WebSocket",
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -352,6 +352,9 @@
                 },
                 "rewards_fee": {
                     "type": "number"
+                },
+                "staking_accounts": {
+                    "type": "integer"
                 },
                 "tokens_supply": {
                     "type": "number"

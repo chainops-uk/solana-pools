@@ -32,7 +32,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get statistic by pool",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
@@ -130,7 +130,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get pool",
+                "summary": "WebSocket",
                 "parameters": [
                     {
                         "type": "string",
@@ -195,7 +195,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get pools",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "number",
@@ -278,7 +278,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "get statistic",
+                "summary": "WebSocket",
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -370,6 +370,9 @@ var doc = `{
                 },
                 "rewards_fee": {
                     "type": "number"
+                },
+                "staking_accounts": {
+                    "type": "integer"
                 },
                 "tokens_supply": {
                     "type": "number"

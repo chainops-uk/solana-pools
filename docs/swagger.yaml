@@ -29,6 +29,8 @@ definitions:
         type: string
       rewards_fee:
         type: number
+      staking_accounts:
+        type: integer
       tokens_supply:
         type: number
       unstake_liquidity:
@@ -168,7 +170,7 @@ paths:
           description: default response
           schema:
             $ref: '#/definitions/tools.ResponseError'
-      summary: get statistic by pool
+      summary: RestAPI
   /pool/{name}:
     get:
       consumes:
@@ -208,7 +210,7 @@ paths:
           description: default response
           schema:
             $ref: '#/definitions/tools.ResponseError'
-      summary: get pool
+      summary: WebSocket
   /pools:
     get:
       consumes:
@@ -261,7 +263,7 @@ paths:
           description: default response
           schema:
             $ref: '#/definitions/tools.ResponseError'
-      summary: get pools
+      summary: RestAPI
   /pools-statistic:
     get:
       consumes:
@@ -295,5 +297,5 @@ paths:
           description: default response
           schema:
             $ref: '#/definitions/tools.ResponseError'
-      summary: get statistic
+      summary: WebSocket
 swagger: "2.0"
