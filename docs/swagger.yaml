@@ -2,8 +2,7 @@ basePath: /v1
 definitions:
   tools.ResponseData:
     properties:
-      data:
-        type: object
+      data: {}
     type: object
   tools.ResponseError:
     properties:
@@ -16,7 +15,7 @@ definitions:
         type: number
       address:
         type: string
-      apr:
+      apy:
         type: number
       avg_score:
         type: integer
@@ -68,22 +67,39 @@ definitions:
     type: object
   v1.Validator:
     properties:
-      active_stake:
-        type: number
       apy:
         type: number
       data_center:
         type: string
       fee:
         type: number
+      name:
+        type: string
       node_pk:
         type: string
+      pool_active_stake:
+        type: number
       score:
         type: integer
       skipped_slots:
         type: number
+      total_active_stake:
+        type: number
       vote_pk:
         type: string
+    type: object
+  v1.poolStatistic:
+    properties:
+      active_stake:
+        type: number
+      apy:
+        type: number
+      created_at:
+        type: string
+      number_of_validators:
+        type: integer
+      unstacked_liquidity:
+        type: number
     type: object
 info:
   contact: {}
@@ -132,7 +148,9 @@ paths:
             - $ref: '#/definitions/tools.ResponseData'
             - properties:
                 data:
-                  $ref: '#/definitions/v1.TotalPoolsStatistic'
+                  items:
+                    $ref: '#/definitions/v1.poolStatistic'
+                  type: array
               type: object
         "400":
           description: bad request

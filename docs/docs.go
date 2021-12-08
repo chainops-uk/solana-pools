@@ -84,7 +84,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.TotalPoolsStatistic"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.poolStatistic"
+                                            }
                                         }
                                     }
                                 }
@@ -327,9 +330,7 @@ var doc = `{
         "tools.ResponseData": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object"
-                }
+                "data": {}
             }
         },
         "tools.ResponseError": {
@@ -349,7 +350,7 @@ var doc = `{
                 "address": {
                     "type": "string"
                 },
-                "apr": {
+                "apy": {
                     "type": "number"
                 },
                 "avg_score": {
@@ -428,9 +429,6 @@ var doc = `{
         "v1.Validator": {
             "type": "object",
             "properties": {
-                "active_stake": {
-                    "type": "number"
-                },
                 "apy": {
                     "type": "number"
                 },
@@ -440,8 +438,14 @@ var doc = `{
                 "fee": {
                     "type": "number"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "node_pk": {
                     "type": "string"
+                },
+                "pool_active_stake": {
+                    "type": "number"
                 },
                 "score": {
                     "type": "integer"
@@ -449,8 +453,31 @@ var doc = `{
                 "skipped_slots": {
                     "type": "number"
                 },
+                "total_active_stake": {
+                    "type": "number"
+                },
                 "vote_pk": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.poolStatistic": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "number_of_validators": {
+                    "type": "integer"
+                },
+                "unstacked_liquidity": {
+                    "type": "number"
                 }
             }
         }
@@ -508,5 +535,5 @@ func (s *s) ReadDoc() string {
 }
 
 func init() {
-	swag.Register(swag.Name, &s{})
+	swag.Register("swagger", &s{})
 }

@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+func init() {
+	time.Local, _ = time.LoadLocation("UTC")
+}
+
 func main() {
 	var command = &cobra.Command{
 		Use:   "solana pools",
@@ -33,36 +37,49 @@ func main() {
 			cron1 := gocron.NewScheduler(time.UTC)
 
 			up := false
-			cron1.Every(time.Minute * 120).Do(func() {
+			cron1.Every(time.Second * 30).Do(func() {
+				if err := s.UpdatePools(); err != nil {
+					log.Error("UpdatePools", zap.Error(err))
+				}
+			})
+			cron2 := gocron.NewScheduler(time.UTC)
+			cron2.Every(time.Second * 30).Do(func() {
+				if err := s.UpdatePrice(); err != nil {
+					log.Error("UpdatePrice", zap.Error(err))
+				}
+			})
+			cron2.Every(time.Second * 30).Do(func() {
+				if err := s.UpdateAPY(); err != nil {
+					log.Error("UpdateAPY", zap.Error(err))
+				}
+			})
+			cron2.Every(time.Second * 30).Do(func() {
+				if err := s.UpdateValidatorsStatistic(); err != nil {
+					log.Error("UpdateValidatorsStatistic", zap.Error(err))
+				}
+			})
+			cron3 := gocron.NewScheduler(time.UTC)
+			cron3.Every(time.Minute * 120).Do(func() {
 				if !up {
 					defer func() {
 						up = false
 					}()
 					up = true
-					if err := s.UpdatePools(); err != nil {
-						log.Error("UpdatePools", zap.Error(err))
+					if err := s.UpdateValidators(); err != nil {
+						log.Error("UpdateValidators", zap.Error(err))
+					}
+					if err := s.UpdateTestNetValidators(); err != nil {
+						log.Error("UpdateTestNetValidators", zap.Error(err))
 					}
 				}
+
 			})
-			cron2 := gocron.NewScheduler(time.UTC)
-			cron2.Every(time.Minute * 30).Do(func() {
-				if err := s.UpdatePrice(); err != nil {
-					log.Error("UpdatePrice", zap.Error(err))
-				}
-			})
-			cron2.Every(time.Minute * 30).Do(func() {
-				if err := s.UpdateAPY(); err != nil {
-					log.Error("UpdateAPY", zap.Error(err))
-				}
-			})
-			cron2.Every(time.Minute * 30).Do(func() {
-				if err := s.UpdateValidators(); err != nil {
-					log.Error("UpdateValidators", zap.Error(err))
-				}
-			})
+
 			cron1.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
+			cron3.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
 			cron1.StartAsync()
 			cron2.StartAsync()
+			cron3.StartAsync()
 			api, err := httpserv.NewAPI(cfg, s, log)
 			if err != nil {
 				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))

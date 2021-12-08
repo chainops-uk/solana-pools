@@ -27,12 +27,14 @@ type (
 		GetPrice() (decimal.Decimal, error)
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)
-		GetPool(name string) (smodels.PoolDetails, error)
+		GetPool(name string) (*smodels.PoolDetails, error)
 		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, error)
 		UpdatePrice() error
 		UpdatePools() error
 		UpdateAPY() error
+		UpdateValidatorsStatistic() error
 		UpdateValidators() error
+		UpdateTestNetValidators() error
 	}
 	Imp struct {
 		rpcClients    map[config.Network]*client.Client

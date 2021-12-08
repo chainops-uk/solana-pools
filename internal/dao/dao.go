@@ -2,6 +2,7 @@ package dao
 
 import (
 	"fmt"
+	"github.com/dfuse-io/solana-go"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/dao/postgres"
@@ -22,8 +23,13 @@ type (
 		UpdatePoolData(*dmodels.PoolData) error
 		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate, from time.Time, to time.Time) ([]*dmodels.PoolData, error)
 
-		GetValidators(poolDataID uuid.UUID) ([]*dmodels.Validator, error)
-		CreateValidator(pools ...*dmodels.Validator) error
+		GetValidatorCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
+		GetValidatorByVotePK(key solana.PublicKey) (*dmodels.Validator, error)
+		GetValidator(validatorID string) (*dmodels.Validator, error)
+		GetValidators(condition *postgres.Condition) ([]*dmodels.Validator, error)
+		UpdateValidators(validators ...*dmodels.Validator) error
+		GetPoolValidatorData(poolDataID uuid.UUID) ([]*dmodels.PoolValidatorData, error)
+		CreatePoolValidatorData(pools ...*dmodels.PoolValidatorData) error
 		DeleteValidators(poolID uuid.UUID) error
 	}
 	Imp struct {
@@ -36,6 +42,7 @@ func NewDAO(cfg config.Env) (d DAO, err error) {
 	if err != nil {
 		return d, fmt.Errorf("postgres.NewDB: %s", err.Error())
 	}
+
 	return &Imp{
 		p,
 	}, nil

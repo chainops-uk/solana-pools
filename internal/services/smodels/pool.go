@@ -2,6 +2,7 @@ package smodels
 
 import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
+	"github.com/everstake/solana-pools/pkg/models/sol"
 	"github.com/shopspring/decimal"
 	"time"
 )
@@ -10,16 +11,18 @@ type (
 	Pool struct {
 		Address          string
 		Name             string
-		ActiveStake      decimal.Decimal
-		TokensSupply     decimal.Decimal
+		ActiveStake      sol.SOL
+		TokensSupply     sol.SOL
 		APY              decimal.Decimal
 		AVGSkippedSlots  decimal.Decimal
 		AVGScore         int64
+		StakingAccounts  uint64
 		Delinquent       decimal.Decimal
-		UnstakeLiquidity decimal.Decimal
+		UnstakeLiquidity sol.SOL
 		DepossitFee      decimal.Decimal
 		WithdrawalFee    decimal.Decimal
 		RewardsFee       decimal.Decimal
+		ValidatorCount   int64
 		CreatedAt        time.Time
 	}
 	PoolDetails struct {
@@ -28,33 +31,48 @@ type (
 		CreatedAt  time.Time
 	}
 	Statistic struct {
-		ActiveStake      decimal.Decimal
+		ActiveStake      sol.SOL
 		AVGSkippedSlots  decimal.Decimal
 		MAXScore         int64
 		AVGScore         int64
 		MINScore         int64
 		Delinquent       decimal.Decimal
-		UnstakeLiquidity decimal.Decimal
+		UnstakeLiquidity sol.SOL
 	}
 )
 
-func (p *Pool) Set(data *dmodels.PoolData, pool *dmodels.Pool) *Pool {
+func (p *Pool) Set(data *dmodels.PoolData, pool *dmodels.Pool, validator []*dmodels.Validator) *Pool {
 	if pool != nil {
 		p.Name = pool.Name
 		p.Address = pool.Address
 	}
 	if data != nil {
-		p.ActiveStake = data.ActiveStake
-		p.TokensSupply = data.TotalTokensSupply
+		p.ActiveStake.SetLamports(data.ActiveStake)
+		p.TokensSupply.SetLamports(data.TotalTokensSupply)
 		p.APY = data.APY
-		p.AVGSkippedSlots = data.AVGSkippedSlots
-		p.AVGScore = data.AVGScore
-		p.Delinquent = data.Delinquent
-		p.UnstakeLiquidity = data.UnstakeLiquidity
+
+		p.UnstakeLiquidity.SetLamports(data.UnstakeLiquidity)
 		p.DepossitFee = data.DepossitFee
 		p.WithdrawalFee = data.WithdrawalFee
 		p.RewardsFee = data.RewardsFee
 		p.CreatedAt = data.CreatedAt
+	}
+	if validator != nil {
+		p.ValidatorCount = int64(len(validator))
+		if len(validator) > 0 {
+			for _, v := range validator {
+				p.AVGScore += v.Score
+				p.AVGSkippedSlots.Add(v.SkippedSlots)
+				if v.Delinquent {
+					p.Delinquent.Add(decimal.NewFromInt(1))
+				}
+				p.StakingAccounts += v.StakingAccounts
+			}
+			p.AVGSkippedSlots = p.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(validator))))
+			p.AVGScore /= int64(len(validator))
+			p.Delinquent = p.Delinquent.Div(decimal.NewFromInt(int64(len(validator))))
+
+		}
 	}
 	return p
 }

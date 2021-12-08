@@ -27,7 +27,7 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 
 func (db *DB) GetLastPoolData(PoolID uuid.UUID, condition *Condition) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
-	if err := db.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
+	if err := db.DB.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -87,21 +87,4 @@ func aggregateByDate(aggregate Aggregate, from, to time.Time, db *gorm.DB) (*gor
 
 func (db *DB) UpdatePoolData(pool *dmodels.PoolData) error {
 	return db.Save(pool).Error
-}
-
-func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
-	if cond == nil {
-		return db
-	}
-	if cond.Name != "" {
-		db.Where(`name ilike %?%`, cond.Name)
-	}
-	if cond.Limit != 0 {
-		db.Offset(int(cond.Limit))
-	}
-	if cond.Offset != 0 {
-		db.Offset(int(cond.Offset))
-	}
-
-	return db
 }

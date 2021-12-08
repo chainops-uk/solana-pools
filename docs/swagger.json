@@ -66,7 +66,10 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.TotalPoolsStatistic"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.poolStatistic"
+                                            }
                                         }
                                     }
                                 }
@@ -309,9 +312,7 @@
         "tools.ResponseData": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object"
-                }
+                "data": {}
             }
         },
         "tools.ResponseError": {
@@ -331,7 +332,7 @@
                 "address": {
                     "type": "string"
                 },
-                "apr": {
+                "apy": {
                     "type": "number"
                 },
                 "avg_score": {
@@ -410,9 +411,6 @@
         "v1.Validator": {
             "type": "object",
             "properties": {
-                "active_stake": {
-                    "type": "number"
-                },
                 "apy": {
                     "type": "number"
                 },
@@ -422,8 +420,14 @@
                 "fee": {
                     "type": "number"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "node_pk": {
                     "type": "string"
+                },
+                "pool_active_stake": {
+                    "type": "number"
                 },
                 "score": {
                     "type": "integer"
@@ -431,8 +435,31 @@
                 "skipped_slots": {
                     "type": "number"
                 },
+                "total_active_stake": {
+                    "type": "number"
+                },
                 "vote_pk": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.poolStatistic": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "number_of_validators": {
+                    "type": "integer"
+                },
+                "unstacked_liquidity": {
+                    "type": "number"
                 }
             }
         }

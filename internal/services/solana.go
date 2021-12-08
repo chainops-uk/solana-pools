@@ -1,6 +1,8 @@
 package services
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/shopspring/decimal"
+)
 
 func (s Imp) GetPrice() (decimal.Decimal, error) {
 	price, err := s.cache.GetPrice()

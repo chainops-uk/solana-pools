@@ -1,57 +1,59 @@
 package services
 
 import (
+	"errors"
 	"fmt"
+	"github.com/everstake/solana-pools/internal/dao/cache"
+	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/dao/postgres"
 	"github.com/everstake/solana-pools/internal/services/smodels"
+	uuid "github.com/satori/go.uuid"
 	"github.com/shopspring/decimal"
 	"sync"
 	"time"
 )
 
-func (s *Imp) GetPool(name string) (pool smodels.PoolDetails, err error) {
+func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
+	pd, err := s.cache.GetPool(name)
+	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
+		return nil, err
+	}
+	if pd != nil {
+		return pd, nil
+	}
+
 	dPool, err := s.dao.GetPool(name)
 	if err != nil {
-		return pool, fmt.Errorf("dao.GetPool: %s", err.Error())
+		return nil, fmt.Errorf("dao.GetPool: %s", err.Error())
 	}
 	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID, nil)
 	if err != nil {
-		return pool, fmt.Errorf("dao.GetPoolData: %s", err.Error())
+		return nil, fmt.Errorf("dao.GetPoolData: %s", err.Error())
 	}
-	dValidators, err := s.dao.GetValidators(dPool.ID)
+	dValidators, err := s.dao.GetPoolValidatorData(dPool.ID)
 	if err != nil {
-		return pool, fmt.Errorf("dao.GetValidators: %s", err.Error())
+		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}
-	validators := make([]*smodels.Validator, len(dValidators))
+	validatorsS := make([]*smodels.Validator, len(dValidators))
+	validatorsD := make([]*dmodels.Validator, len(dValidators))
 	for i, v := range dValidators {
-		validators[i] = &smodels.Validator{
-			NodePK:       v.NodePK,
-			APY:          v.APY,
-			VotePK:       v.VotePK,
-			ActiveStake:  v.ActiveStake,
-			Fee:          v.Fee,
-			Score:        v.Score,
-			SkippedSlots: v.SkippedSlots,
-			DataCenter:   v.DataCenter,
+		validatorsD[i], err = s.dao.GetValidator(v.ValidatorID)
+		if err != nil {
+			return nil, fmt.Errorf("dao.GetValidator(%s): %w", err)
 		}
+		validatorsS[i] = (&smodels.Validator{}).Set(v.ActiveStake, validatorsD[i])
 	}
-	return smodels.PoolDetails{
-		Pool: smodels.Pool{
-			Address:          dPool.Address,
-			Name:             dPool.Name,
-			ActiveStake:      dLastPoolData.ActiveStake,
-			TokensSupply:     dLastPoolData.TotalTokensSupply,
-			APY:              dLastPoolData.APY,
-			AVGSkippedSlots:  dLastPoolData.AVGSkippedSlots,
-			AVGScore:         dLastPoolData.AVGScore,
-			Delinquent:       dLastPoolData.Delinquent,
-			UnstakeLiquidity: dLastPoolData.UnstakeLiquidity,
-			DepossitFee:      dLastPoolData.DepossitFee,
-			WithdrawalFee:    dLastPoolData.WithdrawalFee,
-			RewardsFee:       dLastPoolData.RewardsFee,
-		},
-		Validators: validators,
-	}, nil
+
+	Pool := (&smodels.Pool{}).Set(dLastPoolData, &dPool, validatorsD)
+
+	pd = &smodels.PoolDetails{
+		Pool:       *Pool,
+		Validators: validatorsS,
+	}
+
+	s.cache.SetPool(pd, time.Second*30)
+
+	return pd, nil
 }
 
 func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.PoolDetails, error) {
@@ -82,85 +84,103 @@ func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.Poo
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
-		pools[i].Set(dLastPoolData, &v1)
-
-		pools[i].ActiveStake = dLastPoolData.ActiveStake
-		pools[i].TokensSupply = dLastPoolData.TotalTokensSupply
-		pools[i].APY = dLastPoolData.APY
-		pools[i].AVGSkippedSlots = dLastPoolData.AVGSkippedSlots
-		pools[i].AVGScore = dLastPoolData.AVGScore
-		pools[i].Delinquent = dLastPoolData.Delinquent
-		pools[i].UnstakeLiquidity = dLastPoolData.UnstakeLiquidity
-		pools[i].DepossitFee = dLastPoolData.DepossitFee
-		pools[i].WithdrawalFee = dLastPoolData.WithdrawalFee
-		pools[i].RewardsFee = dLastPoolData.RewardsFee
-
-		dValidators, err := s.dao.GetValidators(dLastPoolData.ID)
+		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
 		if err != nil {
-			return nil, fmt.Errorf("dao.GetValidators: %w", err)
+			return nil, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 		}
 
-		validators := make([]*smodels.Validator, len(dValidators))
+		validatorsS := make([]*smodels.Validator, len(dValidators))
+		validatorsD := make([]*dmodels.Validator, len(dValidators))
 		for i, v2 := range dValidators {
-			validators[i] = &smodels.Validator{
-				NodePK:       v2.NodePK,
-				APY:          v2.APY,
-				VotePK:       v2.VotePK,
-				ActiveStake:  v2.ActiveStake,
-				Fee:          v2.Fee,
-				Score:        v2.Score,
-				SkippedSlots: v2.SkippedSlots,
-				DataCenter:   v2.DataCenter,
+			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID)
+			if err != nil {
+				return nil, fmt.Errorf("dao.GetValidator: %w", err)
 			}
+			validatorsS[i] = (&smodels.Validator{}).Set(v2.ActiveStake, validatorsD[i])
 		}
 
-		pools[i].Validators = validators
+		pools[i].Set(dLastPoolData, &v1, validatorsD)
+
+		pools[i].Validators = validatorsS
 	}
 
 	return pools, nil
 }
 
 func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
-	dPools, err := s.dao.GetPools(nil)
+	stat, err := s.cache.GetCurrentStatistic()
+	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
+		return nil, err
+	}
+	if stat != nil {
+		return stat, nil
+	}
+
+	dPools, err := s.dao.GetPools(&postgres.Condition{Network: postgres.MainNet})
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPool: %w", err)
 	}
 	if len(dPools) == 0 {
 		return nil, nil
 	}
-	stat := &smodels.Statistic{}
+	stat = &smodels.Statistic{}
 
 	once := sync.Once{}
-	for _, v := range dPools {
-		dLastPoolData, err := s.dao.GetLastPoolData(v.ID, nil)
+	pools := make([]*smodels.PoolDetails, len(dPools))
+	var ActiveStakeSum, UnstakeSum uint64
+	for i, v1 := range dPools {
+		pools[i] = &smodels.PoolDetails{
+			Pool: smodels.Pool{
+				Address: v1.Address,
+				Name:    v1.Name,
+			},
+		}
+
+		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
-		if dLastPoolData == nil {
-			continue
+
+		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
+		if err != nil {
+			return nil, fmt.Errorf("dao.GetValidators: %w", err)
 		}
+
+		validatorsD := make([]*dmodels.Validator, len(dValidators))
+		for i, v2 := range dValidators {
+			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID)
+			if err != nil {
+				return nil, fmt.Errorf("dao.GetValidator: %w", err)
+			}
+		}
+
+		pools[i].Set(dLastPoolData, &v1, validatorsD)
 
 		once.Do(func() {
-			stat.MINScore = dLastPoolData.AVGScore
-			stat.MAXScore = dLastPoolData.AVGScore
+			stat.MINScore = pools[i].AVGScore
+			stat.MAXScore = pools[i].AVGScore
 		})
 
-		if dLastPoolData.AVGScore > stat.MAXScore {
-			stat.MAXScore = dLastPoolData.AVGScore
+		if pools[i].AVGScore > stat.MAXScore {
+			stat.MAXScore = pools[i].AVGScore
 		}
-		if dLastPoolData.AVGScore < stat.MINScore {
-			stat.MINScore = dLastPoolData.AVGScore
+		if pools[i].AVGScore < stat.MINScore {
+			stat.MINScore = pools[i].AVGScore
 		}
 
-		stat.ActiveStake = stat.ActiveStake.Add(dLastPoolData.ActiveStake)
-		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(dLastPoolData.AVGSkippedSlots)
-		stat.AVGScore += dLastPoolData.AVGScore
-		stat.Delinquent = stat.Delinquent.Add(dLastPoolData.Delinquent)
-		stat.UnstakeLiquidity = stat.UnstakeLiquidity.Add(dLastPoolData.UnstakeLiquidity)
+		ActiveStakeSum += dLastPoolData.ActiveStake
+		UnstakeSum += dLastPoolData.UnstakeLiquidity
+		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(pools[i].AVGSkippedSlots)
+		stat.AVGScore += pools[i].AVGScore
+		stat.Delinquent = stat.Delinquent.Add(pools[i].Delinquent)
 	}
 
+	stat.ActiveStake.SetLamports(ActiveStakeSum)
+	stat.UnstakeLiquidity.SetLamports(UnstakeSum)
 	stat.AVGSkippedSlots = stat.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(dPools))))
 	stat.AVGScore /= int64(len(dPools))
+
+	s.cache.SetCurrentStatistic(stat, time.Second*30)
 
 	return stat, nil
 }
@@ -178,7 +198,15 @@ func (s *Imp) GetPoolsStatistic(name string, aggregate string, from time.Time, t
 
 	data := make([]*smodels.Pool, len(a))
 	for i, v := range a {
-		data[i] = (&smodels.Pool{}).Set(v, &pool)
+		data[i] = (&smodels.Pool{}).Set(v, &pool, nil)
+		data[i].ValidatorCount, err = s.dao.GetValidatorCount(&postgres.PoolValidatorDataCondition{
+			PoolDataIDs: []uuid.UUID{
+				v.ID,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return data, nil

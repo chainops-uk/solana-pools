@@ -7,7 +7,6 @@ import (
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 	"math"
 	"net/http"
@@ -35,7 +34,7 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 
-	return (&PoolDetails{}).Set(&pool), nil
+	return (&PoolDetails{}).Set(pool), nil
 }
 
 // GetPools godoc
@@ -152,7 +151,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Param to query string true "second date for aggregation" default(2021-12-01T15:04:05Z)
 // @Param name query string true "pool name" default(everSOL)
 // @Param aggregation query string true "aggregation" Enums(day, week, month, year)
-// @Success 200 {object} tools.ResponseData{data=TotalPoolsStatistic} "Ok"
+// @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -184,10 +183,11 @@ func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 
 type (
 	poolStatistic struct {
-		ActiveStake        float64
-		APY                float64
-		UnstackedLiquidity float64
-		CreatedAt          time.Time
+		ActiveStake        float64   `json:"active_stake"`
+		APY                float64   `json:"apy"`
+		UnstackedLiquidity float64   `json:"unstacked_liquidity"`
+		NumberOfValidators int64     `json:"number_of_validators"`
+		CreatedAt          time.Time `json:"created_at"`
 	}
 	TotalPoolsStatistic struct {
 		TotalActiveStakePool  float64 `json:"total_active_stake_pool"`
@@ -202,33 +202,36 @@ type (
 		SkippedSlot           float64 `json:"skipped_slot"`
 		USD                   float64 `json:"usd"`
 	}
-	Pool struct {
-		Address          string          `json:"address"`
-		Name             string          `json:"name"`
-		ActiveStake      decimal.Decimal `json:"active_stake"`
-		TokensSupply     decimal.Decimal `json:"tokens_supply"`
-		APR              decimal.Decimal `json:"apr"`
-		AVGSkippedSlots  decimal.Decimal `json:"avg_skipped_slots"`
-		AVGScore         int64           `json:"avg_score"`
-		Delinquent       decimal.Decimal `json:"delinquent"`
-		UnstakeLiquidity decimal.Decimal `json:"unstake_liquidity"`
-		DepossitFee      decimal.Decimal `json:"depossit_fee"`
-		WithdrawalFee    decimal.Decimal `json:"withdrawal_fee"`
-		RewardsFee       decimal.Decimal `json:"rewards_fee"`
+	pool struct {
+		Address          string  `json:"address"`
+		Name             string  `json:"name"`
+		ActiveStake      float64 `json:"active_stake"`
+		TokensSupply     float64 `json:"tokens_supply"`
+		APY              float64 `json:"apy"`
+		AVGSkippedSlots  float64 `json:"avg_skipped_slots"`
+		AVGScore         int64   `json:"avg_score"`
+		StakingAccounts  uint64  `json:"staking_accounts"`
+		Delinquent       float64 `json:"delinquent"`
+		UnstakeLiquidity float64 `json:"unstake_liquidity"`
+		DepossitFee      float64 `json:"depossit_fee"`
+		WithdrawalFee    float64 `json:"withdrawal_fee"`
+		RewardsFee       float64 `json:"rewards_fee"`
 	}
 	PoolDetails struct {
-		Pool
+		pool
 		Validators []Validator `json:"validators"`
 	}
 	Validator struct {
-		NodePK       string          `json:"node_pk"`
-		APY          decimal.Decimal `json:"apy"`
-		VotePK       string          `json:"vote_pk"`
-		ActiveStake  decimal.Decimal `json:"active_stake"`
-		Fee          decimal.Decimal `json:"fee"`
-		Score        int64           `json:"score"`
-		SkippedSlots decimal.Decimal `json:"skipped_slots"`
-		DataCenter   string          `json:"data_center"`
+		Name             string  `json:"name"`
+		NodePK           string  `json:"node_pk"`
+		APY              float64 `json:"apy"`
+		VotePK           string  `json:"vote_pk"`
+		PoolActiveStake  float64 `json:"pool_active_stake"`
+		TotalActiveStake float64 `json:"total_active_stake"`
+		Fee              float64 `json:"fee"`
+		Score            int64   `json:"score"`
+		SkippedSlots     float64 `json:"skipped_slots"`
+		DataCenter       string  `json:"data_center"`
 	}
 )
 
@@ -241,40 +244,43 @@ func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 }
 
 func (pd *PoolDetails) Set(details *smodels.PoolDetails) *PoolDetails {
-	pd.Pool.Set(&details.Pool)
-	validators := make([]Validator, len(details.Validators))
+	pd.pool.Set(&details.Pool)
+	pd.Validators = make([]Validator, len(details.Validators))
 	for i, validator := range details.Validators {
-		validators[i].Set(validator)
+		pd.Validators[i].Set(validator)
 	}
 
 	return pd
 }
 
-func (pl *Pool) Set(pool *smodels.Pool) *Pool {
+func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Address = pool.Address
-	pl.Name = pool.Address
-	pl.ActiveStake = pool.ActiveStake
-	pl.TokensSupply = pool.TokensSupply
-	pl.APR = pool.APY
-	pl.AVGSkippedSlots = pool.AVGSkippedSlots
+	pl.Name = pool.Name
+	pl.ActiveStake, _ = pool.ActiveStake.Float64()
+	pl.TokensSupply, _ = pool.TokensSupply.Float64()
+	pl.APY, _ = pool.APY.Float64()
+	pl.AVGSkippedSlots, _ = pool.AVGSkippedSlots.Float64()
 	pl.AVGScore = pool.AVGScore
-	pl.Delinquent = pool.Delinquent
-	pl.UnstakeLiquidity = pool.UnstakeLiquidity
-	pl.DepossitFee = pool.DepossitFee
-	pl.WithdrawalFee = pool.WithdrawalFee
-	pl.RewardsFee = pool.RewardsFee
+	pl.StakingAccounts = pool.StakingAccounts
+	pl.Delinquent, _ = pool.Delinquent.Float64()
+	pl.UnstakeLiquidity, _ = pool.UnstakeLiquidity.Float64()
+	pl.DepossitFee, _ = pool.DepossitFee.Float64()
+	pl.WithdrawalFee, _ = pool.WithdrawalFee.Float64()
+	pl.RewardsFee, _ = pool.RewardsFee.Float64()
 
 	return pl
 }
 
 func (v *Validator) Set(validator *smodels.Validator) *Validator {
 	v.NodePK = validator.NodePK
-	v.APY = validator.APY
+	v.Name = validator.Name
+	v.APY, _ = validator.APY.Float64()
 	v.VotePK = validator.VotePK
-	v.ActiveStake = validator.ActiveStake
-	v.Fee = validator.Fee
+	v.PoolActiveStake, _ = validator.PoolActiveStake.Float64()
+	v.TotalActiveStake, _ = validator.TotalActiveStake.Float64()
+	v.Fee, _ = validator.Fee.Float64()
 	v.Score = validator.Score
-	v.SkippedSlots = validator.SkippedSlots
+	v.SkippedSlots, _ = validator.SkippedSlots.Float64()
 	v.DataCenter = validator.DataCenter
 
 	return v
