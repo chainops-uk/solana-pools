@@ -61,7 +61,6 @@ func (s Imp) UpdatePools() error {
 }
 
 func (s Imp) updatePool(dPool dmodels.Pool) error {
-	fmt.Println("start: ", dPool.Name)
 	net := config.Network(dPool.Network)
 	rpcCli, ok := s.rpcClients[net]
 	if !ok {

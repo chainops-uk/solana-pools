@@ -12,6 +12,8 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
+	"net/http"
+	"strings"
 	"time"
 )
 
@@ -34,10 +36,23 @@ func NewAPI(cfg config.Env, svc services.Service, log *zap.Logger) (api *API, er
 }
 
 func (api *API) Run() error {
+	gin.SetMode(api.cfg.GinMode)
+
 	logger := ginzap.Ginzap(api.log, time.RFC3339, true)
 	router := gin.New()
 	router.Use(logger)
 	docs.SwaggerInfo.BasePath = "/v1"
+	router.GET("/", func(ctx *gin.Context) {
+		links := []string{
+			fmt.Sprintf(`<a href="http://%s">%s</a> - swagger`,
+				api.cfg.HttpSwaggerAddress+"/swagger/index.html", api.cfg.HttpSwaggerAddress+"/swagger/v1/index.html"),
+		}
+
+		content := strings.Join(links, "\n")
+
+		ctx.Header("Content-Type", "text/html; charset=utf-8")
+		ctx.String(http.StatusCreated, `<html>%s</html>`, content)
+	})
 	v1g := router.Group("/v1")
 	v1g.GET("/pools", tools.Must(api.v1.GetPools))
 	v1g.GET("/pool/:name", tools.WSMust(api.v1.GetPool, time.Second*30))

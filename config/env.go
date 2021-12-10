@@ -7,11 +7,13 @@ import (
 )
 
 type Env struct {
-	PostgresDSN      string `env:"POSTGRES_DSN"`
-	MainnetNode      string `env:"MAINNET_NODE"`
-	TestnetNode      string `env:"TESTNET_NODE"`
-	ValidatorsAppKey string `env:"VALIDATORS_APP_KEY"`
-	HttpPort         uint64 `env:"HTTP_PORT" envDefault:"8080"`
+	PostgresDSN        string `env:"POSTGRES_DSN"`
+	MainnetNode        string `env:"MAINNET_NODE"`
+	TestnetNode        string `env:"TESTNET_NODE"`
+	ValidatorsAppKey   string `env:"VALIDATORS_APP_KEY"`
+	HttpPort           uint64 `env:"HTTP_PORT" envDefault:"8080"`
+	HttpSwaggerAddress string `env:"HTTP_SWAGGER_ADDRESS" envDefault:"localhost:8080"`
+	GinMode            string `env:"GIN_MODE"`
 }
 
 func NewEnv() (e Env, err error) {
