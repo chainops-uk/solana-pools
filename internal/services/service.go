@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
@@ -29,9 +30,11 @@ type (
 		GetValidators() (int64, error)
 		GetPool(name string) (*smodels.PoolDetails, error)
 		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, error)
+		GetEpoch() (*smodels.EpochInfo, error)
 		UpdatePrice() error
 		UpdatePools() error
 		UpdateAPY() error
+		UpdateEpoch(ctx context.Context) error
 		UpdateValidatorsStatistic() error
 		UpdateValidators() error
 		UpdateTestNetValidators() error

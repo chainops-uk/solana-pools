@@ -54,6 +54,7 @@ func (api *API) Run() error {
 		ctx.String(http.StatusCreated, `<html>%s</html>`, content)
 	})
 	v1g := router.Group("/v1")
+	v1g.GET("/epoch", tools.Must(api.v1.GetEpoch))
 	v1g.GET("/pools", tools.Must(api.v1.GetPools))
 	v1g.GET("/pool/:name", tools.WSMust(api.v1.GetPool, time.Second*30))
 	v1g.GET("/pool-statistic", tools.Must(api.v1.GetPoolsStatistic))

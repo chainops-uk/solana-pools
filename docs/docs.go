@@ -23,6 +23,62 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/epoch": {
+            "get": {
+                "description": "get epoch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RestAPI",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.epoch"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/pool-statistic": {
             "get": {
                 "description": "get statistic by pool",
@@ -234,7 +290,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.PoolDetails"
+                                                "$ref": "#/definitions/v1.poolMainPage"
                                             }
                                         }
                                     }
@@ -461,6 +517,73 @@ var doc = `{
                 },
                 "vote_pk": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.epoch": {
+            "type": "object",
+            "properties": {
+                "end_epoch": {
+                    "type": "string"
+                },
+                "epoch": {
+                    "type": "integer"
+                },
+                "progress": {
+                    "type": "integer"
+                },
+                "slots_in_epoch": {
+                    "type": "integer"
+                },
+                "sps": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.poolMainPage": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "avg_score": {
+                    "type": "integer"
+                },
+                "avg_skipped_slots": {
+                    "type": "number"
+                },
+                "delinquent": {
+                    "type": "number"
+                },
+                "depossit_fee": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rewards_fee": {
+                    "type": "number"
+                },
+                "staking_accounts": {
+                    "type": "integer"
+                },
+                "tokens_supply": {
+                    "type": "number"
+                },
+                "unstake_liquidity": {
+                    "type": "number"
+                },
+                "validators": {
+                    "type": "integer"
+                },
+                "withdrawal_fee": {
+                    "type": "number"
                 }
             }
         },

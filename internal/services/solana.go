@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/shopspring/decimal"
 )
 
@@ -38,4 +39,13 @@ func (s Imp) GetActiveStake() uint64 {
 	}
 
 	return c
+}
+
+func (s Imp) GetEpoch() (*smodels.EpochInfo, error) {
+	c, err := s.cache.GetCurrentEpochInfo()
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }

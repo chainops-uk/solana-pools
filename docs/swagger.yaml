@@ -90,6 +90,50 @@ definitions:
       vote_pk:
         type: string
     type: object
+  v1.epoch:
+    properties:
+      end_epoch:
+        type: string
+      epoch:
+        type: integer
+      progress:
+        type: integer
+      slots_in_epoch:
+        type: integer
+      sps:
+        type: number
+    type: object
+  v1.poolMainPage:
+    properties:
+      active_stake:
+        type: number
+      address:
+        type: string
+      apy:
+        type: number
+      avg_score:
+        type: integer
+      avg_skipped_slots:
+        type: number
+      delinquent:
+        type: number
+      depossit_fee:
+        type: number
+      name:
+        type: string
+      rewards_fee:
+        type: number
+      staking_accounts:
+        type: integer
+      tokens_supply:
+        type: number
+      unstake_liquidity:
+        type: number
+      validators:
+        type: integer
+      withdrawal_fee:
+        type: number
+    type: object
   v1.poolStatistic:
     properties:
       active_stake:
@@ -106,6 +150,40 @@ definitions:
 info:
   contact: {}
 paths:
+  /epoch:
+    get:
+      consumes:
+      - application/json
+      description: get epoch
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.epoch'
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
   /pool-statistic:
     get:
       consumes:
@@ -244,7 +322,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/v1.PoolDetails'
+                    $ref: '#/definitions/v1.poolMainPage'
                   type: array
               type: object
         "400":

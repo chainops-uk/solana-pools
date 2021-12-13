@@ -37,6 +37,26 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 	return (&PoolDetails{}).Set(pool), nil
 }
 
+// GetEpoch godoc
+// @Summary RestAPI
+// @Schemes
+// @Description get epoch
+// @Accept json
+// @Produce json
+// @Success 200 {object} tools.ResponseData{data=epoch} "Ok"
+// @Failure 400,404 {object} tools.ResponseError "bad request"
+// @Failure 500 {object} tools.ResponseError "internal server error"
+// @Failure default {object} tools.ResponseError "default response"
+// @Router /epoch [get]
+func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
+	epoch, err := h.svc.GetEpoch()
+	if err != nil {
+		return nil, err
+	}
+
+	return epoch, nil
+}
+
 // GetPools godoc
 // @Summary RestAPI
 // @Schemes
@@ -46,7 +66,7 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 // @Param offset query number true "offset for aggregation" default(1)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Param name query string false "stake-pool name"
-// @Success 200 {object} tools.ResponseData{data=[]PoolDetails} "Ok"
+// @Success 200 {object} tools.ResponseData{data=[]poolMainPage} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -67,9 +87,9 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 
-	aPools := make([]*PoolDetails, len(pools))
+	aPools := make([]*poolMainPage, len(pools))
 	for i, v := range pools {
-		aPools[i] = (&PoolDetails{}).Set(v)
+		aPools[i] = (&poolMainPage{}).Set(v)
 	}
 
 	return aPools, nil
@@ -182,6 +202,17 @@ func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 }
 
 type (
+	epoch struct {
+		Epoch        uint64    `json:"epoch"`
+		SlotsInEpoch uint64    `json:"slots_in_epoch"`
+		SPS          float64   `json:"sps"`
+		EndEpoch     time.Time `json:"end_epoch"`
+		Progress     uint8     `json:"progress"`
+	}
+	poolMainPage struct {
+		pool
+		Validators uint64 `json:"validators"`
+	}
 	poolStatistic struct {
 		ActiveStake        float64   `json:"active_stake"`
 		APY                float64   `json:"apy"`
@@ -235,6 +266,15 @@ type (
 	}
 )
 
+func (e *epoch) Set(data *smodels.EpochInfo) *epoch {
+	e.Epoch = data.Epoch
+	e.SlotsInEpoch = data.SlotsInEpoch
+	e.SPS = data.SPS
+	e.EndEpoch = data.EndEpoch
+	e.Progress = data.Progress
+	return e
+}
+
 func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 	ps.APY, _ = data.APY.Float64()
 	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
@@ -249,6 +289,13 @@ func (pd *PoolDetails) Set(details *smodels.PoolDetails) *PoolDetails {
 	for i, validator := range details.Validators {
 		pd.Validators[i].Set(validator)
 	}
+
+	return pd
+}
+
+func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
+	pd.pool.Set(&details.Pool)
+	pd.Validators = uint64(len(details.Validators))
 
 	return pd
 }
