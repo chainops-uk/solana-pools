@@ -7,6 +7,7 @@ import (
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	v1 "github.com/everstake/solana-pools/internal/delivery/httpserv/v1"
 	"github.com/everstake/solana-pools/internal/services"
+	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -38,9 +39,13 @@ func NewAPI(cfg config.Env, svc services.Service, log *zap.Logger) (api *API, er
 func (api *API) Run() error {
 	gin.SetMode(api.cfg.GinMode)
 
-	logger := ginzap.Ginzap(api.log, time.RFC3339, true)
 	router := gin.New()
-	router.Use(logger)
+	router.Use(ginzap.Ginzap(
+		api.log, time.RFC3339, true),
+		gin.Recovery(),
+		cors.Default(),
+	)
+
 	docs.SwaggerInfo.BasePath = "/v1"
 	router.GET("/", func(ctx *gin.Context) {
 		links := []string{

@@ -127,6 +127,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 
 	once := sync.Once{}
 	pools := make([]*smodels.PoolDetails, len(dPools))
+
 	var ActiveStakeSum, UnstakeSum uint64
 	for i, v1 := range dPools {
 		pools[i] = &smodels.PoolDetails{
@@ -173,12 +174,17 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(pools[i].AVGSkippedSlots)
 		stat.AVGScore += pools[i].AVGScore
 		stat.Delinquent = stat.Delinquent.Add(pools[i].Delinquent)
+		stat.AVGPoolsApy = stat.AVGPoolsApy.Add(pools[i].APY)
+	}
+
+	if len(dPools) > 0 {
+		stat.AVGPoolsApy.Div(decimal.NewFromInt(int64(len(dPools))))
+		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(dPools))))
+		stat.AVGScore /= int64(len(dPools))
 	}
 
 	stat.ActiveStake.SetLamports(ActiveStakeSum)
 	stat.UnstakeLiquidity.SetLamports(UnstakeSum)
-	stat.AVGSkippedSlots = stat.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(dPools))))
-	stat.AVGScore /= int64(len(dPools))
 
 	s.cache.SetCurrentStatistic(stat, time.Second*30)
 

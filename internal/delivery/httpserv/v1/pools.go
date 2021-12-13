@@ -136,6 +136,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 	ta, _ := sc.ActiveStake.Float64()
 	tu, _ := sc.UnstakeLiquidity.Float64()
 	ss, _ := sc.AVGSkippedSlots.Float64()
+	paa, _ := sc.AVGPoolsApy.Float64()
 
 	APY, _ := apy.Float64()
 
@@ -153,6 +154,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 		TotalValidators:       validators,
 		NetworkAPY:            APY,
 		Pools:                 poolCount,
+		PoolsAvgAPY:           paa,
 		MinPerformanceScore:   sc.MINScore,
 		AvgPerformanceScore:   sc.AVGScore,
 		MaxPerformanceScore:   sc.MAXScore,
@@ -227,6 +229,7 @@ type (
 		TotalValidators       int64   `json:"total_validators"`
 		NetworkAPY            float64 `json:"network_apy"`
 		Pools                 int64   `json:"pools"`
+		PoolsAvgAPY           float64 `json:"pools_avg_apy"`
 		MinPerformanceScore   int64   `json:"min_performance_score"`
 		AvgPerformanceScore   int64   `json:"avg_performance_score"`
 		MaxPerformanceScore   int64   `json:"max_performance_score"`

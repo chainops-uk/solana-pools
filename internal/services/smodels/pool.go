@@ -33,6 +33,7 @@ type (
 	Statistic struct {
 		ActiveStake      sol.SOL
 		AVGSkippedSlots  decimal.Decimal
+		AVGPoolsApy      decimal.Decimal
 		MAXScore         int64
 		AVGScore         int64
 		MINScore         int64
