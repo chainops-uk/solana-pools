@@ -24,7 +24,7 @@ type (
 		GetPoolCount() (int64, error)
 		GetActiveStake() uint64
 		GetPoolsCurrentStatistic() (*smodels.Statistic, error)
-		GetPoolsStatistic(name string, aggregate string, from time.Time, to time.Time) ([]*smodels.Pool, error)
+		GetPoolsStatistic(name string, aggregate string) ([]*smodels.Pool, error)
 		GetPrice() (decimal.Decimal, error)
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)

@@ -134,6 +134,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 	}
 
 	ta, _ := sc.ActiveStake.Float64()
+	ts, _ := sc.TotalSupply.Float64()
 	tu, _ := sc.UnstakeLiquidity.Float64()
 	ss, _ := sc.AVGSkippedSlots.Float64()
 	paa, _ := sc.AVGPoolsApy.Float64()
@@ -150,6 +151,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 	return &TotalPoolsStatistic{
 		TotalActiveStake:      float64(h.svc.GetActiveStake()) * math.Pow(10, -9),
 		TotalActiveStakePool:  ta,
+		TotalSupply:           ts,
 		TotalUnstakeLiquidity: tu,
 		TotalValidators:       validators,
 		NetworkAPY:            APY,
@@ -169,10 +171,8 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Description get statistic by pool
 // @Accept json
 // @Produce json
-// @Param from query string true "first date for aggregation" default(2021-01-01T15:04:05Z)
-// @Param to query string true "second date for aggregation" default(2021-12-01T15:04:05Z)
 // @Param name query string true "pool name" default(everSOL)
-// @Param aggregation query string true "aggregation" Enums(day, week, month, year)
+// @Param aggregation query string true "aggregation" Enums(week, month, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
@@ -180,17 +180,15 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Router /pool-statistic [get]
 func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 	request := struct {
-		Name        string    `form:"name" binding:"required"`
-		From        time.Time `form:"from" binding:"required"`
-		To          time.Time `form:"to" binding:"required"`
-		Aggregation string    `form:"aggregation" binding:"required"`
+		Name        string `form:"name" binding:"required"`
+		Aggregation string `form:"aggregation" binding:"required"`
 	}{}
 
 	if err := ctx.ShouldBind(&request); err != nil {
 		return nil, tools.NewStatus(http.StatusNotAcceptable, fmt.Errorf("bad request %w", err))
 	}
 
-	arr, err := h.svc.GetPoolsStatistic(request.Name, request.Aggregation, request.From, request.To)
+	arr, err := h.svc.GetPoolsStatistic(request.Name, request.Aggregation)
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +223,7 @@ type (
 	TotalPoolsStatistic struct {
 		TotalActiveStakePool  float64 `json:"total_active_stake_pool"`
 		TotalActiveStake      float64 `json:"total_active_stake"`
+		TotalSupply           float64 `json:"total_supply"`
 		TotalUnstakeLiquidity float64 `json:"total_unstake_liquidity"`
 		TotalValidators       int64   `json:"total_validators"`
 		NetworkAPY            float64 `json:"network_apy"`

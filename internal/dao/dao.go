@@ -7,7 +7,6 @@ import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/dao/postgres"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type (
@@ -21,7 +20,7 @@ type (
 		GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
 		GetPools(*postgres.Condition) ([]dmodels.Pool, error)
 		UpdatePoolData(*dmodels.PoolData) error
-		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate, from time.Time, to time.Time) ([]*dmodels.PoolData, error)
+		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)
 
 		GetValidatorCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
 		GetValidatorByVotePK(key solana.PublicKey) (*dmodels.Validator, error)

@@ -49,9 +49,9 @@ func (db *DB) GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmod
 	return pool, nil
 }
 
-func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate, from, to time.Time) ([]*dmodels.PoolData, error) {
+func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate) ([]*dmodels.PoolData, error) {
 	var data []*dmodels.PoolData
-	w, err := aggregateByDate(aggregate, from, to, db.DB)
+	w, err := aggregateByDate(aggregate, db.DB)
 	if err != nil {
 		return nil, err
 	}
@@ -66,20 +66,17 @@ func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate, from, to t
 	return data, nil
 }
 
-func aggregateByDate(aggregate Aggregate, from, to time.Time, db *gorm.DB) (*gorm.DB, error) {
+func aggregateByDate(aggregate Aggregate, db *gorm.DB) (*gorm.DB, error) {
 	switch aggregate {
-	case Day:
-		return db.Where(`"created_at"::date between ? AND ?`, from, to).
+	case Week:
+		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, 0, -7), time.Now()).
 			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
 	case Month:
-		return db.Where(`"created_at"::date between ? AND ?`, from, to).
-			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('week', "pool_data"."created_at") = date_part('week', t1."created_at"))`), nil
-	case Week:
-		return db.Where(`"created_at"::date between ? AND ?`, from, to).
-			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('month', "pool_data"."created_at") = date_part('month', t1."created_at"))`), nil
+		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, -1, 0), time.Now()).
+			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
 	case Year:
-		return db.Where(`"created_at"::date between ? AND ?`, from, to).
-			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at"))`), nil
+		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(-1, 0, 0), time.Now()).
+			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
 	default:
 		return nil, nil
 	}

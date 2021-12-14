@@ -128,7 +128,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	once := sync.Once{}
 	pools := make([]*smodels.PoolDetails, len(dPools))
 
-	var ActiveStakeSum, UnstakeSum uint64
+	var ActiveStakeSum, UnstakeSum, SupplySum uint64
 	for i, v1 := range dPools {
 		pools[i] = &smodels.PoolDetails{
 			Pool: smodels.Pool{
@@ -170,6 +170,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		}
 
 		ActiveStakeSum += dLastPoolData.ActiveStake
+		SupplySum += dLastPoolData.TotalTokensSupply
 		UnstakeSum += dLastPoolData.UnstakeLiquidity
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(pools[i].AVGSkippedSlots)
 		stat.AVGScore += pools[i].AVGScore
@@ -184,6 +185,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	}
 
 	stat.ActiveStake.SetLamports(ActiveStakeSum)
+	stat.TotalSupply.SetLamports(SupplySum)
 	stat.UnstakeLiquidity.SetLamports(UnstakeSum)
 
 	s.cache.SetCurrentStatistic(stat, time.Second*30)
@@ -191,13 +193,13 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	return stat, nil
 }
 
-func (s *Imp) GetPoolsStatistic(name string, aggregate string, from time.Time, to time.Time) ([]*smodels.Pool, error) {
+func (s *Imp) GetPoolsStatistic(name string, aggregate string) ([]*smodels.Pool, error) {
 	pool, err := s.dao.GetPool(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a, err := s.dao.GetPoolStatistic(pool.ID, postgres.SearchAggregate(aggregate), from, to)
+	a, err := s.dao.GetPoolStatistic(pool.ID, postgres.SearchAggregate(aggregate))
 	if err != nil {
 		return nil, err
 	}
