@@ -79,6 +79,7 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 	dmodel := &dmodels.PoolData{
 		ID:                uuid.NewV4(),
 		PoolID:            dPool.ID,
+		APY:               decimal.NewFromFloat(data.APY),
 		ActiveStake:       data.SolanaStake,
 		TotalTokensSupply: data.TotalTokenSupply,
 		TotalLamports:     data.TotalLamports,
@@ -92,8 +93,8 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 	}
 
 	validatorsPoolData := make([]*dmodels.PoolValidatorData, 0, len(data.Validators))
+	var SumValAPY decimal.Decimal
 	for _, v := range data.Validators {
-
 		validator, err := s.dao.GetValidatorByVotePK(v.VotePK)
 		if err != nil {
 			return fmt.Errorf("dao.GetValidatorByVotePK(%s): %w", v.VotePK, err)
@@ -102,6 +103,8 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 			continue
 		}
 
+		SumValAPY = SumValAPY.Add(validator.APY)
+
 		validatorsPoolData = append(validatorsPoolData, &dmodels.PoolValidatorData{
 			ValidatorID: validator.ID,
 			PoolDataID:  dmodel.ID,
@@ -109,25 +112,29 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 		})
 	}
 
-	d, err := s.dao.GetLastEpochPoolData(dmodel.PoolID, dmodel.Epoch)
-	if err != nil {
-		return fmt.Errorf("dao.UpdatePoolData: %w", err)
-	}
-	if d != nil {
-		var epochRate decimal.Decimal
-		if d.ActiveStake != 0 {
-			lastEpochPoolTokenValue := decimal.NewFromInt(int64(d.TotalLamports)).
-				Div(decimal.NewFromInt(int64(d.TotalTokensSupply)))
-			TokenValue := decimal.NewFromInt(int64(dmodel.TotalLamports)).
-				Div(decimal.NewFromInt(int64(dmodel.TotalTokensSupply)))
-			epochRate = TokenValue.Div(lastEpochPoolTokenValue).Sub(decimal.NewFromInt(1))
-			epochRate = epochRate.Mul(decimal.NewFromInt(int64(dmodel.Epoch - d.Epoch)))
-		} else {
-			epochRate = decimal.NewFromInt(0)
+	if dmodel.APY.IsZero() {
+		d, err := s.dao.GetLastEpochPoolData(dmodel.PoolID, dmodel.Epoch)
+		if err != nil {
+			return fmt.Errorf("dao.UpdatePoolData: %w", err)
 		}
-		dmodel.APY = epochRate.Mul(decimal.NewFromFloat(EpochsPerYear))
+		if d != nil {
+			var epochRate decimal.Decimal
+			if d.ActiveStake != 0 {
+				lastEpochPoolTokenValue := decimal.NewFromInt(int64(d.TotalLamports)).
+					Div(decimal.NewFromInt(int64(d.TotalTokensSupply)))
+				TokenValue := decimal.NewFromInt(int64(dmodel.TotalLamports)).
+					Div(decimal.NewFromInt(int64(dmodel.TotalTokensSupply)))
+				epochRate = TokenValue.Div(lastEpochPoolTokenValue).Sub(decimal.NewFromInt(1))
+				epochRate = epochRate.Mul(decimal.NewFromInt(int64(dmodel.Epoch - d.Epoch)))
+			} else {
+				epochRate = decimal.NewFromInt(0)
+			}
+			dmodel.APY = epochRate.Mul(decimal.NewFromFloat(EpochsPerYear))
+		} else {
+			dmodel.APY = decimal.NewFromInt(0)
+		}
 	} else {
-		dmodel.APY = decimal.NewFromInt(0)
+		dmodel.APY = SumValAPY.Div(decimal.NewFromInt(int64(len(validatorsPoolData))))
 	}
 
 	err = s.dao.UpdatePoolData(dmodel)

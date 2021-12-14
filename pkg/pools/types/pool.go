@@ -1,6 +1,8 @@
 package types
 
-import "github.com/dfuse-io/solana-go"
+import (
+	"github.com/dfuse-io/solana-go"
+)
 
 var EmptyAddress = solana.MustPublicKeyFromBase58("11111111111111111111111111111111")
 
@@ -16,6 +18,7 @@ const (
 type (
 	Pool struct {
 		Address          solana.PublicKey
+		APY              float64
 		Epoch            uint64
 		SolanaStake      uint64
 		TotalTokenSupply uint64

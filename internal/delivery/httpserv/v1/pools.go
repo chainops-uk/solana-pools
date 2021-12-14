@@ -238,6 +238,8 @@ type (
 	pool struct {
 		Address          string  `json:"address"`
 		Name             string  `json:"name"`
+		Image            string  `json:"image"`
+		Currency         string  `json:"currency"`
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
 		APY              float64 `json:"apy"`
@@ -256,6 +258,7 @@ type (
 	}
 	Validator struct {
 		Name             string  `json:"name"`
+		Image            string  `json:"image"`
 		NodePK           string  `json:"node_pk"`
 		APY              float64 `json:"apy"`
 		VotePK           string  `json:"vote_pk"`
@@ -305,6 +308,8 @@ func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
 func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Address = pool.Address
 	pl.Name = pool.Name
+	pl.Image = pool.Image
+	pl.Currency = pool.Currency
 	pl.ActiveStake, _ = pool.ActiveStake.Float64()
 	pl.TokensSupply, _ = pool.TokensSupply.Float64()
 	pl.APY, _ = pool.APY.Float64()
@@ -323,6 +328,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 func (v *Validator) Set(validator *smodels.Validator) *Validator {
 	v.NodePK = validator.NodePK
 	v.Name = validator.Name
+	v.Image = validator.Image
 	v.APY, _ = validator.APY.Float64()
 	v.VotePK = validator.VotePK
 	v.PoolActiveStake, _ = validator.PoolActiveStake.Float64()

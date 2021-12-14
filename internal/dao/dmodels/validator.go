@@ -17,6 +17,7 @@ type PoolValidatorData struct {
 
 type Validator struct {
 	ID              string          `gorm:"primaryKey;type:varchar(44);not null;"`
+	Image           string          `gorm:"type:text"`
 	Name            string          `gorm:"type:varchar(100);not null;"`
 	Delinquent      bool            `gorm:"not null"`
 	Network         string          `gorm:"type:varchar(50);not null;"`

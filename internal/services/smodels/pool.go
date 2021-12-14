@@ -11,6 +11,8 @@ type (
 	Pool struct {
 		Address          string
 		Name             string
+		Image            string
+		Currency         string
 		ActiveStake      sol.SOL
 		TokensSupply     sol.SOL
 		APY              decimal.Decimal
@@ -46,6 +48,8 @@ type (
 func (p *Pool) Set(data *dmodels.PoolData, pool *dmodels.Pool, validator []*dmodels.Validator) *Pool {
 	if pool != nil {
 		p.Name = pool.Name
+		p.Currency = pool.Currency
+		p.Image = pool.Image
 		p.Address = pool.Address
 	}
 	if data != nil {

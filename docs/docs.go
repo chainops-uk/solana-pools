@@ -92,22 +92,6 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "2021-01-01T15:04:05Z",
-                        "description": "first date for aggregation",
-                        "name": "from",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "2021-12-01T15:04:05Z",
-                        "description": "second date for aggregation",
-                        "name": "to",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "default": "everSOL",
                         "description": "pool name",
                         "name": "name",
@@ -116,7 +100,6 @@ var doc = `{
                     },
                     {
                         "enum": [
-                            "day",
                             "week",
                             "month",
                             "year"
@@ -255,7 +238,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "number",
-                        "default": 1,
+                        "default": 0,
                         "description": "offset for aggregation",
                         "name": "offset",
                         "in": "query",
@@ -415,11 +398,17 @@ var doc = `{
                 "avg_skipped_slots": {
                     "type": "number"
                 },
+                "currency": {
+                    "type": "string"
+                },
                 "delinquent": {
                     "type": "number"
                 },
                 "depossit_fee": {
                     "type": "number"
+                },
+                "image": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -477,6 +466,9 @@ var doc = `{
                 "total_active_stake_pool": {
                     "type": "number"
                 },
+                "total_supply": {
+                    "type": "number"
+                },
                 "total_unstake_liquidity": {
                     "type": "number"
                 },
@@ -499,6 +491,9 @@ var doc = `{
                 },
                 "fee": {
                     "type": "number"
+                },
+                "image": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -561,11 +556,17 @@ var doc = `{
                 "avg_skipped_slots": {
                     "type": "number"
                 },
+                "currency": {
+                    "type": "string"
+                },
                 "delinquent": {
                     "type": "number"
                 },
                 "depossit_fee": {
                     "type": "number"
+                },
+                "image": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

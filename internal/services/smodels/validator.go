@@ -8,6 +8,7 @@ import (
 
 type Validator struct {
 	Name             string
+	Image            string
 	StakingAccounts  uint64
 	NodePK           string
 	APY              decimal.Decimal
@@ -26,6 +27,7 @@ func (v *Validator) Set(activeStake uint64, vv *dmodels.Validator) *Validator {
 		return v
 	}
 	v.Name = vv.Name
+	v.Image = vv.Image
 	v.StakingAccounts = vv.StakingAccounts
 	v.NodePK = vv.ID
 	v.APY = vv.APY

@@ -90,6 +90,7 @@ rep:
 		validator := &dmodels.Validator{
 			ID:              v.NodePubKey,
 			Name:            vInfo.Name,
+			Image:           vInfo.AvatarURL,
 			Delinquent:      false,
 			Network:         "mainnet",
 			VotePK:          v.VotePubKey,
