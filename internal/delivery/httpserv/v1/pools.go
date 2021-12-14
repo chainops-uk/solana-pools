@@ -49,12 +49,12 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /epoch [get]
 func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
-	epoch, err := h.svc.GetEpoch()
+	e, err := h.svc.GetEpoch()
 	if err != nil {
 		return nil, err
 	}
 
-	return epoch, nil
+	return (&epoch{}).Set(e), nil
 }
 
 // GetPools godoc

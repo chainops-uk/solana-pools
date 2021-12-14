@@ -30,7 +30,7 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolData: %s", err.Error())
 	}
-	dValidators, err := s.dao.GetPoolValidatorData(dPool.ID)
+	dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}

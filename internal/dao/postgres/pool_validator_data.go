@@ -6,9 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *DB) GetPoolValidatorData(poolID uuid.UUID) (vd []*dmodels.PoolValidatorData, err error) {
-	err = db.Where("pool_data_id = ?", poolID).Find(&vd).Error
-	return vd, err
+func (db *DB) GetPoolValidatorData(poolID uuid.UUID) ([]*dmodels.PoolValidatorData, error) {
+	var vd []*dmodels.PoolValidatorData
+	return vd, db.Where("pool_data_id = ?", poolID).Find(&vd).Error
 }
 
 func (db *DB) CreatePoolValidatorData(validatorsPoolData ...*dmodels.PoolValidatorData) error {
