@@ -55,17 +55,17 @@ func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
 		return db
 	}
 	if cond.Name != "" {
-		db.Where(`name ilike %?%`, cond.Name)
+		db = db.Where(`name ilike %?%`, cond.Name)
 	}
 	switch cond.Network {
 	case MainNet, TestNet:
-		db.Where(`network = ?`, cond.Network)
+		db = db.Where(`network = ?`, string(cond.Network))
 	}
 	if cond.Limit != 0 {
-		db.Offset(int(cond.Limit))
+		db = db.Offset(int(cond.Limit))
 	}
 	if cond.Offset != 0 {
-		db.Offset(int(cond.Offset))
+		db = db.Offset(int(cond.Offset))
 	}
 
 	return db

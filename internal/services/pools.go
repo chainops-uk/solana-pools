@@ -58,8 +58,7 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 
 func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.PoolDetails, error) {
 	dPools, err := s.dao.GetPools(&postgres.Condition{
-		Name:    name,
-		Network: postgres.MainNet,
+		Name: name,
 		Pagination: postgres.Pagination{
 			Limit:  limit,
 			Offset: offset,
