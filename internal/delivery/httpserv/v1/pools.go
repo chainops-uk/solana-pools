@@ -63,7 +63,7 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 // @Description get pools
 // @Accept json
 // @Produce json
-// @Param offset query number true "offset for aggregation" default(1)
+// @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Param name query string false "stake-pool name"
 // @Success 200 {object} tools.ResponseData{data=[]poolMainPage} "Ok"
