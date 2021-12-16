@@ -26,11 +26,11 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPool: %s", err.Error())
 	}
-	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID, nil)
+	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID)
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolData: %s", err.Error())
 	}
-	dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
+	dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}
@@ -44,11 +44,14 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 		validatorsS[i] = (&smodels.Validator{}).Set(v.ActiveStake, validatorsD[i])
 	}
 
-	Pool := (&smodels.Pool{}).Set(dLastPoolData, &dPool, validatorsD)
+	coin, err := s.dao.GetCoinByID(dPool.CoinID)
+	if err != nil {
+		return nil, fmt.Errorf("dao.GetCoinByID: %w", err)
+	}
+	Pool := (&smodels.Pool{}).Set(dLastPoolData, coin, &dPool, validatorsD)
 
 	pd = &smodels.PoolDetails{
-		Pool:       *Pool,
-		Validators: validatorsS,
+		Pool: *Pool,
 	}
 
 	s.cache.SetPool(pd, time.Second*30)
@@ -56,19 +59,20 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	return pd, nil
 }
 
-func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.PoolDetails, error) {
+func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.PoolDetails, uint64, error) {
 	dPools, err := s.dao.GetPools(&postgres.Condition{
-		Name: name,
+		Network: postgres.MainNet,
+		Name:    name,
 		Pagination: postgres.Pagination{
 			Limit:  limit,
 			Offset: offset,
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("dao.GetPool: %w", err)
+		return nil, 0, fmt.Errorf("dao.GetPool: %w", err)
 	}
 	if len(dPools) == 0 {
-		return nil, nil
+		return nil, 0, nil
 	}
 	pools := make([]*smodels.PoolDetails, len(dPools))
 	for i, v1 := range dPools {
@@ -79,32 +83,41 @@ func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.Poo
 			},
 		}
 
-		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID, nil)
+		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID)
 		if err != nil {
-			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
+			return nil, 0, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
-		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
+		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
 		if err != nil {
-			return nil, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
+			return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 		}
 
-		validatorsS := make([]*smodels.Validator, len(dValidators))
 		validatorsD := make([]*dmodels.Validator, len(dValidators))
 		for i, v2 := range dValidators {
 			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID)
 			if err != nil {
-				return nil, fmt.Errorf("dao.GetValidator: %w", err)
+				return nil, 0, fmt.Errorf("dao.GetValidator: %w", err)
 			}
-			validatorsS[i] = (&smodels.Validator{}).Set(v2.ActiveStake, validatorsD[i])
 		}
 
-		pools[i].Set(dLastPoolData, &v1, validatorsD)
+		coin, err := s.dao.GetCoinByID(v1.CoinID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("dao.GetCoinByID: %w", err)
+		}
 
-		pools[i].Validators = validatorsS
+		pools[i].Set(dLastPoolData, coin, &v1, validatorsD)
 	}
 
-	return pools, nil
+	count, err := s.dao.GetPoolCount(&postgres.Condition{
+		Network: postgres.MainNet,
+		Name:    name,
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("dao.GetPoolCount: %w", err)
+	}
+
+	return pools, uint64(count), nil
 }
 
 func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
@@ -137,12 +150,12 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			},
 		}
 
-		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID, nil)
+		dLastPoolData, err := s.dao.GetLastPoolData(v1.ID)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
-		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID)
+		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetValidators: %w", err)
 		}
@@ -155,7 +168,12 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			}
 		}
 
-		pools[i].Set(dLastPoolData, &v1, validatorsD)
+		coin, err := s.dao.GetCoinByID(v1.CoinID)
+		if err != nil {
+			return nil, fmt.Errorf("dao.GetCoinByID: %w", err)
+		}
+
+		pools[i].Set(dLastPoolData, coin, &v1, validatorsD)
 
 		once.Do(func() {
 			stat.MINScore = pools[i].AVGScore
@@ -193,7 +211,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	return stat, nil
 }
 
-func (s *Imp) GetPoolsStatistic(name string, aggregate string) ([]*smodels.Pool, error) {
+func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, error) {
 	pool, err := s.dao.GetPool(name)
 	if err != nil {
 		return nil, err
@@ -204,9 +222,14 @@ func (s *Imp) GetPoolsStatistic(name string, aggregate string) ([]*smodels.Pool,
 		return nil, err
 	}
 
+	coin, err := s.dao.GetCoinByID(pool.CoinID)
+	if err != nil {
+		return nil, fmt.Errorf("dao.GetCoinByID: %w", err)
+	}
+
 	data := make([]*smodels.Pool, len(a))
 	for i, v := range a {
-		data[i] = (&smodels.Pool{}).Set(v, &pool, nil)
+		data[i] = (&smodels.Pool{}).Set(v, coin, &pool, nil)
 		data[i].ValidatorCount, err = s.dao.GetValidatorCount(&postgres.PoolValidatorDataCondition{
 			PoolDataIDs: []uuid.UUID{
 				v.ID,

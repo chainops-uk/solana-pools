@@ -47,9 +47,7 @@ func Must(handlerFunc HandlerFunc) gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusOK, gin.H{
-			"data": result,
-		})
+		context.JSON(http.StatusOK, result)
 	}
 }
 

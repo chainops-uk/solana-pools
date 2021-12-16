@@ -24,13 +24,20 @@ type (
 		GetPoolCount() (int64, error)
 		GetActiveStake() uint64
 		GetPoolsCurrentStatistic() (*smodels.Statistic, error)
-		GetPoolsStatistic(name string, aggregate string) ([]*smodels.Pool, error)
+		GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, error)
 		GetPrice() (decimal.Decimal, error)
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)
 		GetPool(name string) (*smodels.PoolDetails, error)
-		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, error)
+		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, uint64, error)
 		GetEpoch() (*smodels.EpochInfo, error)
+		GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
+		GetGovernance(name string, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error)
+		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
+		GetPoolValidators(name string, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
+
+		UpdateCoins() error
+		UpdateGovernance() error
 		UpdatePrice() error
 		UpdatePools() error
 		UpdateAPY() error

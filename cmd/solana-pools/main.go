@@ -38,13 +38,13 @@ func main() {
 			cron1 := gocron.NewScheduler(time.UTC)
 
 			up := false
-			cron1.Every(time.Second * 30).Do(func() {
+			cron1.Every(time.Hour * 3).Do(func() {
 				if err := s.UpdatePools(); err != nil {
 					log.Error("UpdatePools", zap.Error(err))
 				}
 			})
 			cron2 := gocron.NewScheduler(time.UTC)
-			cron2.Every(time.Second * 30).Do(func() {
+			cron2.Every(time.Minute).Do(func() {
 				if err := s.UpdateAPY(); err != nil {
 					log.Error("UpdateAPY", zap.Error(err))
 				}
@@ -58,6 +58,14 @@ func main() {
 					log.Error("UpdateEpoch", zap.Error(err))
 				}
 			})
+			cron2.Every(time.Minute * 30).Do(func() {
+				if err := s.UpdateCoins(); err != nil {
+					log.Error("UpdateCoins", zap.Error(err))
+				}
+				if err := s.UpdateGovernance(); err != nil {
+					log.Error("UpdateGovernance", zap.Error(err))
+				}
+			})
 			cron3 := gocron.NewScheduler(time.UTC)
 			cron3.Every(time.Minute * 120).Do(func() {
 				if !up {
@@ -67,9 +75,6 @@ func main() {
 					up = true
 					if err := s.UpdateValidators(); err != nil {
 						log.Error("UpdateValidators", zap.Error(err))
-					}
-					if err := s.UpdateTestNetValidators(); err != nil {
-						log.Error("UpdateTestNetValidators", zap.Error(err))
 					}
 				}
 

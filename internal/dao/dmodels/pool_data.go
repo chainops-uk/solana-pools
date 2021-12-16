@@ -20,4 +20,5 @@ type PoolData struct {
 	RewardsFee        decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
 	UpdatedAt         time.Time       `gorm:"not null"`
 	CreatedAt         time.Time       `gorm:"index;not null"`
+	Pool              Pool            `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Restrict;"`
 }

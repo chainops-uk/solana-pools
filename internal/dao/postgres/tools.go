@@ -19,6 +19,7 @@ type PoolValidatorDataCondition struct {
 }
 
 type Condition struct {
+	IDs     []uuid.UUID
 	Name    string
 	Epoch   []uint64
 	Network Network
@@ -31,8 +32,7 @@ type Pagination struct {
 type Aggregate int8
 
 const (
-	Day = Aggregate(iota)
-	Month
+	Month = Aggregate(iota)
 	Week
 	Year
 )
@@ -41,18 +41,19 @@ func SearchAggregate(name string) Aggregate {
 	switch name {
 	case "month":
 		return Month
-	case "week":
-		return Week
 	case "year":
 		return Year
 	default:
-		return Day
+		return Week
 	}
 }
 
 func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
 	if cond == nil {
 		return db
+	}
+	if len(cond.IDs) > 0 {
+		db = db.Where(`id IN (?)`, cond.IDs)
 	}
 	if cond.Name != "" {
 		db = db.Where(`name ilike ?`, "%"+cond.Name+"%")

@@ -19,6 +19,8 @@ var autoMigrateModels = []interface{}{
 	&dmodels.PoolData{},
 	&dmodels.Validator{},
 	&dmodels.PoolValidatorData{},
+	&dmodels.Coin{},
+	&dmodels.Governance{},
 }
 
 func NewDB(dsn string) (db *DB, err error) {

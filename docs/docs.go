@@ -23,6 +23,89 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/coins": {
+            "get": {
+                "description": "get coins",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RestAPI",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "default": 0,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stake-pool name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.poolMainPage"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/epoch": {
             "get": {
                 "description": "get epoch",
@@ -79,6 +162,172 @@ var doc = `{
                 }
             }
         },
+        "/governance": {
+            "get": {
+                "description": "get governance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RestAPI",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "default": 0,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stake-pool name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.governance"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/pool-coins": {
+            "get": {
+                "description": "get pools coins",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RestAPI",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "default": 0,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stake-pool name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.poolMainPage"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/pool-statistic": {
             "get": {
                 "description": "get statistic by pool",
@@ -92,7 +341,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "everSOL",
+                        "default": "mSOL",
                         "description": "pool name",
                         "name": "name",
                         "in": "query",
@@ -160,6 +409,91 @@ var doc = `{
                 }
             }
         },
+        "/pool-validators/{name}": {
+            "get": {
+                "description": "get pool validators",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "REST",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "marinade",
+                        "description": "Pool name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 0,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.validator"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/pool/{name}": {
             "get": {
                 "description": "get pool",
@@ -173,6 +507,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "marinade",
                         "description": "Pool name",
                         "name": "name",
                         "in": "path",
@@ -191,7 +526,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.PoolDetails"
+                                            "$ref": "#/definitions/v1.pool"
                                         }
                                     }
                                 }
@@ -265,7 +600,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/tools.ResponseData"
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
                                 },
                                 {
                                     "type": "object",
@@ -366,6 +701,29 @@ var doc = `{
         }
     },
     "definitions": {
+        "tools.MetaData": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total_amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "tools.ResponseArrayData": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "meta_data": {
+                    "$ref": "#/definitions/tools.MetaData"
+                }
+            }
+        },
         "tools.ResponseData": {
             "type": "object",
             "properties": {
@@ -377,62 +735,6 @@ var doc = `{
             "properties": {
                 "error": {
                     "type": "string"
-                }
-            }
-        },
-        "v1.PoolDetails": {
-            "type": "object",
-            "properties": {
-                "active_stake": {
-                    "type": "number"
-                },
-                "address": {
-                    "type": "string"
-                },
-                "apy": {
-                    "type": "number"
-                },
-                "avg_score": {
-                    "type": "integer"
-                },
-                "avg_skipped_slots": {
-                    "type": "number"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "delinquent": {
-                    "type": "number"
-                },
-                "depossit_fee": {
-                    "type": "number"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "rewards_fee": {
-                    "type": "number"
-                },
-                "staking_accounts": {
-                    "type": "integer"
-                },
-                "tokens_supply": {
-                    "type": "number"
-                },
-                "unstake_liquidity": {
-                    "type": "number"
-                },
-                "validators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.Validator"
-                    }
-                },
-                "withdrawal_fee": {
-                    "type": "number"
                 }
             }
         },
@@ -480,7 +782,221 @@ var doc = `{
                 }
             }
         },
-        "v1.Validator": {
+        "v1.epoch": {
+            "type": "object",
+            "properties": {
+                "end_epoch": {
+                    "type": "string"
+                },
+                "epoch": {
+                    "type": "integer"
+                },
+                "progress": {
+                    "type": "integer"
+                },
+                "slots_in_epoch": {
+                    "type": "integer"
+                },
+                "sps": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.governance": {
+            "type": "object",
+            "properties": {
+                "about": {
+                    "type": "string"
+                },
+                "blockchain": {
+                    "type": "string"
+                },
+                "circulating_supply": {
+                    "type": "number"
+                },
+                "coin_name": {
+                    "type": "string"
+                },
+                "contract_address": {
+                    "type": "string"
+                },
+                "dao_treasury": {
+                    "type": "number"
+                },
+                "exchange": {
+                    "type": "string"
+                },
+                "foundation": {
+                    "type": "number"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "initial_lido_developers": {
+                    "type": "number"
+                },
+                "investors": {
+                    "type": "number"
+                },
+                "maximum_token_supply": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "trade": {
+                    "type": "string"
+                },
+                "usd": {
+                    "type": "number"
+                },
+                "validators": {
+                    "type": "number"
+                },
+                "vote": {
+                    "type": "string"
+                },
+                "vote_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.pool": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "avg_score": {
+                    "type": "integer"
+                },
+                "avg_skipped_slots": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "delinquent": {
+                    "type": "number"
+                },
+                "depossit_fee": {
+                    "type": "number"
+                },
+                "large_image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rewards_fee": {
+                    "type": "number"
+                },
+                "small_image": {
+                    "type": "string"
+                },
+                "staking_accounts": {
+                    "type": "integer"
+                },
+                "thumb_image": {
+                    "type": "string"
+                },
+                "tokens_supply": {
+                    "type": "number"
+                },
+                "unstake_liquidity": {
+                    "type": "number"
+                },
+                "withdrawal_fee": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.poolMainPage": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "avg_score": {
+                    "type": "integer"
+                },
+                "avg_skipped_slots": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "delinquent": {
+                    "type": "number"
+                },
+                "depossit_fee": {
+                    "type": "number"
+                },
+                "large_image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rewards_fee": {
+                    "type": "number"
+                },
+                "small_image": {
+                    "type": "string"
+                },
+                "staking_accounts": {
+                    "type": "integer"
+                },
+                "thumb_image": {
+                    "type": "string"
+                },
+                "tokens_supply": {
+                    "type": "number"
+                },
+                "unstake_liquidity": {
+                    "type": "number"
+                },
+                "validators": {
+                    "type": "integer"
+                },
+                "withdrawal_fee": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.poolStatistic": {
+            "type": "object",
+            "properties": {
+                "active_stake": {
+                    "type": "number"
+                },
+                "apy": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "number_of_validators": {
+                    "type": "integer"
+                },
+                "unstacked_liquidity": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.validator": {
             "type": "object",
             "properties": {
                 "apy": {
@@ -515,99 +1031,6 @@ var doc = `{
                 },
                 "vote_pk": {
                     "type": "string"
-                }
-            }
-        },
-        "v1.epoch": {
-            "type": "object",
-            "properties": {
-                "end_epoch": {
-                    "type": "string"
-                },
-                "epoch": {
-                    "type": "integer"
-                },
-                "progress": {
-                    "type": "integer"
-                },
-                "slots_in_epoch": {
-                    "type": "integer"
-                },
-                "sps": {
-                    "type": "number"
-                }
-            }
-        },
-        "v1.poolMainPage": {
-            "type": "object",
-            "properties": {
-                "active_stake": {
-                    "type": "number"
-                },
-                "address": {
-                    "type": "string"
-                },
-                "apy": {
-                    "type": "number"
-                },
-                "avg_score": {
-                    "type": "integer"
-                },
-                "avg_skipped_slots": {
-                    "type": "number"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "delinquent": {
-                    "type": "number"
-                },
-                "depossit_fee": {
-                    "type": "number"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "rewards_fee": {
-                    "type": "number"
-                },
-                "staking_accounts": {
-                    "type": "integer"
-                },
-                "tokens_supply": {
-                    "type": "number"
-                },
-                "unstake_liquidity": {
-                    "type": "number"
-                },
-                "validators": {
-                    "type": "integer"
-                },
-                "withdrawal_fee": {
-                    "type": "number"
-                }
-            }
-        },
-        "v1.poolStatistic": {
-            "type": "object",
-            "properties": {
-                "active_stake": {
-                    "type": "number"
-                },
-                "apy": {
-                    "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "number_of_validators": {
-                    "type": "integer"
-                },
-                "unstacked_liquidity": {
-                    "type": "number"
                 }
             }
         }

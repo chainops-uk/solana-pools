@@ -25,7 +25,7 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 	return count, nil
 }
 
-func (db *DB) GetLastPoolData(PoolID uuid.UUID, condition *Condition) (*dmodels.PoolData, error) {
+func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
 	if err := db.DB.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -70,13 +70,13 @@ func aggregateByDate(aggregate Aggregate, db *gorm.DB) (*gorm.DB, error) {
 	switch aggregate {
 	case Week:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, 0, -7), time.Now()).
-			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
+			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
 	case Month:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, -1, 0), time.Now()).
-			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
+			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
 	case Year:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(-1, 0, 0), time.Now()).
-			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`).Distinct(), nil
+			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
 	default:
 		return nil, nil
 	}

@@ -13,6 +13,8 @@ type PoolValidatorData struct {
 	ActiveStake uint64    `gorm:"type:int;not null;"`
 	CreatedAt   time.Time `gorm:"index;not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
+	Validator   Validator `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Restrict;"`
+	PoolData    PoolData  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Restrict;"`
 }
 
 type Validator struct {

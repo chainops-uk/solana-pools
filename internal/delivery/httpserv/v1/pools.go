@@ -17,10 +17,10 @@ import (
 // @Summary WebSocket
 // @Schemes
 // @Description get pool
-// @Param name path string true "Pool name"
+// @Param name path string true "Pool name" default(marinade)
 // @Accept json
 // @Produce json
-// @Success 200 {object} tools.ResponseData{data=PoolDetails} "Ok"
+// @Success 200 {object} tools.ResponseData{data=pool} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -28,13 +28,13 @@ import (
 func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 	name := g.Param("name")
 
-	pool, err := h.svc.GetPool(name)
+	resp, err := h.svc.GetPool(name)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 
-	return (&PoolDetails{}).Set(pool), nil
+	return (&pool{}).Set(&resp.Pool), nil
 }
 
 // GetEpoch godoc
@@ -54,7 +54,7 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return (&epoch{}).Set(e), nil
+	return tools.ResponseData{Data: (&epoch{}).Set(e)}, nil
 }
 
 // GetPools godoc
@@ -66,7 +66,7 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Param name query string false "stake-pool name"
-// @Success 200 {object} tools.ResponseData{data=[]poolMainPage} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]poolMainPage} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -74,14 +74,14 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
-		Limit  uint64 `form:"limit,default=1"`
-		Offset uint64 `form:"offset,default=10"`
+		Offset uint64 `form:"offset,default=0"`
+		Limit  uint64 `form:"limit,default=10"`
 	}{}
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	pools, err := h.svc.GetPools(q.Name, q.Limit, q.Offset)
+	pools, amounnt, err := h.svc.GetPools(q.Name, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
@@ -92,7 +92,13 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		aPools[i] = (&poolMainPage{}).Set(v)
 	}
 
-	return aPools, nil
+	return tools.ResponseArrayData{
+		Data: aPools,
+		MetaData: &tools.MetaData{
+			Offset:      q.Offset,
+			Limit:       q.Limit,
+			TotalAmount: amounnt,
+		}}, nil
 }
 
 // GetTotalPoolsStatistic godoc
@@ -148,7 +154,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 
 	USD, _ := usd.Float64()
 
-	return &TotalPoolsStatistic{
+	return tools.ResponseData{Data: &TotalPoolsStatistic{
 		TotalActiveStake:      float64(h.svc.GetActiveStake()) * math.Pow(10, -9),
 		TotalActiveStakePool:  ta,
 		TotalSupply:           ts,
@@ -162,7 +168,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 		MaxPerformanceScore:   sc.MAXScore,
 		SkippedSlot:           ss,
 		USD:                   USD,
-	}, nil
+	}}, nil
 }
 
 // GetPoolsStatistic godoc
@@ -171,7 +177,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Description get statistic by pool
 // @Accept json
 // @Produce json
-// @Param name query string true "pool name" default(everSOL)
+// @Param name query string true "pool name" default(mSOL)
 // @Param aggregation query string true "aggregation" Enums(week, month, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
@@ -188,7 +194,7 @@ func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusNotAcceptable, fmt.Errorf("bad request %w", err))
 	}
 
-	arr, err := h.svc.GetPoolsStatistic(request.Name, request.Aggregation)
+	arr, err := h.svc.GetPoolStatistic(request.Name, request.Aggregation)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +204,7 @@ func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 		data[i] = (&poolStatistic{}).Set(v)
 	}
 
-	return data, err
+	return tools.ResponseData{Data: data}, err
 }
 
 type (
@@ -238,7 +244,9 @@ type (
 	pool struct {
 		Address          string  `json:"address"`
 		Name             string  `json:"name"`
-		Image            string  `json:"image"`
+		ThumbImage       string  `json:"thumb_image"`
+		SmallImage       string  `json:"small_image"`
+		LargeImage       string  `json:"large_image"`
 		Currency         string  `json:"currency"`
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
@@ -251,23 +259,6 @@ type (
 		DepossitFee      float64 `json:"depossit_fee"`
 		WithdrawalFee    float64 `json:"withdrawal_fee"`
 		RewardsFee       float64 `json:"rewards_fee"`
-	}
-	PoolDetails struct {
-		pool
-		Validators []Validator `json:"validators"`
-	}
-	Validator struct {
-		Name             string  `json:"name"`
-		Image            string  `json:"image"`
-		NodePK           string  `json:"node_pk"`
-		APY              float64 `json:"apy"`
-		VotePK           string  `json:"vote_pk"`
-		PoolActiveStake  float64 `json:"pool_active_stake"`
-		TotalActiveStake float64 `json:"total_active_stake"`
-		Fee              float64 `json:"fee"`
-		Score            int64   `json:"score"`
-		SkippedSlots     float64 `json:"skipped_slots"`
-		DataCenter       string  `json:"data_center"`
 	}
 )
 
@@ -284,23 +275,13 @@ func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 	ps.APY, _ = data.APY.Float64()
 	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
 	ps.ActiveStake, _ = data.ActiveStake.Float64()
+	ps.NumberOfValidators = data.ValidatorCount
 	ps.CreatedAt = data.CreatedAt
 	return ps
 }
 
-func (pd *PoolDetails) Set(details *smodels.PoolDetails) *PoolDetails {
-	pd.pool.Set(&details.Pool)
-	pd.Validators = make([]Validator, len(details.Validators))
-	for i, validator := range details.Validators {
-		pd.Validators[i].Set(validator)
-	}
-
-	return pd
-}
-
 func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
 	pd.pool.Set(&details.Pool)
-	pd.Validators = uint64(len(details.Validators))
 
 	return pd
 }
@@ -308,7 +289,9 @@ func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
 func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Address = pool.Address
 	pl.Name = pool.Name
-	pl.Image = pool.Image
+	pl.SmallImage = pool.SmallImage
+	pl.LargeImage = pool.LargeImage
+	pl.ThumbImage = pool.ThumbImage
 	pl.Currency = pool.Currency
 	pl.ActiveStake, _ = pool.ActiveStake.Float64()
 	pl.TokensSupply, _ = pool.TokensSupply.Float64()
@@ -323,20 +306,4 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.RewardsFee, _ = pool.RewardsFee.Float64()
 
 	return pl
-}
-
-func (v *Validator) Set(validator *smodels.Validator) *Validator {
-	v.NodePK = validator.NodePK
-	v.Name = validator.Name
-	v.Image = validator.Image
-	v.APY, _ = validator.APY.Float64()
-	v.VotePK = validator.VotePK
-	v.PoolActiveStake, _ = validator.PoolActiveStake.Float64()
-	v.TotalActiveStake, _ = validator.TotalActiveStake.Float64()
-	v.Fee, _ = validator.Fee.Float64()
-	v.Score = validator.Score
-	v.SkippedSlots, _ = validator.SkippedSlots.Float64()
-	v.DataCenter = validator.DataCenter
-
-	return v
 }

@@ -6,9 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *DB) GetPoolValidatorData(poolID uuid.UUID) ([]*dmodels.PoolValidatorData, error) {
+func (db *DB) GetPoolValidatorData(poolID uuid.UUID, condition *Condition) ([]*dmodels.PoolValidatorData, error) {
 	var vd []*dmodels.PoolValidatorData
-	return vd, db.Where("pool_data_id = ?", poolID).Find(&vd).Error
+	return vd, withCond(db.Where("pool_data_id = ?", poolID), condition).Find(&vd).Error
 }
 
 func (db *DB) CreatePoolValidatorData(validatorsPoolData ...*dmodels.PoolValidatorData) error {
@@ -33,10 +33,10 @@ func withConditionPoolValidatorData(db *gorm.DB, condition *PoolValidatorDataCon
 	}
 	db = withCond(db, &condition.Condition)
 	if len(condition.PoolDataIDs) > 0 {
-		db = db.Where("pool_data_id in ?", condition.PoolDataIDs)
+		db = db.Where("pool_data_id in (?)", condition.PoolDataIDs)
 	}
 	if len(condition.ValidatorIDs) > 0 {
-		db = db.Where("validator_id in ?", condition.ValidatorIDs)
+		db = db.Where("validator_id in (?)", condition.ValidatorIDs)
 	}
 
 	return db

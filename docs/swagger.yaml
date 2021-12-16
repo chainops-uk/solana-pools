@@ -1,5 +1,20 @@
 basePath: /v1
 definitions:
+  tools.MetaData:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total_amount:
+        type: integer
+    type: object
+  tools.ResponseArrayData:
+    properties:
+      data: {}
+      meta_data:
+        $ref: '#/definitions/tools.MetaData'
+    type: object
   tools.ResponseData:
     properties:
       data: {}
@@ -8,43 +23,6 @@ definitions:
     properties:
       error:
         type: string
-    type: object
-  v1.PoolDetails:
-    properties:
-      active_stake:
-        type: number
-      address:
-        type: string
-      apy:
-        type: number
-      avg_score:
-        type: integer
-      avg_skipped_slots:
-        type: number
-      currency:
-        type: string
-      delinquent:
-        type: number
-      depossit_fee:
-        type: number
-      image:
-        type: string
-      name:
-        type: string
-      rewards_fee:
-        type: number
-      staking_accounts:
-        type: integer
-      tokens_supply:
-        type: number
-      unstake_liquidity:
-        type: number
-      validators:
-        items:
-          $ref: '#/definitions/v1.Validator'
-        type: array
-      withdrawal_fee:
-        type: number
     type: object
   v1.TotalPoolsStatistic:
     properties:
@@ -75,7 +53,148 @@ definitions:
       usd:
         type: number
     type: object
-  v1.Validator:
+  v1.epoch:
+    properties:
+      end_epoch:
+        type: string
+      epoch:
+        type: integer
+      progress:
+        type: integer
+      slots_in_epoch:
+        type: integer
+      sps:
+        type: number
+    type: object
+  v1.governance:
+    properties:
+      about:
+        type: string
+      blockchain:
+        type: string
+      circulating_supply:
+        type: number
+      coin_name:
+        type: string
+      contract_address:
+        type: string
+      dao_treasury:
+        type: number
+      exchange:
+        type: string
+      foundation:
+        type: number
+      image:
+        type: string
+      initial_lido_developers:
+        type: number
+      investors:
+        type: number
+      maximum_token_supply:
+        type: number
+      name:
+        type: string
+      trade:
+        type: string
+      usd:
+        type: number
+      validators:
+        type: number
+      vote:
+        type: string
+      vote_url:
+        type: string
+    type: object
+  v1.pool:
+    properties:
+      active_stake:
+        type: number
+      address:
+        type: string
+      apy:
+        type: number
+      avg_score:
+        type: integer
+      avg_skipped_slots:
+        type: number
+      currency:
+        type: string
+      delinquent:
+        type: number
+      depossit_fee:
+        type: number
+      large_image:
+        type: string
+      name:
+        type: string
+      rewards_fee:
+        type: number
+      small_image:
+        type: string
+      staking_accounts:
+        type: integer
+      thumb_image:
+        type: string
+      tokens_supply:
+        type: number
+      unstake_liquidity:
+        type: number
+      withdrawal_fee:
+        type: number
+    type: object
+  v1.poolMainPage:
+    properties:
+      active_stake:
+        type: number
+      address:
+        type: string
+      apy:
+        type: number
+      avg_score:
+        type: integer
+      avg_skipped_slots:
+        type: number
+      currency:
+        type: string
+      delinquent:
+        type: number
+      depossit_fee:
+        type: number
+      large_image:
+        type: string
+      name:
+        type: string
+      rewards_fee:
+        type: number
+      small_image:
+        type: string
+      staking_accounts:
+        type: integer
+      thumb_image:
+        type: string
+      tokens_supply:
+        type: number
+      unstake_liquidity:
+        type: number
+      validators:
+        type: integer
+      withdrawal_fee:
+        type: number
+    type: object
+  v1.poolStatistic:
+    properties:
+      active_stake:
+        type: number
+      apy:
+        type: number
+      created_at:
+        type: string
+      number_of_validators:
+        type: integer
+      unstacked_liquidity:
+        type: number
+    type: object
+  v1.validator:
     properties:
       apy:
         type: number
@@ -100,70 +219,62 @@ definitions:
       vote_pk:
         type: string
     type: object
-  v1.epoch:
-    properties:
-      end_epoch:
-        type: string
-      epoch:
-        type: integer
-      progress:
-        type: integer
-      slots_in_epoch:
-        type: integer
-      sps:
-        type: number
-    type: object
-  v1.poolMainPage:
-    properties:
-      active_stake:
-        type: number
-      address:
-        type: string
-      apy:
-        type: number
-      avg_score:
-        type: integer
-      avg_skipped_slots:
-        type: number
-      currency:
-        type: string
-      delinquent:
-        type: number
-      depossit_fee:
-        type: number
-      image:
-        type: string
-      name:
-        type: string
-      rewards_fee:
-        type: number
-      staking_accounts:
-        type: integer
-      tokens_supply:
-        type: number
-      unstake_liquidity:
-        type: number
-      validators:
-        type: integer
-      withdrawal_fee:
-        type: number
-    type: object
-  v1.poolStatistic:
-    properties:
-      active_stake:
-        type: number
-      apy:
-        type: number
-      created_at:
-        type: string
-      number_of_validators:
-        type: integer
-      unstacked_liquidity:
-        type: number
-    type: object
 info:
   contact: {}
 paths:
+  /coins:
+    get:
+      consumes:
+      - application/json
+      description: get coins
+      parameters:
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: stake-pool name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.poolMainPage'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
   /epoch:
     get:
       consumes:
@@ -198,13 +309,119 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+  /governance:
+    get:
+      consumes:
+      - application/json
+      description: get governance
+      parameters:
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: stake-pool name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.governance'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
+  /pool-coins:
+    get:
+      consumes:
+      - application/json
+      description: get pools coins
+      parameters:
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      - description: stake-pool name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.poolMainPage'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
   /pool-statistic:
     get:
       consumes:
       - application/json
       description: get statistic by pool
       parameters:
-      - default: everSOL
+      - default: mSOL
         description: pool name
         in: query
         name: name
@@ -250,13 +467,69 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+  /pool-validators/{name}:
+    get:
+      consumes:
+      - application/json
+      description: get pool validators
+      parameters:
+      - default: marinade
+        description: Pool name
+        in: path
+        name: name
+        required: true
+        type: string
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseArrayData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.validator'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: REST
   /pool/{name}:
     get:
       consumes:
       - application/json
       description: get pool
       parameters:
-      - description: Pool name
+      - default: marinade
+        description: Pool name
         in: path
         name: name
         required: true
@@ -271,7 +544,7 @@ paths:
             - $ref: '#/definitions/tools.ResponseData'
             - properties:
                 data:
-                  $ref: '#/definitions/v1.PoolDetails'
+                  $ref: '#/definitions/v1.pool'
               type: object
         "400":
           description: bad request
@@ -319,7 +592,7 @@ paths:
           description: Ok
           schema:
             allOf:
-            - $ref: '#/definitions/tools.ResponseData'
+            - $ref: '#/definitions/tools.ResponseArrayData'
             - properties:
                 data:
                   items:

@@ -13,6 +13,9 @@ type (
 		Name             string
 		Image            string
 		Currency         string
+		ThumbImage       string
+		SmallImage       string
+		LargeImage       string
 		ActiveStake      sol.SOL
 		TokensSupply     sol.SOL
 		APY              decimal.Decimal
@@ -29,8 +32,7 @@ type (
 	}
 	PoolDetails struct {
 		Pool
-		Validators []*Validator
-		CreatedAt  time.Time
+		CreatedAt time.Time
 	}
 	Statistic struct {
 		ActiveStake      sol.SOL
@@ -45,12 +47,16 @@ type (
 	}
 )
 
-func (p *Pool) Set(data *dmodels.PoolData, pool *dmodels.Pool, validator []*dmodels.Validator) *Pool {
+func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Pool, validator []*dmodels.Validator) *Pool {
 	if pool != nil {
 		p.Name = pool.Name
-		p.Currency = pool.Currency
-		p.Image = pool.Image
 		p.Address = pool.Address
+	}
+	if coin != nil {
+		p.LargeImage = coin.LargeImage
+		p.ThumbImage = coin.ThumbImage
+		p.SmallImage = coin.SmallImage
+		p.Currency = coin.Name
 	}
 	if data != nil {
 		p.ActiveStake.SetLamports(data.ActiveStake)
