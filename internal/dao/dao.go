@@ -22,7 +22,7 @@ type (
 
 		DeleteValidators(poolID uuid.UUID) error
 
-		GetPool(name string) (dmodels.Pool, error)
+		GetPool(name string) (*dmodels.Pool, error)
 		GetLastPoolData(poolID uuid.UUID) (*dmodels.PoolData, error)
 		GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
 		GetCoinByID(id uuid.UUID) (pool *dmodels.Coin, err error)

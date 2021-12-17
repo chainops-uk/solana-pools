@@ -1,11 +1,14 @@
 package postgres
 
 import (
+	"errors"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
 type Network string
+
+var ErrorRecordNotFounded = errors.New("record not founded")
 
 const (
 	TestNet = "testnet"

@@ -7,9 +7,15 @@ import (
 	"time"
 )
 
-func (db *DB) GetPool(name string) (pool dmodels.Pool, err error) {
-	err = db.First(&pool, "name = ?", name).Error
-	return pool, err
+func (db *DB) GetPool(name string) (*dmodels.Pool, error) {
+	var pool *dmodels.Pool
+	if err := db.First(&pool, "name = ?", name).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return pool, nil
 }
 
 func (db *DB) GetPools(cond *Condition) ([]dmodels.Pool, error) {

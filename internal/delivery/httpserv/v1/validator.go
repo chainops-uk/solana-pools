@@ -1,6 +1,9 @@
 package v1
 
 import (
+	"errors"
+	"fmt"
+	"github.com/everstake/solana-pools/internal/dao/postgres"
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
@@ -36,6 +39,9 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	resp, count, err := h.svc.GetPoolValidators(name, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
+		if errors.Is(err, postgres.ErrorRecordNotFounded) {
+			return nil, tools.NewStatus(http.StatusBadRequest, fmt.Errorf("%s pool not found", name))
+		}
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 

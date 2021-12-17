@@ -12,6 +12,9 @@ func (s Imp) GetPoolValidators(name string, limit uint64, offset uint64) ([]*smo
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetPool: %w", err)
 	}
+	if pool == nil {
+		return nil, 0, fmt.Errorf("dao.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
+	}
 
 	poolData, err := s.dao.GetLastPoolData(pool.ID)
 	if err != nil {

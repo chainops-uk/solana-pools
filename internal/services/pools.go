@@ -26,6 +26,9 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPool: %s", err.Error())
 	}
+	if dPool == nil {
+		return nil, fmt.Errorf("dao.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
+	}
 	dLastPoolData, err := s.dao.GetLastPoolData(dPool.ID)
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolData: %s", err.Error())
@@ -48,7 +51,7 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetCoinByID: %w", err)
 	}
-	Pool := (&smodels.Pool{}).Set(dLastPoolData, coin, &dPool, validatorsD)
+	Pool := (&smodels.Pool{}).Set(dLastPoolData, coin, dPool, validatorsD)
 
 	pd = &smodels.PoolDetails{
 		Pool: *Pool,
@@ -216,6 +219,9 @@ func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, 
 	if err != nil {
 		return nil, err
 	}
+	if pool == nil {
+		return nil, fmt.Errorf("dao.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
+	}
 
 	a, err := s.dao.GetPoolStatistic(pool.ID, postgres.SearchAggregate(aggregate))
 	if err != nil {
@@ -229,7 +235,7 @@ func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, 
 
 	data := make([]*smodels.Pool, len(a))
 	for i, v := range a {
-		data[i] = (&smodels.Pool{}).Set(v, coin, &pool, nil)
+		data[i] = (&smodels.Pool{}).Set(v, coin, pool, nil)
 		data[i].ValidatorCount, err = s.dao.GetValidatorCount(&postgres.PoolValidatorDataCondition{
 			PoolDataIDs: []uuid.UUID{
 				v.ID,

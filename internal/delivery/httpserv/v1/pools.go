@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/everstake/solana-pools/internal/dao/cache"
+	"github.com/everstake/solana-pools/internal/dao/postgres"
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,10 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 	resp, err := h.svc.GetPool(name)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
+		if errors.Is(err, postgres.ErrorRecordNotFounded) {
+			return nil, tools.NewStatus(http.StatusBadRequest, fmt.Errorf("%s pool not found", name))
+		}
+
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 
@@ -196,6 +201,9 @@ func (h *Handler) GetPoolsStatistic(ctx *gin.Context) (interface{}, error) {
 
 	arr, err := h.svc.GetPoolStatistic(request.Name, request.Aggregation)
 	if err != nil {
+		if errors.Is(err, postgres.ErrorRecordNotFounded) {
+			return nil, tools.NewStatus(http.StatusBadRequest, fmt.Errorf("%s pool not found", request.Name))
+		}
 		return nil, err
 	}
 
