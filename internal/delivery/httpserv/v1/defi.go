@@ -16,7 +16,7 @@ import (
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Param name query string false "stake-pool name"
-// @Success 200 {object} tools.ResponseData{data=[]poolMainPage} "Ok"
+// @Success 200 {object} tools.ResponseData{data=[]coin} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -42,7 +42,7 @@ func (h *Handler) GetCoins(ctx *gin.Context) (interface{}, error) {
 	}
 
 	return tools.ResponseArrayData{
-		Data: scoins,
+		Data: coins,
 		MetaData: &tools.MetaData{
 			Offset:      q.Offset,
 			Limit:       q.Limit,
