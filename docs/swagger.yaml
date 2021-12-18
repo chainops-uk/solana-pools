@@ -53,6 +53,36 @@ definitions:
       usd:
         type: number
     type: object
+  v1.coin:
+    properties:
+      address:
+        type: string
+      de_fi:
+        items:
+          $ref: '#/definitions/v1.deFi'
+        type: array
+      large_image:
+        type: string
+      name:
+        type: string
+      small_image:
+        type: string
+      thumb_image:
+        type: string
+      usd:
+        type: number
+    type: object
+  v1.deFi:
+    properties:
+      apy:
+        type: number
+      buyCoin:
+        $ref: '#/definitions/v1.coin'
+      liquidity:
+        type: number
+      liquidityPool:
+        $ref: '#/definitions/v1.liquidityPool'
+    type: object
   v1.epoch:
     properties:
       end_epoch:
@@ -103,6 +133,15 @@ definitions:
       vote:
         type: string
       vote_url:
+        type: string
+    type: object
+  v1.liquidityPool:
+    properties:
+      image:
+        type: string
+      name:
+        type: string
+      url:
         type: string
     type: object
   v1.pool:
@@ -255,7 +294,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/v1.poolMainPage'
+                    $ref: '#/definitions/v1.coin'
                   type: array
               type: object
         "400":
@@ -395,7 +434,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/v1.poolMainPage'
+                    $ref: '#/definitions/v1.coin'
                   type: array
               type: object
         "400":

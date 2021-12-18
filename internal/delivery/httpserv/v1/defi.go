@@ -24,7 +24,7 @@ import (
 func (h *Handler) GetCoins(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
-		Limit  uint64 `form:"limit,default=1"`
+		Limit  uint64 `form:"limit,default=0"`
 		Offset uint64 `form:"offset,default=10"`
 	}{}
 	if err := ctx.ShouldBind(&q); err != nil {
@@ -95,6 +95,34 @@ func (h *Handler) GetPoolsCoins(ctx *gin.Context) (interface{}, error) {
 	}, nil
 }
 
+type liquidityPool struct {
+	Name  string
+	Image string
+	URL   string
+}
+
+func (lp *liquidityPool) Set(pool *smodels.LiquidityPool) *liquidityPool {
+	lp.Name = pool.Name
+	lp.URL = pool.URL
+	lp.Image = pool.Image
+	return lp
+}
+
+type deFi struct {
+	BuyCoin       *coin
+	LiquidityPool *liquidityPool
+	Liquidity     float64
+	APY           float64
+}
+
+func (f *deFi) Set(defi *smodels.DeFi, buyCoin *coin, liquidityPool *liquidityPool) *deFi {
+	f.APY, _ = defi.APY.Float64()
+	f.LiquidityPool = liquidityPool
+	f.BuyCoin = buyCoin
+	f.Liquidity = defi.Liquidity
+	return f
+}
+
 type coin struct {
 	Name       string  `json:"name"`
 	Address    string  `json:"address"`
@@ -102,14 +130,22 @@ type coin struct {
 	ThumbImage string  `json:"thumb_image"`
 	SmallImage string  `json:"small_image"`
 	LargeImage string  `json:"large_image"`
+	DeFi       []*deFi `json:"de_fi,omitempty"`
 }
 
-func (c *coin) Set(coin *smodels.Coin) *coin {
-	c.USD = coin.USD
-	c.ThumbImage = coin.ThumbImage
-	c.SmallImage = coin.SmallImage
-	c.LargeImage = coin.LargeImage
-	c.Name = coin.Name
-	c.Address = coin.Address
+func (c *coin) Set(coinM *smodels.Coin) *coin {
+	c.USD = coinM.USD
+	c.ThumbImage = coinM.ThumbImage
+	c.SmallImage = coinM.SmallImage
+	c.LargeImage = coinM.LargeImage
+	c.Name = coinM.Name
+	c.Address = coinM.Address
+	if coinM.DeFi != nil {
+		defi := make([]*deFi, len(coinM.DeFi))
+		for i, fi := range coinM.DeFi {
+			defi[i] = (&deFi{}).Set(fi, (&coin{}).Set(fi.BuyCoin), (&liquidityPool{}).Set(fi.LiquidityPool))
+		}
+		c.DeFi = defi
+	}
 	return c
 }

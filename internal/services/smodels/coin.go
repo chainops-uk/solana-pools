@@ -9,9 +9,13 @@ type Coin struct {
 	ThumbImage string
 	SmallImage string
 	LargeImage string
+	DeFi       []*DeFi
 }
 
-func (c *Coin) Set(coin *dmodels.Coin) *Coin {
+func (c *Coin) Set(coin *dmodels.Coin, fi []*DeFi) *Coin {
+	if fi != nil {
+		c.DeFi = fi
+	}
 	c.USD = coin.USD
 	c.ThumbImage = coin.ThumbImage
 	c.SmallImage = coin.SmallImage

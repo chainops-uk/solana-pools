@@ -66,6 +66,11 @@ func main() {
 					log.Error("UpdateGovernance", zap.Error(err))
 				}
 			})
+			cron2.Every(time.Minute * 30).Do(func() {
+				if err := s.UpdateDeFi(); err != nil {
+					log.Error("UpdateDeFi", zap.Error(err))
+				}
+			})
 			cron3 := gocron.NewScheduler(time.UTC)
 			cron3.Every(time.Minute * 120).Do(func() {
 				if !up {

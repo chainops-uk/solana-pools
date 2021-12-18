@@ -6,6 +6,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
 	"github.com/everstake/solana-pools/internal/services/smodels"
+	"github.com/everstake/solana-pools/pkg/raydium"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
 	"github.com/portto/solana-go-sdk/client"
 	"github.com/shopspring/decimal"
@@ -36,6 +37,7 @@ type (
 		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
 		GetPoolValidators(name string, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
 
+		UpdateDeFi() error
 		UpdateCoins() error
 		UpdateGovernance() error
 		UpdatePrice() error
@@ -53,6 +55,7 @@ type (
 		dao           dao.DAO
 		coinGecko     *coingecko.Client
 		log           *zap.Logger
+		raydium       *raydium.Client
 		validatorsApp *validatorsapp.Client
 	}
 )
@@ -69,6 +72,7 @@ func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 		cache:         cache.New(time.Hour*24, time.Hour*24),
 		cfg:           cfg,
 		dao:           d,
+		raydium:       raydium.NewClient(httpClient),
 		coinGecko:     coingecko.NewClient(httpClient),
 		log:           l,
 		validatorsApp: validatorsapp.NewClient(cfg.ValidatorsAppKey),

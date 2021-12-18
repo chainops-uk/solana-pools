@@ -30,7 +30,26 @@ func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.
 
 	scoins := make([]*smodels.Coin, len(coins))
 	for i, coin := range coins {
-		scoins[i] = (&smodels.Coin{}).Set(coin)
+		dEfI, err := s.dao.GetDEFIs(&postgres.DeFiCondition{
+			SaleCoinID: []uuid.UUID{coin.ID},
+		})
+		if err != nil {
+			return nil, 0, fmt.Errorf("dao.GetDEFIs: %w", err)
+		}
+		defi := make([]*smodels.DeFi, len(dEfI))
+		for i2, d := range dEfI {
+			lp, err := s.dao.GetLiquidityPool(&postgres.Condition{IDs: []uuid.UUID{d.LiquidityPoolID}})
+			if err != nil {
+				return nil, 0, fmt.Errorf("dao.GetLiquidityPool: %w", err)
+			}
+			coin, err := s.dao.GetCoinByID(d.BuyCoinID)
+			if err != nil {
+				return nil, 0, fmt.Errorf("dao.GetCoinByID: %w", err)
+			}
+			defi[i2] = (&smodels.DeFi{}).Set(d, (&smodels.Coin{}).Set(coin, nil), (&smodels.LiquidityPool{}).Set(lp))
+		}
+
+		scoins[i] = (&smodels.Coin{}).Set(coin, defi)
 	}
 
 	count, err := s.dao.GetCoinsCount(&postgres.Condition{
@@ -55,7 +74,7 @@ func (s Imp) GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin
 
 	scoins := make([]*smodels.Coin, len(coins))
 	for i, coin := range coins {
-		scoins[i] = (&smodels.Coin{}).Set(coin)
+		scoins[i] = (&smodels.Coin{}).Set(coin, nil)
 	}
 
 	count, err := s.dao.GetCoinsCount(&postgres.Condition{

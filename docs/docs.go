@@ -71,7 +71,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.poolMainPage"
+                                                "$ref": "#/definitions/v1.coin"
                                             }
                                         }
                                     }
@@ -293,7 +293,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.poolMainPage"
+                                                "$ref": "#/definitions/v1.coin"
                                             }
                                         }
                                     }
@@ -782,6 +782,52 @@ var doc = `{
                 }
             }
         },
+        "v1.coin": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "de_fi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.deFi"
+                    }
+                },
+                "large_image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "small_image": {
+                    "type": "string"
+                },
+                "thumb_image": {
+                    "type": "string"
+                },
+                "usd": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.deFi": {
+            "type": "object",
+            "properties": {
+                "apy": {
+                    "type": "number"
+                },
+                "buyCoin": {
+                    "$ref": "#/definitions/v1.coin"
+                },
+                "liquidity": {
+                    "type": "number"
+                },
+                "liquidityPool": {
+                    "$ref": "#/definitions/v1.liquidityPool"
+                }
+            }
+        },
         "v1.epoch": {
             "type": "object",
             "properties": {
@@ -857,6 +903,20 @@ var doc = `{
                     "type": "string"
                 },
                 "vote_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.liquidityPool": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }

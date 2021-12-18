@@ -23,6 +23,7 @@ type PoolValidatorDataCondition struct {
 
 type Condition struct {
 	IDs     []uuid.UUID
+	Names   []string
 	Name    string
 	Epoch   []uint64
 	Network Network
@@ -57,6 +58,9 @@ func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
 	}
 	if len(cond.IDs) > 0 {
 		db = db.Where(`id IN (?)`, cond.IDs)
+	}
+	if len(cond.Names) > 0 {
+		db = db.Where(`name IN (?)`, cond.Names)
 	}
 	if cond.Name != "" {
 		db = db.Where(`name ilike ?`, "%"+cond.Name+"%")
