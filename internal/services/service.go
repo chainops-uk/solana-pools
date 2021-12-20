@@ -6,6 +6,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
 	"github.com/everstake/solana-pools/internal/services/smodels"
+	"github.com/everstake/solana-pools/pkg/orca"
 	"github.com/everstake/solana-pools/pkg/raydium"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
 	"github.com/portto/solana-go-sdk/client"
@@ -56,6 +57,7 @@ type (
 		coinGecko     *coingecko.Client
 		log           *zap.Logger
 		raydium       *raydium.Client
+		orca          *orca.Client
 		validatorsApp *validatorsapp.Client
 	}
 )
@@ -73,6 +75,7 @@ func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 		cfg:           cfg,
 		dao:           d,
 		raydium:       raydium.NewClient(httpClient),
+		orca:          orca.NewClient(httpClient),
 		coinGecko:     coingecko.NewClient(httpClient),
 		log:           l,
 		validatorsApp: validatorsapp.NewClient(cfg.ValidatorsAppKey),

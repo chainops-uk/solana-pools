@@ -290,7 +290,7 @@ func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 
 func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
 	pd.pool.Set(&details.Pool)
-
+	pd.Validators = uint64(details.ValidatorCount)
 	return pd
 }
 
