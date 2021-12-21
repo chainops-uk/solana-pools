@@ -341,7 +341,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "marinade",
+                        "default": "Marinade",
                         "description": "pool name",
                         "name": "name",
                         "in": "query",
@@ -509,7 +509,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "marinade",
+                        "default": "Marinade",
                         "description": "Pool name",
                         "name": "name",
                         "in": "path",
@@ -950,7 +950,7 @@ var doc = `{
                 "depossit_fee": {
                     "type": "number"
                 },
-                "large_image": {
+                "image": {
                     "type": "string"
                 },
                 "name": {
@@ -959,14 +959,8 @@ var doc = `{
                 "rewards_fee": {
                     "type": "number"
                 },
-                "small_image": {
-                    "type": "string"
-                },
                 "staking_accounts": {
                     "type": "integer"
-                },
-                "thumb_image": {
-                    "type": "string"
                 },
                 "tokens_supply": {
                     "type": "number"
@@ -1006,7 +1000,7 @@ var doc = `{
                 "depossit_fee": {
                     "type": "number"
                 },
-                "large_image": {
+                "image": {
                     "type": "string"
                 },
                 "name": {
@@ -1015,14 +1009,8 @@ var doc = `{
                 "rewards_fee": {
                     "type": "number"
                 },
-                "small_image": {
-                    "type": "string"
-                },
                 "staking_accounts": {
                     "type": "integer"
-                },
-                "thumb_image": {
-                    "type": "string"
                 },
                 "tokens_supply": {
                     "type": "number"

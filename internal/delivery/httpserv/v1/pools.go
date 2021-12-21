@@ -18,7 +18,7 @@ import (
 // @Summary WebSocket
 // @Schemes
 // @Description get pool
-// @Param name path string true "Pool name" default(marinade)
+// @Param name path string true "Pool name" default(Marinade)
 // @Accept json
 // @Produce json
 // @Success 200 {object} tools.ResponseData{data=pool} "Ok"
@@ -182,7 +182,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Description get statistic by pool
 // @Accept json
 // @Produce json
-// @Param name query string true "pool name" default(marinade)
+// @Param name query string true "pool name" default(Marinade)
 // @Param aggregation query string true "aggregation" Enums(week, month, quarter, half-year, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"

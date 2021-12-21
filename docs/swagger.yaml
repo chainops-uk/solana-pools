@@ -162,18 +162,14 @@ definitions:
         type: number
       depossit_fee:
         type: number
-      large_image:
+      image:
         type: string
       name:
         type: string
       rewards_fee:
         type: number
-      small_image:
-        type: string
       staking_accounts:
         type: integer
-      thumb_image:
-        type: string
       tokens_supply:
         type: number
       unstake_liquidity:
@@ -199,18 +195,14 @@ definitions:
         type: number
       depossit_fee:
         type: number
-      large_image:
+      image:
         type: string
       name:
         type: string
       rewards_fee:
         type: number
-      small_image:
-        type: string
       staking_accounts:
         type: integer
-      thumb_image:
-        type: string
       tokens_supply:
         type: number
       unstake_liquidity:
@@ -460,7 +452,7 @@ paths:
       - application/json
       description: get statistic by pool
       parameters:
-      - default: marinade
+      - default: Marinade
         description: pool name
         in: query
         name: name
@@ -569,7 +561,7 @@ paths:
       - application/json
       description: get pool
       parameters:
-      - default: marinade
+      - default: Marinade
         description: Pool name
         in: path
         name: name
