@@ -74,15 +74,22 @@ func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate) ([]*dmodel
 
 func aggregateByDate(aggregate Aggregate, db *gorm.DB) (*gorm.DB, error) {
 	switch aggregate {
+
 	case Week:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, 0, -7), time.Now()).
 			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
 	case Month:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, -1, 0), time.Now()).
 			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
+	case Quarter:
+		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, -3, 0), time.Now()).
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('week', "pool_data"."created_at") = date_part('week', t1."created_at"))`), nil
+	case HalfYear:
+		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, -3, 0), time.Now()).
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('week', "pool_data"."created_at") = date_part('week', t1."created_at"))`), nil
 	case Year:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(-1, 0, 0), time.Now()).
-			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('month', "pool_data"."created_at") = date_part('month', t1."created_at"))`), nil
 	default:
 		return nil, nil
 	}
@@ -91,3 +98,17 @@ func aggregateByDate(aggregate Aggregate, db *gorm.DB) (*gorm.DB, error) {
 func (db *DB) UpdatePoolData(pool *dmodels.PoolData) error {
 	return db.Save(pool).Error
 }
+
+/*
+	case Month:
+		return db.Where(`"created_at"::date between ? AND ?`, from, to).
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('week', "pool_data"."created_at") = date_part('week', t1."created_at"))`), nil
+	case Week:
+		return db.Where(`"created_at"::date between ? AND ?`, from, to).
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at") and date_part('month', "pool_data"."created_at") = date_part('month', t1."created_at"))`), nil
+	case Year:
+		return db.Where(`"created_at"::date between ? AND ?`, from, to).
+			Where(`"created_at" = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and date_part('year', "pool_data"."created_at") = date_part('year', t1."created_at"))`), nil
+	default:
+		return nil, nil
+*/

@@ -9,5 +9,6 @@ type Pool struct {
 	CoinID  uuid.UUID `gorm:"type:uuid;not null;"`
 	Address string    `gorm:"index;not null;"`
 	Network string    `gorm:"type:varchar(50);not null;"`
+	Image   string    `gorm:"type:varchar(240);not null;default:'Default';"`
 	Coin    Coin      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Restrict;"`
 }

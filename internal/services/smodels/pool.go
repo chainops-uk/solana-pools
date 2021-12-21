@@ -13,9 +13,6 @@ type (
 		Name             string
 		Image            string
 		Currency         string
-		ThumbImage       string
-		SmallImage       string
-		LargeImage       string
 		ActiveStake      sol.SOL
 		TokensSupply     sol.SOL
 		APY              decimal.Decimal
@@ -51,11 +48,9 @@ func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Poo
 	if pool != nil {
 		p.Name = pool.Name
 		p.Address = pool.Address
+		p.Image = pool.Image
 	}
 	if coin != nil {
-		p.LargeImage = coin.LargeImage
-		p.ThumbImage = coin.ThumbImage
-		p.SmallImage = coin.SmallImage
 		p.Currency = coin.Name
 	}
 	if data != nil {
@@ -74,9 +69,9 @@ func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Poo
 		if len(validator) > 0 {
 			for _, v := range validator {
 				p.AVGScore += v.Score
-				p.AVGSkippedSlots.Add(v.SkippedSlots)
+				p.AVGSkippedSlots = p.AVGSkippedSlots.Add(v.SkippedSlots)
 				if v.Delinquent {
-					p.Delinquent.Add(decimal.NewFromInt(1))
+					p.Delinquent = p.Delinquent.Add(decimal.NewFromInt(1))
 				}
 				p.StakingAccounts += v.StakingAccounts
 			}

@@ -341,7 +341,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "mSOL",
+                        "default": "marinade",
                         "description": "pool name",
                         "name": "name",
                         "in": "query",
@@ -351,6 +351,8 @@ var doc = `{
                         "enum": [
                             "week",
                             "month",
+                            "quarter",
+                            "half-year",
                             "year"
                         ],
                         "type": "string",
@@ -418,7 +420,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "REST",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",

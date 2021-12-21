@@ -460,7 +460,7 @@ paths:
       - application/json
       description: get statistic by pool
       parameters:
-      - default: mSOL
+      - default: marinade
         description: pool name
         in: query
         name: name
@@ -470,6 +470,8 @@ paths:
         enum:
         - week
         - month
+        - quarter
+        - half-year
         - year
         in: query
         name: aggregation
@@ -560,7 +562,7 @@ paths:
           description: default response
           schema:
             $ref: '#/definitions/tools.ResponseError'
-      summary: REST
+      summary: RestAPI
   /pool/{name}:
     get:
       consumes:

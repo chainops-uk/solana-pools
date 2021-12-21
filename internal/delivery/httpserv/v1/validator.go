@@ -12,7 +12,7 @@ import (
 )
 
 // GetPoolValidators godoc
-// @Summary REST
+// @Summary RestAPI
 // @Schemes
 // @Description get pool validators
 // @Param name path string true "Pool name" default(marinade)

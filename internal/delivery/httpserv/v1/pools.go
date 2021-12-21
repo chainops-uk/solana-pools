@@ -182,8 +182,8 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // @Description get statistic by pool
 // @Accept json
 // @Produce json
-// @Param name query string true "pool name" default(mSOL)
-// @Param aggregation query string true "aggregation" Enums(week, month, year)
+// @Param name query string true "pool name" default(marinade)
+// @Param aggregation query string true "aggregation" Enums(week, month, quarter, half-year, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
@@ -252,9 +252,7 @@ type (
 	pool struct {
 		Address          string  `json:"address"`
 		Name             string  `json:"name"`
-		ThumbImage       string  `json:"thumb_image"`
-		SmallImage       string  `json:"small_image"`
-		LargeImage       string  `json:"large_image"`
+		Image            string  `json:"image"`
 		Currency         string  `json:"currency"`
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
@@ -297,9 +295,7 @@ func (pd *poolMainPage) Set(details *smodels.PoolDetails) *poolMainPage {
 func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Address = pool.Address
 	pl.Name = pool.Name
-	pl.SmallImage = pool.SmallImage
-	pl.LargeImage = pool.LargeImage
-	pl.ThumbImage = pool.ThumbImage
+	pl.Image = pool.Image
 	pl.Currency = pool.Currency
 	pl.ActiveStake, _ = pool.ActiveStake.Float64()
 	pl.TokensSupply, _ = pool.TokensSupply.Float64()

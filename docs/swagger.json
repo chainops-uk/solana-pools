@@ -323,7 +323,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "mSOL",
+                        "default": "marinade",
                         "description": "pool name",
                         "name": "name",
                         "in": "query",
@@ -333,6 +333,8 @@
                         "enum": [
                             "week",
                             "month",
+                            "quarter",
+                            "half-year",
                             "year"
                         ],
                         "type": "string",
@@ -400,7 +402,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "REST",
+                "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",

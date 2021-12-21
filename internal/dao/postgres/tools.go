@@ -38,6 +38,8 @@ type Aggregate int8
 const (
 	Month = Aggregate(iota)
 	Week
+	Quarter
+	HalfYear
 	Year
 )
 
@@ -45,6 +47,10 @@ func SearchAggregate(name string) Aggregate {
 	switch name {
 	case "month":
 		return Month
+	case "quarter":
+		return Quarter
+	case "half-year":
+		return HalfYear
 	case "year":
 		return Year
 	default:
