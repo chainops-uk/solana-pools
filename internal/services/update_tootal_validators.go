@@ -8,6 +8,7 @@ import (
 	solana_sdk "github.com/everstake/solana-pools/pkg/extension/solana-sdk"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
 	"github.com/shopspring/decimal"
+	"math"
 	"time"
 )
 
@@ -97,121 +98,22 @@ func (s Imp) UpdateValidators() error {
 		})
 	}
 
-	if err := s.dao.UpdateValidators(validators...); err != nil {
-		return fmt.Errorf("dao.UpdateValidators: %w", err)
-	}
+	step := 100
 
-	return nil
-}
-
-func (s Imp) UpdateTestNetValidators() error {
-
-	ctx := context.Background()
-	client := s.rpcClients["testnet"]
-
-rep:
-	ei1, err := client.RpcClient.GetEpochInfo(ctx)
-	if err != nil {
-		return fmt.Errorf("GetEpochInfo: %w", err)
-	}
-
-	t1 := time.Now()
-
-	<-time.After(time.Minute * 1)
-
-	ei2, err := client.RpcClient.GetEpochInfo(ctx)
-	if err != nil {
-		return fmt.Errorf("GetEpochInfo: %w", err)
-	}
-
-	t2 := time.Now()
-
-	if ei1.Result.Epoch != ei2.Result.Epoch {
-		goto rep
-	}
-
-	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-
-	epochTime := float64(ei2.Result.SlotsInEpoch) / sps
-
-	epochInYear := 31557600 / epochTime
-
-	va, err := solana_sdk.GetVoteAccounts(client.RpcClient.Call(ctx, "getVoteAccounts"))
-	if err != nil {
-		return fmt.Errorf("UpdateValidators: %w", err)
-	}
-
-	ii := 0
-	validators := make([]*dmodels.Validator, len(va.Current)+len(va.Delinquent))
-	for _, v := range va.Current {
-		var vInfo validatorsapp.ValidatorAppInfo
-		err = rep(func() error {
-			vInfo, err = s.validatorsApp.GetValidatorInfo("testnet", v.NodePubKey)
-			return err
-		}, 10, time.Minute*1)
-		if err != nil {
-			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %w", v.NodePubKey, err)
-		}
-		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), epochInYear)
-		if err != nil {
-			return fmt.Errorf("getAPY: %w", err)
+	n := int(math.Ceil(float64(len(validators)) / float64(step)))
+	offset := 0
+	for i := 0; i < n; i++ {
+		if offset+step > len(validators) {
+			if err := s.dao.UpdateValidators(validators[offset:]...); err != nil {
+				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			}
+		} else {
+			if err := s.dao.UpdateValidators(validators[offset : offset+step]...); err != nil {
+				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			}
 		}
 
-		validators[ii] = &dmodels.Validator{
-			ID:              v.NodePubKey,
-			Name:            vInfo.Name,
-			Delinquent:      false,
-			Network:         "testnet",
-			VotePK:          v.VotePubKey,
-			APY:             apy,
-			StakingAccounts: stakingAccounts,
-			ActiveStake:     uint64(v.ActivatedStake),
-			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
-			Score:           vInfo.TotalScore,
-			SkippedSlots:    skippedSlots,
-			DataCenter:      vInfo.DataCenterHost,
-			CreatedAt:       time.Now(),
-			UpdatedAt:       time.Now(),
-		}
-		ii++
-	}
-	for _, v := range va.Delinquent {
-		var vInfo validatorsapp.ValidatorAppInfo
-		err = rep(func() error {
-			vInfo, err = s.validatorsApp.GetValidatorInfo("mainnet", v.NodePubKey)
-			return err
-		}, 10, time.Minute*1)
-		if err != nil {
-			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %w", v.NodePubKey, err)
-		}
-		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), epochInYear)
-		if err != nil {
-			return fmt.Errorf("getAPY: %w", err)
-		}
-
-		validators[ii] = &dmodels.Validator{
-			ID:              v.NodePubKey,
-			Name:            vInfo.Name,
-			Delinquent:      true,
-			Network:         "mainnet",
-			VotePK:          v.VotePubKey,
-			APY:             apy,
-			StakingAccounts: stakingAccounts,
-			ActiveStake:     uint64(v.ActivatedStake),
-			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
-			Score:           vInfo.TotalScore,
-			SkippedSlots:    skippedSlots,
-			DataCenter:      vInfo.DataCenterHost,
-			CreatedAt:       time.Now(),
-			UpdatedAt:       time.Now(),
-		}
-		ii++
-	}
-
-	if err := s.dao.UpdateValidators(validators...); err != nil {
-		return fmt.Errorf("dao.UpdateValidators: %w", err)
+		offset += step
 	}
 
 	return nil
