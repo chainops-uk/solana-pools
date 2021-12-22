@@ -853,38 +853,17 @@ var doc = `{
         "v1.governance": {
             "type": "object",
             "properties": {
-                "about": {
-                    "type": "string"
-                },
                 "blockchain": {
                     "type": "string"
                 },
                 "circulating_supply": {
                     "type": "number"
                 },
-                "coin_name": {
-                    "type": "string"
-                },
                 "contract_address": {
                     "type": "string"
                 },
-                "dao_treasury": {
-                    "type": "number"
-                },
-                "exchange": {
-                    "type": "string"
-                },
-                "foundation": {
-                    "type": "number"
-                },
                 "image": {
                     "type": "string"
-                },
-                "initial_lido_developers": {
-                    "type": "number"
-                },
-                "investors": {
-                    "type": "number"
                 },
                 "maximum_token_supply": {
                     "type": "number"
@@ -892,20 +871,8 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
-                "trade": {
-                    "type": "string"
-                },
                 "usd": {
                     "type": "number"
-                },
-                "validators": {
-                    "type": "number"
-                },
-                "vote": {
-                    "type": "string"
-                },
-                "vote_url": {
-                    "type": "string"
                 }
             }
         },

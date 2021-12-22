@@ -4,7 +4,6 @@ import (
 	"github.com/everstake/solana-pools/internal/delivery/httpserv/tools"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"net/http"
 )
 
@@ -53,23 +52,13 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 }
 
 type governance struct {
-	Name                  string          `json:"name"`
-	Image                 string          `json:"image"`
-	Blockchain            string          `json:"blockchain"`
-	ContractAddress       string          `json:"contract_address"`
-	VoteURL               string          `json:"vote_url"`
-	About                 string          `json:"about"`
-	Vote                  string          `json:"vote"`
-	Trade                 string          `json:"trade"`
-	Exchange              string          `json:"exchange"`
-	MaximumTokenSupply    float64         `json:"maximum_token_supply"`
-	CirculatingSupply     float64         `json:"circulating_supply"`
-	USD                   float64         `json:"usd"`
-	DAOTreasury           decimal.Decimal `json:"dao_treasury"`
-	Investors             decimal.Decimal `json:"investors"`
-	InitialLidoDevelopers decimal.Decimal `json:"initial_lido_developers"`
-	Foundation            decimal.Decimal `json:"foundation"`
-	Validators            decimal.Decimal `json:"validators"`
+	Name               string  `json:"name"`
+	Image              string  `json:"image"`
+	Blockchain         string  `json:"blockchain"`
+	ContractAddress    string  `json:"contract_address"`
+	MaximumTokenSupply float64 `json:"maximum_token_supply"`
+	CirculatingSupply  float64 `json:"circulating_supply"`
+	USD                float64 `json:"usd"`
 }
 
 func (g *governance) Set(governance *smodels.Governance) *governance {
@@ -77,18 +66,8 @@ func (g *governance) Set(governance *smodels.Governance) *governance {
 	g.Image = governance.Image
 	g.Blockchain = governance.Blockchain
 	g.ContractAddress = governance.ContractAddress
-	g.VoteURL = governance.VoteURL
-	g.About = governance.About
-	g.Vote = governance.Vote
-	g.Trade = governance.Trade
-	g.Exchange = governance.Exchange
 	g.MaximumTokenSupply = governance.MaximumTokenSupply
 	g.CirculatingSupply = governance.CirculatingSupply
 	g.USD = governance.USD
-	g.DAOTreasury = governance.DAOTreasury
-	g.Investors = governance.Investors
-	g.InitialLidoDevelopers = governance.InitialLidoDevelopers
-	g.Foundation = governance.Foundation
-	g.Validators = governance.Validators
 	return g
 }

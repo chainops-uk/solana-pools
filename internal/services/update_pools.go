@@ -29,42 +29,6 @@ var (
 )
 
 func (s Imp) UpdatePools() error {
-	dPools, err := s.dao.GetPools(nil)
-	if err != nil {
-		return fmt.Errorf("dao.GetPools: %s", err.Error())
-	}
-	var success, fail uint64
-	start := time.Now()
-	for _, p := range dPools {
-		if !p.Active {
-			continue
-		}
-		if err := s.updatePool(p); err != nil {
-			s.log.Error(
-				"Update Pools",
-				zap.String("pool_name", p.Name),
-				zap.String("pool_address", p.Address),
-				zap.String("network", p.Network),
-				zap.Error(err),
-			)
-			fail++
-		} else {
-			success++
-		}
-	}
-	s.log.Debug(
-		"Pools Updated",
-		zap.Uint64("success", success),
-		zap.Uint64("failed", fail),
-		zap.Duration("duration", time.Now().Sub(start)),
-	)
-	return nil
-}
-
-func (s Imp) updatePool(dPool dmodels.Pool) error {
-	net := config.Network(dPool.Network)
-	rpcCli, ok := s.rpcClients[net]
-
 	client := s.rpcClients["mainnet"]
 
 	ei1, err := client.RpcClient.GetEpochInfo(context.Background())
@@ -88,10 +52,46 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 	}
 
 	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-	correlation := 400 / ((1 / sps) * 1000)
 	if sps == 0 {
 		return err
 	}
+	correlation := 400 / ((1 / sps) * 1000)
+
+	dPools, err := s.dao.GetPools(nil)
+	if err != nil {
+		return fmt.Errorf("dao.GetPools: %s", err.Error())
+	}
+	var success, fail uint64
+	start := time.Now()
+	for _, p := range dPools {
+		if !p.Active {
+			continue
+		}
+		if err := s.updatePool(p, correlation); err != nil {
+			s.log.Error(
+				"Update Pools",
+				zap.String("pool_name", p.Name),
+				zap.String("pool_address", p.Address),
+				zap.String("network", p.Network),
+				zap.Error(err),
+			)
+			fail++
+		} else {
+			success++
+		}
+	}
+	s.log.Debug(
+		"Pools Updated",
+		zap.Uint64("success", success),
+		zap.Uint64("failed", fail),
+		zap.Duration("duration", time.Now().Sub(start)),
+	)
+	return nil
+}
+
+func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
+	net := config.Network(dPool.Network)
+	rpcCli, ok := s.rpcClients[net]
 
 	if !ok {
 		return fmt.Errorf("rpc client for %s network not found", dPool.Network)

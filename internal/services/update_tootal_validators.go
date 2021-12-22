@@ -38,10 +38,10 @@ rep:
 	}
 
 	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-
-	epochTime := float64(ei2.Result.SlotsInEpoch) / sps
-
-	epochInYear := 31557600 / epochTime
+	if sps == 0 {
+		return err
+	}
+	correlation := 400 / ((1 / sps) * 1000)
 
 	va, err := solana_sdk.GetVoteAccounts(client.RpcClient.Call(ctx, "getVoteAccounts"))
 	if err != nil {
@@ -58,10 +58,12 @@ rep:
 			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %w", v.NodePubKey, err)
 		}
 		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), epochInYear)
+		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), EpochsPerYear)
 		if err != nil {
 			return fmt.Errorf("getAPY: %w", err)
 		}
+
+		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
 		validator := &dmodels.Validator{
 			ID:              v.NodePubKey,
@@ -96,7 +98,7 @@ rep:
 			return fmt.Errorf("validatorsApp.GetValidatorInfo(%s): %w", v.NodePubKey, err)
 		}
 		skippedSlots, _ := decimal.NewFromString(vInfo.SkippedSlotPercent)
-		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), epochInYear)
+		apy, stakingAccounts, err := getAPY(client, ctx, solana.MustPublicKeyFromBase58(v.VotePubKey), EpochsPerYear)
 		if err != nil {
 			return fmt.Errorf("getAPY: %w", err)
 		}

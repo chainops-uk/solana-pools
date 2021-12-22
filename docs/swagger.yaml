@@ -98,42 +98,20 @@ definitions:
     type: object
   v1.governance:
     properties:
-      about:
-        type: string
       blockchain:
         type: string
       circulating_supply:
         type: number
-      coin_name:
-        type: string
       contract_address:
         type: string
-      dao_treasury:
-        type: number
-      exchange:
-        type: string
-      foundation:
-        type: number
       image:
         type: string
-      initial_lido_developers:
-        type: number
-      investors:
-        type: number
       maximum_token_supply:
         type: number
       name:
         type: string
-      trade:
-        type: string
       usd:
         type: number
-      validators:
-        type: number
-      vote:
-        type: string
-      vote_url:
-        type: string
     type: object
   v1.liquidityPool:
     properties:
