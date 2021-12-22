@@ -252,6 +252,7 @@ type (
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
 		APY              float64 `json:"apy"`
+		Validators       int64   `json:"validators"`
 		AVGSkippedSlots  float64 `json:"avg_skipped_slots"`
 		AVGScore         int64   `json:"avg_score"`
 		StakingAccounts  uint64  `json:"staking_accounts"`
@@ -303,6 +304,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.DepossitFee, _ = pool.DepossitFee.Float64()
 	pl.WithdrawalFee, _ = pool.WithdrawalFee.Float64()
 	pl.RewardsFee, _ = pool.RewardsFee.Float64()
+	pl.Validators = pool.ValidatorCount
 
 	return pl
 }
