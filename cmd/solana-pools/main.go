@@ -77,6 +77,13 @@ func main() {
 				}
 
 			})
+			cron4 := gocron.NewScheduler(time.UTC)
+			cron4.Every(time.Hour).Do(func() {
+				if err := s.UpdateSlotTimeMS(); err != nil {
+					log.Error("UpdateSlotTimeMS", zap.Error(err))
+				}
+
+			})
 
 			cron1.SetMaxConcurrentJobs(3, gocron.RescheduleMode)
 			cron3.SetMaxConcurrentJobs(1, gocron.RescheduleMode)

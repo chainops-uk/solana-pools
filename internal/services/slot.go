@@ -48,7 +48,7 @@ rep:
 
 	t1 := time.Now()
 
-	<-time.After(time.Minute * 1)
+	<-time.After(time.Hour * 1)
 
 	ei2, err := client.RpcClient.GetEpochInfo(context.Background())
 	if err != nil {

@@ -45,6 +45,7 @@ type (
 		UpdateNetworkData() error
 		UpdateValidators() error
 		UpdateTestNetValidators() error
+		UpdateSlotTimeMS() error
 	}
 	Imp struct {
 		rpcClients    map[config.Network]*client.Client
