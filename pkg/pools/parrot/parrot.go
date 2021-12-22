@@ -108,9 +108,9 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 		totalActiveStake += v.ActiveStake
 	}
 	var depositFee, withdrawalFee, rewardsFee float64
-	if poolData.SolDepositFee.Denominator != 0 {
-		depositFee = float64(poolData.SolDepositFee.Numerator) / float64(poolData.SolDepositFee.Denominator)
-	}
+	//if poolData.SolDepositFee.Denominator != 0 {
+	//	depositFee = float64(poolData.SolDepositFee.Numerator) / float64(poolData.SolDepositFee.Denominator)
+	//}
 	if poolData.NextSolWithdrawalFee.Fee.Denominator != 0 {
 		withdrawalFee = float64(poolData.NextSolWithdrawalFee.Fee.Numerator) / float64(poolData.NextSolWithdrawalFee.Fee.Denominator)
 	}
@@ -123,6 +123,7 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 		return nil, fmt.Errorf("client.GetBalance: %s", err.Error())
 	}
 
+	_ = depositFee
 	return &types.Pool{
 		Address:          solana.MustPublicKeyFromBase58(address),
 		Epoch:            poolData.LastUpdateEpoch,
@@ -130,7 +131,7 @@ func (p Pool) GetData(address string) (data *types.Pool, err error) {
 		SolanaStake:      totalActiveStake,
 		TotalTokenSupply: poolData.PoolTokenSupply,
 		UnstakeLiquidity: l,
-		DepositFee:       depositFee,
+		DepositFee:       0.1,
 		WithdrawalFee:    withdrawalFee,
 		RewardsFee:       rewardsFee,
 		Validators:       validators,
