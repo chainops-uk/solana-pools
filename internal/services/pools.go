@@ -139,7 +139,9 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	if len(dPools) == 0 {
 		return nil, nil
 	}
-	stat = &smodels.Statistic{}
+	stat = &smodels.Statistic{
+		Pools: uint64(len(dPools)),
+	}
 
 	once := sync.Once{}
 	pools := make([]*smodels.PoolDetails, len(dPools))
@@ -200,7 +202,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	}
 
 	if len(dPools) > 0 {
-		stat.AVGPoolsApy.Div(decimal.NewFromInt(int64(len(dPools))))
+		stat.AVGPoolsApy = stat.AVGPoolsApy.Div(decimal.NewFromInt(int64(len(dPools))))
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(dPools))))
 		stat.AVGScore /= int64(len(dPools))
 	}
@@ -247,15 +249,6 @@ func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, 
 	}
 
 	return data, nil
-}
-
-func (s *Imp) GetPoolCount() (int64, error) {
-	i, err := s.dao.GetPoolCount(nil)
-	if err != nil {
-		return 0, err
-	}
-
-	return i, nil
 }
 
 func (s *Imp) GetNetworkAPY() (float64, error) {

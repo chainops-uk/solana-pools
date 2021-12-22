@@ -149,6 +149,7 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		TotalLamports:    poolData.ValidatorSystem.TotalActiveBalance,
 		UnstakeLiquidity: poolData.LiquiditySolCap,
 		RewardsFee:       float64(poolData.RewardFee) / 100,
+		WithdrawalFee:    0.03,
 		Validators:       validators,
 	}, nil
 }

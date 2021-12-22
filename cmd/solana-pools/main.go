@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao"
@@ -45,17 +44,11 @@ func main() {
 			})
 			cron2 := gocron.NewScheduler(time.UTC)
 			cron2.Every(time.Minute).Do(func() {
-				if err := s.UpdateAPY(); err != nil {
-					log.Error("UpdateAPY", zap.Error(err))
-				}
-				if err := s.UpdateValidatorsStatistic(); err != nil {
-					log.Error("UpdateValidatorsStatistic", zap.Error(err))
+				if err := s.UpdateNetworkData(); err != nil {
+					log.Error("UpdateNetworkData", zap.Error(err))
 				}
 				if err := s.UpdatePrice(); err != nil {
 					log.Error("UpdatePrice", zap.Error(err))
-				}
-				if err := s.UpdateEpoch(context.Background()); err != nil {
-					log.Error("UpdateEpoch", zap.Error(err))
 				}
 			})
 			cron2.Every(time.Minute * 30).Do(func() {

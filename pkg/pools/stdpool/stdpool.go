@@ -65,6 +65,13 @@ type Fee struct {
 	Numerator   uint64
 }
 
+func (f *Fee) ToFloat() float64 {
+	if f.Denominator != 0 {
+		return float64(f.Numerator) / float64(f.Denominator)
+	}
+	return 0
+}
+
 type Lockup struct {
 	UnixTimestamp int64
 	Epoch         uint64
@@ -139,13 +146,18 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		return nil, fmt.Errorf("client.GetBalance: %s", err.Error())
 	}
 
-	return &types.Pool{
+	pool := &types.Pool{
 		Address:          solana.MustPublicKeyFromBase58(address),
 		Epoch:            poolData.LastUpdateEpoch,
 		SolanaStake:      totalActiveStake,
 		TotalTokenSupply: poolData.PoolTokenSupply,
 		TotalLamports:    poolData.TotalLamports,
 		UnstakeLiquidity: l,
+		DepositFee:       poolData.SolDepositFee.ToFloat(),
+		WithdrawalFee:    poolData.SolWithdrawalFee.ToFloat(),
+		RewardsFee:       poolData.EpochFee.ToFloat(),
 		Validators:       validators,
-	}, nil
+	}
+
+	return pool, nil
 }

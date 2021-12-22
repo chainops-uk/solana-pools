@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
@@ -23,7 +22,6 @@ type (
 	}
 
 	Service interface {
-		GetPoolCount() (int64, error)
 		GetActiveStake() uint64
 		GetPoolsCurrentStatistic() (*smodels.Statistic, error)
 		GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, error)
@@ -43,9 +41,7 @@ type (
 		UpdateGovernance() error
 		UpdatePrice() error
 		UpdatePools() error
-		UpdateAPY() error
-		UpdateEpoch(ctx context.Context) error
-		UpdateValidatorsStatistic() error
+		UpdateNetworkData() error
 		UpdateValidators() error
 		UpdateTestNetValidators() error
 	}

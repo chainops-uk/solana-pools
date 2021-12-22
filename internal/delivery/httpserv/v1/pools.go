@@ -118,11 +118,6 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pools-statistic [get]
 func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) {
-	poolCount, err := h.svc.GetPoolCount()
-	if err != nil {
-		return nil, err
-	}
-
 	apy, err := h.svc.GetAPY()
 	if err != nil {
 		if errors.Is(err, cache.KeyWasNotFound) {
@@ -166,7 +161,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 		TotalUnstakeLiquidity: tu,
 		TotalValidators:       validators,
 		NetworkAPY:            APY,
-		Pools:                 poolCount,
+		Pools:                 sc.Pools,
 		PoolsAvgAPY:           paa,
 		MinPerformanceScore:   sc.MINScore,
 		AvgPerformanceScore:   sc.AVGScore,
@@ -241,7 +236,7 @@ type (
 		TotalUnstakeLiquidity float64 `json:"total_unstake_liquidity"`
 		TotalValidators       int64   `json:"total_validators"`
 		NetworkAPY            float64 `json:"network_apy"`
-		Pools                 int64   `json:"pools"`
+		Pools                 uint64  `json:"pools"`
 		PoolsAvgAPY           float64 `json:"pools_avg_apy"`
 		MinPerformanceScore   int64   `json:"min_performance_score"`
 		AvgPerformanceScore   int64   `json:"avg_performance_score"`

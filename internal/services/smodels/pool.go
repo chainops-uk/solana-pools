@@ -32,6 +32,7 @@ type (
 		CreatedAt time.Time
 	}
 	Statistic struct {
+		Pools            uint64
 		ActiveStake      sol.SOL
 		TotalSupply      sol.SOL
 		AVGSkippedSlots  decimal.Decimal

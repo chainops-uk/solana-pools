@@ -7,12 +7,12 @@ import (
 var EmptyAddress = solana.MustPublicKeyFromBase58("11111111111111111111111111111111")
 
 const (
-	ParrotPool   = "parrot"
-	MarinadePool = "marinade"
-	SolidoPool   = "solido"
-	EverSOL      = "everSOL"
-	JPool        = "jpool"
-	Socean       = "socean"
+	ParrotPool   = "Parrot"
+	MarinadePool = "Marinade"
+	SolidoPool   = "Solido"
+	EverSOL      = "EverSOL"
+	JPool        = "JPool"
+	Socean       = "Socean"
 )
 
 type (
