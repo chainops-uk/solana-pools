@@ -44,7 +44,6 @@ type (
 		UpdatePools() error
 		UpdateNetworkData() error
 		UpdateValidators() error
-		UpdateTestNetValidators() error
 		UpdateSlotTimeMS() error
 	}
 	Imp struct {
