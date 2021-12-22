@@ -77,10 +77,15 @@ func (s Imp) UpdateNetworkData() error {
 	if err != nil {
 		return fmt.Errorf("GetSupply: %w", err)
 	}
-	correlation := (1 / sps) * 1000
+
+	st, err := s.GetAvgSlotTimeMS()
+	if err != nil {
+		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
+	}
+
 	apy := rate.Result.Total *
 		(float64(sol.Value.Total) / float64(activeStake))
-	APY := decimal.NewFromFloat(apy).Mul(decimal.NewFromInt(400).Div(decimal.NewFromFloat(correlation)))
+	APY := decimal.NewFromFloat(apy).Mul(decimal.NewFromInt(400).Div(decimal.NewFromFloat(st)))
 	s.cache.SetAPY(APY)
 
 	return nil

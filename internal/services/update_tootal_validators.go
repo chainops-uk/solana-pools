@@ -16,37 +16,18 @@ func (s Imp) UpdateValidators() error {
 	ctx := context.Background()
 	client := s.rpcClients["mainnet"]
 
-rep:
-	ei1, err := client.RpcClient.GetEpochInfo(ctx)
+	st, err := s.GetAvgSlotTimeMS()
 	if err != nil {
-		return fmt.Errorf("GetEpochInfo: %w", err)
+		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
 	}
-
-	t1 := time.Now()
-
-	<-time.After(time.Minute * 1)
-
-	ei2, err := client.RpcClient.GetEpochInfo(ctx)
-	if err != nil {
-		return fmt.Errorf("GetEpochInfo: %w", err)
-	}
-
-	t2 := time.Now()
-
-	if ei1.Result.Epoch != ei2.Result.Epoch {
-		goto rep
-	}
-
-	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-	if sps == 0 {
-		return err
-	}
-	correlation := 400 / ((1 / sps) * 1000)
+	correlation := 400 / st
 
 	va, err := solana_sdk.GetVoteAccounts(client.RpcClient.Call(ctx, "getVoteAccounts"))
 	if err != nil {
 		return fmt.Errorf("UpdateValidators: %w", err)
 	}
+
+	validators := make([]*dmodels.Validator, 0, len(va.Current)+len(va.Delinquent))
 
 	for _, v := range va.Current {
 		var vInfo validatorsapp.ValidatorAppInfo
@@ -65,7 +46,7 @@ rep:
 
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
-		validator := &dmodels.Validator{
+		validators = append(validators, &dmodels.Validator{
 			ID:              v.NodePubKey,
 			Name:            vInfo.Name,
 			Image:           vInfo.AvatarURL,
@@ -81,12 +62,7 @@ rep:
 			DataCenter:      vInfo.DataCenterHost,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
-		}
-
-		if err := s.dao.UpdateValidators(validator); err != nil {
-			return fmt.Errorf("dao.UpdateValidators: %w", err)
-		}
-
+		})
 	}
 	for _, v := range va.Delinquent {
 		var vInfo validatorsapp.ValidatorAppInfo
@@ -103,7 +79,7 @@ rep:
 			return fmt.Errorf("getAPY: %w", err)
 		}
 
-		validator := &dmodels.Validator{
+		validators = append(validators, &dmodels.Validator{
 			ID:              v.NodePubKey,
 			Name:            vInfo.Name,
 			Delinquent:      true,
@@ -118,12 +94,11 @@ rep:
 			DataCenter:      vInfo.DataCenterHost,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
-		}
+		})
+	}
 
-		if err := s.dao.UpdateValidators(validator); err != nil {
-			return fmt.Errorf("dao.UpdateValidators: %w", err)
-		}
-
+	if err := s.dao.UpdateValidators(validators...); err != nil {
+		return fmt.Errorf("dao.UpdateValidators: %w", err)
 	}
 
 	return nil

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/everstake/solana-pools/config"
@@ -29,33 +28,10 @@ var (
 )
 
 func (s Imp) UpdatePools() error {
-	client := s.rpcClients["mainnet"]
-
-	ei1, err := client.RpcClient.GetEpochInfo(context.Background())
+	st, err := s.GetAvgSlotTimeMS()
 	if err != nil {
-		return err
+		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
 	}
-
-	t1 := time.Now()
-
-	<-time.After(time.Minute * 1)
-
-	ei2, err := client.RpcClient.GetEpochInfo(context.Background())
-	if err != nil {
-		return err
-	}
-
-	t2 := time.Now()
-
-	if ei1.Result.Epoch != ei2.Result.Epoch {
-		return err
-	}
-
-	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-	if sps == 0 {
-		return err
-	}
-	correlation := 400 / ((1 / sps) * 1000)
 
 	dPools, err := s.dao.GetPools(nil)
 	if err != nil {
@@ -67,7 +43,7 @@ func (s Imp) UpdatePools() error {
 		if !p.Active {
 			continue
 		}
-		if err := s.updatePool(p, correlation); err != nil {
+		if err := s.updatePool(p, 400/st); err != nil {
 			s.log.Error(
 				"Update Pools",
 				zap.String("pool_name", p.Name),

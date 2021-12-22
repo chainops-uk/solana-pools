@@ -35,6 +35,7 @@ type (
 		GetGovernance(name string, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error)
 		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
 		GetPoolValidators(name string, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
+		GetAvgSlotTimeMS() (float64, error)
 
 		UpdateDeFi() error
 		UpdateCoins() error

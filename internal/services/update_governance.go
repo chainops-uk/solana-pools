@@ -26,6 +26,7 @@ func (s Imp) UpdateGovernance() error {
 		if coin.MarketData.TotalSupply != nil {
 			governance.MaximumTokenSupply = *coin.MarketData.TotalSupply
 		}
+
 		governance.CirculatingSupply = coin.MarketData.CirculatingSupply
 
 		governance.USD = coin.MarketData.CurrentPrice["usd"]

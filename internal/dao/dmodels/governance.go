@@ -11,7 +11,7 @@ type Governance struct {
 	GeckoKey           string    `gorm:"type:varchar(40);not null;"`
 	Blockchain         string    `gorm:"type:varchar(40);not null;"`
 	ContractAddress    string    `gorm:"type:varchar(120);not null;index:idx_gov_contract_address,unique;"`
-	MaximumTokenSupply float64   `gorm:"type:float8;not null;"`
-	CirculatingSupply  float64   `gorm:"type:float8;not null;"`
-	USD                float64   `gorm:"type:float8;not null;"`
+	MaximumTokenSupply float64   `gorm:"type:float8;default:0;not null;"`
+	CirculatingSupply  float64   `gorm:"type:float8;default:0;not null;"`
+	USD                float64   `gorm:"type:float8;default:0;not null;"`
 }
