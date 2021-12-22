@@ -6,7 +6,6 @@ import (
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	solana_sdk "github.com/everstake/solana-pools/pkg/extension/solana-sdk"
 	"github.com/shopspring/decimal"
-	"math"
 	"time"
 )
 
@@ -78,9 +77,11 @@ func (s Imp) UpdateNetworkData() error {
 	if err != nil {
 		return fmt.Errorf("GetSupply: %w", err)
 	}
-
-	s.cache.SetAPY(decimal.NewFromFloat(rate.Result.Total *
-		(float64(activeStake) / math.Pow(float64(sol.Value.Total), -9))))
+	correlation := (1 / sps) * 1000
+	apy := rate.Result.Total *
+		(float64(sol.Value.Total) / float64(activeStake))
+	APY := decimal.NewFromFloat(apy).Mul(decimal.NewFromInt(400).Div(decimal.NewFromFloat(correlation)))
+	s.cache.SetAPY(APY)
 
 	return nil
 }

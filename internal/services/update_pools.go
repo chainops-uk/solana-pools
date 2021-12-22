@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/everstake/solana-pools/config"
@@ -63,6 +64,35 @@ func (s Imp) UpdatePools() error {
 func (s Imp) updatePool(dPool dmodels.Pool) error {
 	net := config.Network(dPool.Network)
 	rpcCli, ok := s.rpcClients[net]
+
+	client := s.rpcClients["mainnet"]
+
+	ei1, err := client.RpcClient.GetEpochInfo(context.Background())
+	if err != nil {
+		return err
+	}
+
+	t1 := time.Now()
+
+	<-time.After(time.Minute * 1)
+
+	ei2, err := client.RpcClient.GetEpochInfo(context.Background())
+	if err != nil {
+		return err
+	}
+
+	t2 := time.Now()
+
+	if ei1.Result.Epoch != ei2.Result.Epoch {
+		return err
+	}
+
+	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
+	correlation := 400 / ((1 / sps) * 1000)
+	if sps == 0 {
+		return err
+	}
+
 	if !ok {
 		return fmt.Errorf("rpc client for %s network not found", dPool.Network)
 	}
@@ -129,7 +159,7 @@ func (s Imp) updatePool(dPool dmodels.Pool) error {
 			} else {
 				epochRate = decimal.NewFromInt(0)
 			}
-			dmodel.APY = epochRate.Mul(decimal.NewFromFloat(EpochsPerYear))
+			dmodel.APY = epochRate.Mul(decimal.NewFromFloat(EpochsPerYear)).Mul(decimal.NewFromFloat(correlation))
 		} else {
 			dmodel.APY = decimal.NewFromInt(0)
 		}
