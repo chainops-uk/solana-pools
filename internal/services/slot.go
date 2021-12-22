@@ -13,7 +13,7 @@ func (s Imp) GetAvgSlotTimeMS() (float64, error) {
 		return 0, err
 	}
 	if errors.Is(err, cache.KeyWasNotFound) {
-		return 525, nil
+		return 550, nil
 	}
 
 	var sum float64
@@ -26,12 +26,12 @@ func (s Imp) GetAvgSlotTimeMS() (float64, error) {
 	}
 
 	if count == 0 || sum == 0 {
-		return 525, nil
+		return 550, nil
 	}
 
 	if count < 3 {
 		count++
-		sum += 525
+		sum += 550
 	}
 
 	return sum / float64(count), nil
