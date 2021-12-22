@@ -90,6 +90,7 @@ func main() {
 			cron1.StartAsync()
 			cron2.StartAsync()
 			cron3.StartAsync()
+			cron4.StartAsync()
 			api, err := httpserv.NewAPI(cfg, s, log)
 			if err != nil {
 				log.Fatal("RUN: httpserv.NewAPI", zap.Error(err))
