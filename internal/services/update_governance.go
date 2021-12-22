@@ -11,7 +11,7 @@ func (s Imp) UpdateGovernance() error {
 	}
 
 	for _, governance := range gov {
-		coin, err := s.coinGecko.CoinsID(governance.Name,
+		coin, err := s.coinGecko.CoinsID(governance.GeckoKey,
 			false,
 			false,
 			true,

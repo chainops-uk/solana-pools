@@ -55,7 +55,6 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 type governance struct {
 	Name                  string          `json:"name"`
 	Image                 string          `json:"image"`
-	CoinName              string          `json:"coin_name"`
 	Blockchain            string          `json:"blockchain"`
 	ContractAddress       string          `json:"contract_address"`
 	VoteURL               string          `json:"vote_url"`
@@ -76,7 +75,6 @@ type governance struct {
 func (g *governance) Set(governance *smodels.Governance) *governance {
 	g.Name = governance.Name
 	g.Image = governance.Image
-	g.CoinName = governance.CoinName
 	g.Blockchain = governance.Blockchain
 	g.ContractAddress = governance.ContractAddress
 	g.VoteURL = governance.VoteURL

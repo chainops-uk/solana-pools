@@ -7,9 +7,11 @@ import (
 )
 
 func (s Imp) GetGovernance(name string, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error) {
-	gov, err := s.dao.GetGovernance(&postgres.Condition{
-		Name:       name,
-		Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+	gov, err := s.dao.GetGovernance(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			Name:       name,
+			Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+		},
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetCoins: %w", err)
@@ -20,8 +22,10 @@ func (s Imp) GetGovernance(name string, limit uint64, offset uint64) ([]*smodels
 		sgov[i] = (&smodels.Governance{}).Set(g)
 	}
 
-	count, err := s.dao.GetGovernanceCount(&postgres.Condition{
-		Name: name,
+	count, err := s.dao.GetGovernanceCount(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			Name: name,
+		},
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetCoinsCount: %w", err)

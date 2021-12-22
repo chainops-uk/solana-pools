@@ -8,7 +8,7 @@ import (
 type Governance struct {
 	Name                  string
 	Image                 string
-	CoinName              string
+	GeckoKey              string
 	Blockchain            string
 	ContractAddress       string
 	VoteURL               string
@@ -29,7 +29,7 @@ type Governance struct {
 func (g *Governance) Set(governance *dmodels.Governance) *Governance {
 	g.Name = governance.Name
 	g.Image = governance.Image
-	g.CoinName = governance.CoinName
+	g.GeckoKey = governance.GeckoKey
 	g.Blockchain = governance.Blockchain
 	g.ContractAddress = governance.ContractAddress
 	g.VoteURL = governance.VoteURL

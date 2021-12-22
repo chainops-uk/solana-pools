@@ -21,6 +21,11 @@ type PoolValidatorDataCondition struct {
 	ValidatorIDs []string
 }
 
+type CoinCondition struct {
+	*Condition
+	GeckoIDs []string
+}
+
 type Condition struct {
 	IDs     []uuid.UUID
 	Names   []string
@@ -82,5 +87,16 @@ func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
 		db = db.Offset(int(cond.Offset))
 	}
 
+	return db
+}
+
+func withCoinCondition(db *gorm.DB, cond *CoinCondition) *gorm.DB {
+	if cond == nil {
+		return db
+	}
+	db = withCond(db, cond.Condition)
+	if len(cond.GeckoIDs) > 0 {
+		db = db.Where(`gecko_key IN (?)`, cond.GeckoIDs)
+	}
 	return db
 }

@@ -35,13 +35,13 @@ type (
 
 		GetPoolCount(*postgres.Condition) (int64, error)
 		GetCoinsCount(cond *postgres.Condition) (int64, error)
-		GetGovernanceCount(cond *postgres.Condition) (int64, error)
+		GetGovernanceCount(cond *postgres.CoinCondition) (int64, error)
 		GetValidatorCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
 
 		GetPools(*postgres.Condition) ([]dmodels.Pool, error)
 		GetCoins(cond *postgres.Condition) ([]*dmodels.Coin, error)
 		GetLiquidityPool(cond *postgres.Condition) (*dmodels.LiquidityPool, error)
-		GetGovernance(cond *postgres.Condition) ([]*dmodels.Governance, error)
+		GetGovernance(cond *postgres.CoinCondition) ([]*dmodels.Governance, error)
 		GetValidators(condition *postgres.Condition) ([]*dmodels.Validator, error)
 		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)
 		GetPoolValidatorData(poolDataID uuid.UUID, condition *postgres.Condition) ([]*dmodels.PoolValidatorData, error)
