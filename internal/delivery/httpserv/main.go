@@ -58,7 +58,6 @@ func (api *API) Run() error {
 		ctx.Header("Content-Type", "text/html; charset=utf-8")
 		ctx.String(http.StatusCreated, `<html>%s</html>`, content)
 	})
-	router.Static("img", "img")
 
 	v1g := router.Group("/v1")
 	v1g.GET("/epoch", tools.Must(api.v1.GetEpoch))

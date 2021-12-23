@@ -81,6 +81,7 @@ rep:
 			} else {
 				arr[0] = 0
 			}
+			break
 		}
 
 	}
