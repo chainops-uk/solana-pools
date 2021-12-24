@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const baseURL = "https://api.raydium.io"
+const baseURL = "https://api.orca.so"
 
 type Client struct {
 	httpClient *http.Client
