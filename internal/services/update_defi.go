@@ -143,7 +143,7 @@ func updateRaydium(s *Imp) error {
 							SaleCoinID:      poolCoin.ID,
 							BuyCoinID:       d.ID,
 							Liquidity:       paris.Liquidity,
-							APY:             decimal.NewFromFloat(paris.Apy),
+							APY:             decimal.NewFromFloat(paris.Apy).Div(decimal.NewFromInt(100)),
 						})
 					}
 				}
