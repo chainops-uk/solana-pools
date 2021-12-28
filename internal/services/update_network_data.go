@@ -14,39 +14,25 @@ func (s Imp) UpdateNetworkData() error {
 	ctx := context.Background()
 	client := s.rpcClients["mainnet"]
 
-	ei1, err := client.RpcClient.GetEpochInfo(ctx)
+	st, err := s.GetAvgSlotTimeMS()
+	if err != nil {
+		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
+	}
+
+	ei, err := client.RpcClient.GetEpochInfo(ctx)
 	if err != nil {
 		return err
 	}
 
-	t1 := time.Now()
+	emptyS := ei.Result.SlotsInEpoch - ei.Result.SlotIndex
 
-	<-time.After(time.Minute * 1)
+	progress := (float64(ei.Result.SlotIndex) / float64(ei.Result.SlotsInEpoch)) * 100
 
-	ei2, err := client.RpcClient.GetEpochInfo(ctx)
-	if err != nil {
-		return err
-	}
-
-	t2 := time.Now()
-
-	if ei1.Result.Epoch != ei2.Result.Epoch {
-		return err
-	}
-
-	sps := float64(ei2.Result.SlotIndex-ei1.Result.SlotIndex) / t2.Sub(t1).Seconds()
-
-	emptyS := ei2.Result.SlotsInEpoch - ei2.Result.SlotIndex
-
-	progress := (float64(ei2.Result.SlotIndex) / float64(ei2.Result.SlotsInEpoch)) * 100
-
-	if sps == 0 {
-		return err
-	}
+	sps := 1 / (st / 1000)
 
 	s.cache.SetCurrentEpochInfo(&smodels.EpochInfo{
-		Epoch:        ei2.Result.Epoch,
-		SlotsInEpoch: ei2.Result.SlotsInEpoch,
+		Epoch:        ei.Result.Epoch,
+		SlotsInEpoch: ei.Result.SlotsInEpoch,
 		SPS:          sps,
 		EndEpoch:     time.Now().Add(time.Duration((float64(emptyS) / sps) * float64(time.Second))),
 		Progress:     uint8(progress),
@@ -76,11 +62,6 @@ func (s Imp) UpdateNetworkData() error {
 	sol, err := solana_sdk.GetSupply(client.RpcClient.Call(ctx, "getSupply"))
 	if err != nil {
 		return fmt.Errorf("GetSupply: %w", err)
-	}
-
-	st, err := s.GetAvgSlotTimeMS()
-	if err != nil {
-		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
 	}
 
 	apy := rate.Result.Total *
