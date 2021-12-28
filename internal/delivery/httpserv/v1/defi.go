@@ -124,13 +124,13 @@ func (f *deFi) Set(defi *smodels.DeFi, buyCoin *coin, liquidityPool *liquidityPo
 }
 
 type coin struct {
-	Name       string  `json:"name"`
-	Address    string  `json:"address"`
-	USD        float64 `json:"usd"`
-	ThumbImage string  `json:"thumb_image"`
-	SmallImage string  `json:"small_image"`
-	LargeImage string  `json:"large_image"`
-	DeFi       []*deFi `json:"de_fi,omitempty"`
+	Name       string             `json:"name"`
+	Address    string             `json:"address"`
+	USD        float64            `json:"usd"`
+	ThumbImage string             `json:"thumb_image"`
+	SmallImage string             `json:"small_image"`
+	LargeImage string             `json:"large_image"`
+	DeFi       map[string][]*deFi `json:"de_fi,omitempty"`
 }
 
 func (c *coin) Set(coinM *smodels.Coin) *coin {
@@ -141,11 +141,18 @@ func (c *coin) Set(coinM *smodels.Coin) *coin {
 	c.Name = coinM.Name
 	c.Address = coinM.Address
 	if coinM.DeFi != nil {
-		defi := make([]*deFi, len(coinM.DeFi))
-		for i, fi := range coinM.DeFi {
-			defi[i] = (&deFi{}).Set(fi, (&coin{}).Set(fi.BuyCoin), (&liquidityPool{}).Set(fi.LiquidityPool))
+		c.DeFi = make(map[string][]*deFi)
+		for _, fi := range coinM.DeFi {
+			_, ok := c.DeFi[fi.BuyCoin.Name]
+			if !ok {
+				defi := make([]*deFi, 0)
+				defi = append(defi, (&deFi{}).Set(fi, (&coin{}).Set(fi.BuyCoin), (&liquidityPool{}).Set(fi.LiquidityPool)))
+				c.DeFi[fi.BuyCoin.Name] = defi
+				continue
+			}
+
+			c.DeFi[fi.BuyCoin.Name] = append(c.DeFi[fi.BuyCoin.Name], (&deFi{}).Set(fi, (&coin{}).Set(fi.BuyCoin), (&liquidityPool{}).Set(fi.LiquidityPool)))
 		}
-		c.DeFi = defi
 	}
 	return c
 }
