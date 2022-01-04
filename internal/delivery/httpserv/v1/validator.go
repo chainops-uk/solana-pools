@@ -15,7 +15,10 @@ import (
 // @Summary RestAPI
 // @Schemes
 // @Description get pool validators
-// @Param name path string true "Pool name" default(marinade)
+// @Param name path string true "Pool name" default(Marinade)
+// @Param name query string false "validator name"
+// @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
+// @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Accept json
@@ -29,6 +32,8 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	name := ctx.Param("name")
 	q := struct {
 		Name   string `form:"name"`
+		Sort   string `form:"sort,default=apy"`
+		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
 		Limit  uint64 `form:"limit,default=10"`
 	}{}
@@ -36,7 +41,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	resp, count, err := h.svc.GetPoolValidators(name, q.Limit, q.Offset)
+	resp, count, err := h.svc.GetPoolValidators(name, q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		if errors.Is(err, postgres.ErrorRecordNotFounded) {

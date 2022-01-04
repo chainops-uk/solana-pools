@@ -131,7 +131,7 @@ func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
 				TokenValue := decimal.NewFromInt(int64(dmodel.TotalLamports)).
 					Div(decimal.NewFromInt(int64(dmodel.TotalTokensSupply)))
 				epochRate = TokenValue.Div(lastEpochPoolTokenValue).Sub(decimal.NewFromInt(1))
-				epochRate = epochRate.Mul(decimal.NewFromInt(int64(dmodel.Epoch - d.Epoch)))
+				epochRate = epochRate.Div(decimal.NewFromInt(int64(dmodel.Epoch - d.Epoch)))
 			} else {
 				epochRate = decimal.NewFromInt(0)
 			}

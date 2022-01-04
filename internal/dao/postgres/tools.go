@@ -16,14 +16,20 @@ const (
 )
 
 type PoolValidatorDataCondition struct {
-	Condition
+	*Condition
 	PoolDataIDs  []uuid.UUID
 	ValidatorIDs []string
+	Sort         *ValidatorSort
 }
 
 type CoinCondition struct {
 	*Condition
 	GeckoIDs []string
+}
+
+type PoolCondition struct {
+	*Condition
+	Sort *PoolSort
 }
 
 type Condition struct {
@@ -34,6 +40,76 @@ type Condition struct {
 	Network Network
 	Pagination
 }
+
+type PoolSort struct {
+	PoolSort PoolSortType
+	Desc     bool
+}
+
+type PoolSortType int
+
+const (
+	PoolAPY = PoolSortType(iota)
+	PoolStake
+	PoolValidators
+	PoolScore
+	PoolSkippedSlot
+	PoolTokenPrice
+)
+
+func SearchPoolSort(sort string) PoolSortType {
+	switch sort {
+	case "pool stake":
+		return PoolStake
+	case "validators":
+		return PoolValidators
+	case "score":
+		return PoolScore
+	case "skipped slot":
+		return PoolSkippedSlot
+	case "token price":
+		return PoolTokenPrice
+	default:
+		return PoolAPY
+	}
+}
+
+type ValidatorSortType int
+
+type ValidatorSort struct {
+	ValidatorSort ValidatorSortType
+	Desc          bool
+}
+
+const (
+	ValidatorAPY = ValidatorSortType(iota)
+	ValidatorPoolStake
+	ValidatorStake
+	ValidatorFee
+	ValidatorScore
+	ValidatorSkippedSlot
+	ValidatorDataCenter
+)
+
+func SearchValidatorSort(sort string) ValidatorSortType {
+	switch sort {
+	case "pool stake":
+		return ValidatorPoolStake
+	case "stake":
+		return ValidatorStake
+	case "fee":
+		return ValidatorFee
+	case "score":
+		return ValidatorScore
+	case "skipped slot":
+		return ValidatorSkippedSlot
+	case "data center":
+		return ValidatorDataCenter
+	default:
+		return ValidatorAPY
+	}
+}
+
 type Pagination struct {
 	Limit  uint64
 	Offset uint64

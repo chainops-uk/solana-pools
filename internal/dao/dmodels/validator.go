@@ -22,7 +22,6 @@ type Validator struct {
 	Image           string          `gorm:"type:text"`
 	Name            string          `gorm:"type:varchar(100);not null;"`
 	Delinquent      bool            `gorm:"not null"`
-	Network         string          `gorm:"type:varchar(50);not null;"`
 	VotePK          string          `gorm:"index:idx_vote_pk,unique;type:varchar(44);not null;"`
 	APY             decimal.Decimal `gorm:"type:decimal(8,4);not null;"`
 	StakingAccounts uint64          `gorm:"type:int;not null;"`

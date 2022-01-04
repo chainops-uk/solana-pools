@@ -4,6 +4,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -18,9 +19,9 @@ func (db *DB) GetPool(name string) (*dmodels.Pool, error) {
 	return pool, nil
 }
 
-func (db *DB) GetPools(cond *Condition) ([]dmodels.Pool, error) {
+func (db *DB) GetPools(cond *PoolCondition) ([]dmodels.Pool, error) {
 	var pools []dmodels.Pool
-	return pools, withCond(db.DB, cond).Find(&pools).Error
+	return pools, withPoolCondition(db.DB, cond).Find(&pools).Error
 }
 
 func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
@@ -72,9 +73,117 @@ func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate) ([]*dmodel
 	return data, nil
 }
 
+func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
+	if condition == nil {
+		return db
+	}
+
+	if condition.Condition != nil {
+		if condition.Condition.Name != "" {
+			db = db.Where(`pools.name ilike ?`, "%"+condition.Condition.Name+"%")
+		}
+		condition.Condition.Name = ""
+	}
+
+	db = withCond(db, condition.Condition)
+
+	if condition.Sort != nil {
+		return sortPools(db, condition.Sort.PoolSort, condition.Sort.Desc)
+	}
+
+	return db
+}
+
+func sortPools(db *gorm.DB, sort PoolSortType, desc bool) *gorm.DB {
+	db = db.Joins("left join pool_data on pools.id = pool_data.pool_id").
+		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = pools.id)`).
+		Group("pools.id")
+	switch sort {
+	case PoolAPY:
+		db = db.Group(`"pool_data"."id"`).Select("pools.*")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "pool_data.apy",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case PoolStake:
+		db = db.Group(`"pool_data"."id"`).Select("pools.*")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "pool_data.active_stake",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case PoolValidators:
+		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
+			Select("pools.*, count(pool_validator_data.*) as validators")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case PoolScore:
+		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
+			Joins("join validators on pool_validator_data.validator_id = validators.id").
+			Select("pools.*, avg(validators.score) as avg_score")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "avg_score",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case PoolSkippedSlot:
+		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
+			Joins("join validators on pool_validator_data.validator_id = validators.id").
+			Select("pools.*, avg(validators.skipped_slots) as avg_skipped_slots")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "avg_skipped_slots",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case PoolTokenPrice:
+		db = db.Select("pools.*, (CASE WHEN pool_data.total_tokens_supply IS NULL THEN 0 WHEN pool_data.total_tokens_supply = 0 THEN 0 ELSE pool_data.total_lamports / pool_data.total_tokens_supply END) as price").
+			Group("pool_data.id")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "price",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	}
+
+	return db
+}
+
 func aggregateByDate(aggregate Aggregate, db *gorm.DB) (*gorm.DB, error) {
 	switch aggregate {
-
 	case Week:
 		return db.Where(`"created_at"::date between ? AND ?`, time.Now().AddDate(0, 0, -7), time.Now()).
 			Where(`created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = "pool_data".pool_id and t1.created_at::date = pool_data.created_at::date)`), nil

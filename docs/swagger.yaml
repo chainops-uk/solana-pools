@@ -58,9 +58,11 @@ definitions:
       address:
         type: string
       de_fi:
-        items:
-          $ref: '#/definitions/v1.deFi'
-        type: array
+        additionalProperties:
+          items:
+            $ref: '#/definitions/v1.deFi'
+          type: array
+        type: object
       large_image:
         type: string
       name:
@@ -150,8 +152,12 @@ definitions:
         type: integer
       tokens_supply:
         type: number
+      total_lamports:
+        type: number
       unstake_liquidity:
         type: number
+      validators:
+        type: integer
       withdrawal_fee:
         type: number
     type: object
@@ -182,6 +188,8 @@ definitions:
       staking_accounts:
         type: integer
       tokens_supply:
+        type: number
+      total_lamports:
         type: number
       unstake_liquidity:
         type: number
@@ -484,12 +492,34 @@ paths:
       - application/json
       description: get pool validators
       parameters:
-      - default: marinade
+      - default: Marinade
         description: Pool name
         in: path
         name: name
         required: true
         type: string
+      - description: validator name
+        in: query
+        name: name
+        type: string
+      - default: apy
+        description: sort param
+        enum:
+        - apy
+        - pool stake
+        - stake
+        - fee
+        - score
+        - skipped slot
+        - data center
+        in: query
+        name: sort
+        type: string
+      - default: true
+        description: desc
+        in: query
+        name: desc
+        type: boolean
       - default: 0
         description: offset for aggregation
         in: query
@@ -580,6 +610,27 @@ paths:
       - application/json
       description: get pools
       parameters:
+      - description: stake-pool name
+        in: query
+        name: name
+        type: string
+      - default: apy
+        description: sort param
+        enum:
+        - apy
+        - pool stake
+        - validators
+        - score
+        - skipped slot
+        - token price
+        in: query
+        name: sort
+        type: string
+      - default: true
+        description: desc
+        in: query
+        name: desc
+        type: boolean
       - default: 0
         description: offset for aggregation
         in: query
@@ -592,10 +643,6 @@ paths:
         name: limit
         required: true
         type: number
-      - description: stake-pool name
-        in: query
-        name: name
-        type: string
       produces:
       - application/json
       responses:

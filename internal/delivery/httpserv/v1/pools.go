@@ -68,9 +68,11 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 // @Description get pools
 // @Accept json
 // @Produce json
+// @Param name query string false "stake-pool name"
+// @Param sort query string false "sort param" Enums(apy, pool stake, validators, score, skipped slot, token price) default(apy)
+// @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Param name query string false "stake-pool name"
 // @Success 200 {object} tools.ResponseArrayData{data=[]poolMainPage} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
@@ -79,6 +81,8 @@ func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
 func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
+		Sort   string `form:"sort,default=apy"`
+		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
 		Limit  uint64 `form:"limit,default=10"`
 	}{}
@@ -86,7 +90,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	pools, amounnt, err := h.svc.GetPools(q.Name, q.Limit, q.Offset)
+	pools, amounnt, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
@@ -251,6 +255,7 @@ type (
 		Currency         string  `json:"currency"`
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
+		TotalLamports    float64 `json:"total_lamports"`
 		APY              float64 `json:"apy"`
 		Validators       int64   `json:"validators"`
 		AVGSkippedSlots  float64 `json:"avg_skipped_slots"`
@@ -295,6 +300,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Currency = pool.Currency
 	pl.ActiveStake, _ = pool.ActiveStake.Float64()
 	pl.TokensSupply, _ = pool.TokensSupply.Float64()
+	pl.TotalLamports, _ = pool.TotalLamports.Float64()
 	pl.APY, _ = pool.APY.Float64()
 	pl.AVGSkippedSlots, _ = pool.AVGSkippedSlots.Float64()
 	pl.AVGScore = pool.AVGScore

@@ -15,6 +15,7 @@ type (
 		Currency         string
 		ActiveStake      sol.SOL
 		TokensSupply     sol.SOL
+		TotalLamports    sol.SOL
 		APY              decimal.Decimal
 		AVGSkippedSlots  decimal.Decimal
 		AVGScore         int64
@@ -57,6 +58,7 @@ func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Poo
 	if data != nil {
 		p.ActiveStake.SetLamports(data.ActiveStake)
 		p.TokensSupply.SetLamports(data.TotalTokensSupply)
+		p.TotalLamports.SetLamports(data.TotalLamports)
 		p.APY = data.APY
 
 		p.UnstakeLiquidity.SetLamports(data.UnstakeLiquidity)

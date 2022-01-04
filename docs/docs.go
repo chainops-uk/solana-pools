@@ -424,11 +424,40 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "marinade",
+                        "default": "Marinade",
                         "description": "Pool name",
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "validator name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "apy",
+                            "pool stake",
+                            "stake",
+                            "fee",
+                            "score",
+                            "skipped slot",
+                            "data center"
+                        ],
+                        "type": "string",
+                        "default": "apy",
+                        "description": "sort param",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "desc",
+                        "name": "desc",
+                        "in": "query"
                     },
                     {
                         "type": "number",
@@ -574,6 +603,34 @@ var doc = `{
                 "summary": "RestAPI",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "stake-pool name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "apy",
+                            "pool stake",
+                            "validators",
+                            "score",
+                            "skipped slot",
+                            "token price"
+                        ],
+                        "type": "string",
+                        "default": "apy",
+                        "description": "sort param",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "desc",
+                        "name": "desc",
+                        "in": "query"
+                    },
+                    {
                         "type": "number",
                         "default": 0,
                         "description": "offset for aggregation",
@@ -588,12 +645,6 @@ var doc = `{
                         "name": "limit",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "stake-pool name",
-                        "name": "name",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -791,9 +842,12 @@ var doc = `{
                     "type": "string"
                 },
                 "de_fi": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.deFi"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/v1.deFi"
+                        }
                     }
                 },
                 "large_image": {
@@ -932,8 +986,14 @@ var doc = `{
                 "tokens_supply": {
                     "type": "number"
                 },
+                "total_lamports": {
+                    "type": "number"
+                },
                 "unstake_liquidity": {
                     "type": "number"
+                },
+                "validators": {
+                    "type": "integer"
                 },
                 "withdrawal_fee": {
                     "type": "number"
@@ -980,6 +1040,9 @@ var doc = `{
                     "type": "integer"
                 },
                 "tokens_supply": {
+                    "type": "number"
+                },
+                "total_lamports": {
                     "type": "number"
                 },
                 "unstake_liquidity": {

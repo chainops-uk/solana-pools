@@ -9,7 +9,7 @@ import (
 
 func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error) {
 
-	pools, err := s.dao.GetPools(&postgres.Condition{Network: postgres.MainNet})
+	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetPools: %w", err)
 	}

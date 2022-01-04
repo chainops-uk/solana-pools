@@ -33,7 +33,7 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolData: %s", err.Error())
 	}
-	dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
+	dValidators, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}
@@ -62,13 +62,19 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	return pd, nil
 }
 
-func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.PoolDetails, uint64, error) {
-	dPools, err := s.dao.GetPools(&postgres.Condition{
-		Network: postgres.MainNet,
-		Name:    name,
-		Pagination: postgres.Pagination{
-			Limit:  limit,
-			Offset: offset,
+func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.PoolDetails, uint64, error) {
+	dPools, err := s.dao.GetPools(&postgres.PoolCondition{
+		Condition: &postgres.Condition{
+			Network: postgres.MainNet,
+			Name:    name,
+			Pagination: postgres.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
+		},
+		Sort: &postgres.PoolSort{
+			PoolSort: postgres.SearchPoolSort(sort),
+			Desc:     desc,
 		},
 	})
 	if err != nil {
@@ -91,7 +97,7 @@ func (s *Imp) GetPools(name string, limit uint64, offset uint64) ([]*smodels.Poo
 			return nil, 0, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
-		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
+		dValidators, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
 		if err != nil {
 			return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 		}
@@ -132,7 +138,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		return stat, nil
 	}
 
-	dPools, err := s.dao.GetPools(&postgres.Condition{Network: postgres.MainNet})
+	dPools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPool: %w", err)
 	}
@@ -160,7 +166,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
-		dValidators, err := s.dao.GetPoolValidatorData(dLastPoolData.ID, nil)
+		dValidators, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetValidators: %w", err)
 		}

@@ -5,6 +5,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
 	"github.com/everstake/solana-pools/internal/services/smodels"
+	"github.com/everstake/solana-pools/pkg/atrix"
 	"github.com/everstake/solana-pools/pkg/orca"
 	"github.com/everstake/solana-pools/pkg/raydium"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
@@ -29,12 +30,12 @@ type (
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)
 		GetPool(name string) (*smodels.PoolDetails, error)
-		GetPools(name string, from uint64, to uint64) ([]*smodels.PoolDetails, uint64, error)
+		GetPools(name string, sort string, desc bool, from uint64, to uint64) ([]*smodels.PoolDetails, uint64, error)
 		GetEpoch() (*smodels.EpochInfo, error)
 		GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
 		GetGovernance(name string, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error)
 		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
-		GetPoolValidators(name string, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
+		GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
 		GetAvgSlotTimeMS() (float64, error)
 
 		UpdateDeFi() error
@@ -54,6 +55,7 @@ type (
 		coinGecko     *coingecko.Client
 		log           *zap.Logger
 		raydium       *raydium.Client
+		atrix         *atrix.Client
 		orca          *orca.Client
 		validatorsApp *validatorsapp.Client
 	}
@@ -73,6 +75,7 @@ func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 		dao:           d,
 		raydium:       raydium.NewClient(httpClient),
 		orca:          orca.NewClient(httpClient),
+		atrix:         atrix.NewClient(httpClient),
 		coinGecko:     coingecko.NewClient(httpClient),
 		log:           l,
 		validatorsApp: validatorsapp.NewClient(cfg.ValidatorsAppKey),
