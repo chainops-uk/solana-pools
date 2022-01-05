@@ -9,7 +9,7 @@ func (s Imp) UpdateCoins() error {
 	}
 
 	for _, coin := range coins {
-		if coin.Address == "00000000000000000000000000000000" {
+		if coin.GeckoKey == "null" {
 			continue
 		}
 		c, err := s.coinGecko.CoinsID(coin.GeckoKey,

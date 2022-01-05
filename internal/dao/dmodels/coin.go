@@ -5,7 +5,7 @@ import uuid "github.com/satori/go.uuid"
 type Coin struct {
 	ID         uuid.UUID `gorm:"primaryKey;type:uuid;default:uuid_generate_v4();not null;"`
 	Name       string    `gorm:"type:varchar(40);not null;index:idx_coin_name,unique;"`
-	GeckoKey   string    `gorm:"type:varchar(40);not null;index:idx_coin_gecko_key,unique;"`
+	GeckoKey   string    `gorm:"type:varchar(40);not null;index:idx_coin_gecko_key,unique,where:gecko_key != 'null';"`
 	Address    string    `gorm:"type:varchar(120);not null;"` //index:idx_coin_address,unique;
 	USD        float64   `gorm:"type:float8;not null;default:0;"`
 	ThumbImage string    `gorm:"type:varchar(240);not null;default:'NaN';"`
