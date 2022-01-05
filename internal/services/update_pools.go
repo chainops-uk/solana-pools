@@ -125,7 +125,7 @@ func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
 		}
 		if d != nil {
 			var epochRate decimal.Decimal
-			if d.ActiveStake != 0 {
+			if d.TotalLamports != 0 {
 				lastEpochPoolTokenValue := decimal.NewFromInt(int64(d.TotalLamports)).
 					Div(decimal.NewFromInt(int64(d.TotalTokensSupply)))
 				TokenValue := decimal.NewFromInt(int64(dmodel.TotalLamports)).
