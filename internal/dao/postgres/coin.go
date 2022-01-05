@@ -4,6 +4,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (db *DB) GetCoinByID(id uuid.UUID) (*dmodels.Coin, error) {
@@ -16,14 +17,14 @@ func (db *DB) GetCoinByID(id uuid.UUID) (*dmodels.Coin, error) {
 	return coin, nil
 }
 
-func (db *DB) GetCoins(cond *Condition) ([]*dmodels.Coin, error) {
+func (db *DB) GetCoins(cond *CoinCondition) ([]*dmodels.Coin, error) {
 	var coins []*dmodels.Coin
-	return coins, withCond(db.DB, cond).Order("name").Find(&coins).Error
+	return coins, withCoinCondition(db.DB, cond).Order("name").Find(&coins).Error
 }
 
-func (db *DB) GetCoinsCount(cond *Condition) (int64, error) {
+func (db *DB) GetCoinsCount(cond *CoinCondition) (int64, error) {
 	var count int64
-	if err := withCond(db.DB, cond).Model(&dmodels.Coin{}).Count(&count).Error; err != nil {
+	if err := withCoinCondition(db.DB, cond).Model(&dmodels.Coin{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -31,4 +32,35 @@ func (db *DB) GetCoinsCount(cond *Condition) (int64, error) {
 
 func (db *DB) SaveCoin(coins ...*dmodels.Coin) error {
 	return db.DB.Save(coins).Error
+}
+
+func sortCoin(db *gorm.DB, sort CoinSortType, desc bool) *gorm.DB {
+	switch sort {
+	case CoinName:
+		db = db.Select("coins.*")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "coins.name",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case CoinPrice:
+		db = db.Select("coins.*")
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "coins.usd",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	}
+
+	return db
 }

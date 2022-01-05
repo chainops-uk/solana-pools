@@ -332,6 +332,23 @@ paths:
       - application/json
       description: get governance
       parameters:
+      - description: governance name
+        in: query
+        name: name
+        type: string
+      - default: price
+        description: sort param
+        enum:
+        - price
+        - name
+        in: query
+        name: sort
+        type: string
+      - default: true
+        description: desc
+        in: query
+        name: desc
+        type: boolean
       - default: 0
         description: offset for aggregation
         in: query
@@ -344,10 +361,6 @@ paths:
         name: limit
         required: true
         type: number
-      - description: stake-pool name
-        in: query
-        name: name
-        type: string
       produces:
       - application/json
       responses:
@@ -385,6 +398,23 @@ paths:
       - application/json
       description: get pools coins
       parameters:
+      - description: coin name
+        in: query
+        name: name
+        type: string
+      - default: price
+        description: sort param
+        enum:
+        - price
+        - name
+        in: query
+        name: sort
+        type: string
+      - default: true
+        description: desc
+        in: query
+        name: desc
+        type: boolean
       - default: 0
         description: offset for aggregation
         in: query
@@ -397,10 +427,6 @@ paths:
         name: limit
         required: true
         type: number
-      - description: stake-pool name
-        in: query
-        name: name
-        type: string
       produces:
       - application/json
       responses:

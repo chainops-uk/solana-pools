@@ -7,9 +7,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error) {
+func (s Imp) GetPoolCoins(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error) {
 
-	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	pools, err := s.dao.GetPools(&postgres.PoolCondition{
+		Condition: &postgres.Condition{
+			Network: postgres.MainNet,
+		},
+	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetPools: %w", err)
 	}
@@ -19,11 +23,18 @@ func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.
 		ids[i] = pool.CoinID
 	}
 
-	coins, err := s.dao.GetCoins(&postgres.Condition{
-		IDs:        ids,
-		Name:       name,
-		Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+	coins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs:        ids,
+			Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+		},
+		CoinSort: &postgres.CoinSort{
+			Sort: postgres.SearchCoinSort(sort),
+			Desc: desc,
+		},
+		Name: name,
 	})
+
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetCoins: %w", err)
 	}
@@ -52,8 +63,10 @@ func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.
 		scoins[i] = (&smodels.Coin{}).Set(coin, defi)
 	}
 
-	count, err := s.dao.GetCoinsCount(&postgres.Condition{
-		IDs:  ids,
+	count, err := s.dao.GetCoinsCount(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs: ids,
+		},
 		Name: name,
 	})
 	if err != nil {
@@ -64,9 +77,11 @@ func (s Imp) GetPoolCoins(name string, limit uint64, offset uint64) ([]*smodels.
 }
 
 func (s Imp) GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error) {
-	coins, err := s.dao.GetCoins(&postgres.Condition{
-		Name:       name,
-		Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+	coins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			Name:       name,
+			Pagination: postgres.Pagination{Limit: limit, Offset: offset},
+		},
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetCoins: %w", err)
@@ -77,7 +92,7 @@ func (s Imp) GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin
 		scoins[i] = (&smodels.Coin{}).Set(coin, nil)
 	}
 
-	count, err := s.dao.GetCoinsCount(&postgres.Condition{
+	count, err := s.dao.GetCoinsCount(&postgres.CoinCondition{
 		Name: name,
 	})
 	if err != nil {

@@ -174,6 +174,30 @@ var doc = `{
                 "summary": "RestAPI",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "governance name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "price",
+                            "name"
+                        ],
+                        "type": "string",
+                        "default": "price",
+                        "description": "sort param",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "desc",
+                        "name": "desc",
+                        "in": "query"
+                    },
+                    {
                         "type": "number",
                         "default": 0,
                         "description": "offset for aggregation",
@@ -188,12 +212,6 @@ var doc = `{
                         "name": "limit",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "stake-pool name",
-                        "name": "name",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -257,6 +275,30 @@ var doc = `{
                 "summary": "RestAPI",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "coin name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "price",
+                            "name"
+                        ],
+                        "type": "string",
+                        "default": "price",
+                        "description": "sort param",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "desc",
+                        "name": "desc",
+                        "in": "query"
+                    },
+                    {
                         "type": "number",
                         "default": 0,
                         "description": "offset for aggregation",
@@ -271,12 +313,6 @@ var doc = `{
                         "name": "limit",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "stake-pool name",
-                        "name": "name",
-                        "in": "query"
                     }
                 ],
                 "responses": {

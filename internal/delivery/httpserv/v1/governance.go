@@ -13,9 +13,11 @@ import (
 // @Description get governance
 // @Accept json
 // @Produce json
+// @Param name query string false "governance name"
+// @Param sort query string false "sort param" Enums(price, name) default(price)
+// @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Param name query string false "stake-pool name"
 // @Success 200 {object} tools.ResponseData{data=[]governance} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
@@ -24,6 +26,8 @@ import (
 func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
+		Sort   string `form:"sort,default=price"`
+		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
 		Limit  uint64 `form:"limit,default=10"`
 	}{}
@@ -31,7 +35,7 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	gc, count, err := h.svc.GetGovernance(q.Name, q.Limit, q.Offset)
+	gc, count, err := h.svc.GetGovernance(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		return nil, err
 	}

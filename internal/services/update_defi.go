@@ -43,8 +43,10 @@ func updateOrca(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.Condition{
-		IDs: ids,
+	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs: ids,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("dao.GetCoins: %w", err)
@@ -114,8 +116,10 @@ func updateRaydium(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.Condition{
-		IDs: ids,
+	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs: ids,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("dao.GetCoins: %w", err)
@@ -185,8 +189,10 @@ func updateAtrix(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.Condition{
-		IDs: ids,
+	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs: ids,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("dao.GetCoins: %w", err)

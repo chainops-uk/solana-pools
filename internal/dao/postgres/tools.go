@@ -25,11 +25,14 @@ type PoolValidatorDataCondition struct {
 type CoinCondition struct {
 	*Condition
 	GeckoIDs []string
+	Names    []string
+	Name     string
+	CoinSort *CoinSort
 }
 
 type PoolCondition struct {
 	*Condition
-	Sort *PoolSort
+	Sort *PoolDataSort
 }
 
 type Condition struct {
@@ -41,15 +44,15 @@ type Condition struct {
 	Pagination
 }
 
-type PoolSort struct {
-	PoolSort PoolSortType
+type PoolDataSort struct {
+	PoolSort PoolDataSortType
 	Desc     bool
 }
 
-type PoolSortType int
+type PoolDataSortType int
 
 const (
-	PoolAPY = PoolSortType(iota)
+	PoolAPY = PoolDataSortType(iota)
 	PoolStake
 	PoolValidators
 	PoolScore
@@ -57,7 +60,7 @@ const (
 	PoolTokenPrice
 )
 
-func SearchPoolSort(sort string) PoolSortType {
+func SearchPoolSort(sort string) PoolDataSortType {
 	switch sort {
 	case "pool stake":
 		return PoolStake
@@ -71,6 +74,27 @@ func SearchPoolSort(sort string) PoolSortType {
 		return PoolTokenPrice
 	default:
 		return PoolAPY
+	}
+}
+
+type CoinSort struct {
+	Sort CoinSortType
+	Desc bool
+}
+
+type CoinSortType int
+
+const (
+	CoinName = CoinSortType(iota)
+	CoinPrice
+)
+
+func SearchCoinSort(sort string) CoinSortType {
+	switch sort {
+	case "price":
+		return CoinPrice
+	default:
+		return CoinName
 	}
 }
 
@@ -139,6 +163,32 @@ func SearchAggregate(name string) Aggregate {
 	}
 }
 
+type GovernanceCondition struct {
+	*Condition
+	Sort *GovernanceSort
+}
+
+type GovernanceSort struct {
+	Sort GovernanceSortType
+	Desc bool
+}
+
+type GovernanceSortType int
+
+const (
+	GovernanceName = GovernanceSortType(iota)
+	GovernancePrice
+)
+
+func SearchGovernanceSort(sort string) GovernanceSortType {
+	switch sort {
+	case "price":
+		return GovernancePrice
+	default:
+		return GovernanceName
+	}
+}
+
 func withCond(db *gorm.DB, cond *Condition) *gorm.DB {
 	if cond == nil {
 		return db
@@ -174,5 +224,16 @@ func withCoinCondition(db *gorm.DB, cond *CoinCondition) *gorm.DB {
 	if len(cond.GeckoIDs) > 0 {
 		db = db.Where(`gecko_key IN (?)`, cond.GeckoIDs)
 	}
+	if len(cond.Names) > 0 {
+		db = db.Where(`name IN (?)`, cond.Names)
+	}
+	if cond.Name != "" {
+		db = db.Where(`name ilike ?`, "%"+cond.Name+"%")
+	}
+
+	if cond.CoinSort != nil {
+		db = sortCoin(db, cond.CoinSort.Sort, cond.CoinSort.Desc)
+	}
+
 	return db
 }

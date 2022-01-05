@@ -72,7 +72,7 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 				Offset: offset,
 			},
 		},
-		Sort: &postgres.PoolSort{
+		Sort: &postgres.PoolDataSort{
 			PoolSort: postgres.SearchPoolSort(sort),
 			Desc:     desc,
 		},

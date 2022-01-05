@@ -88,13 +88,13 @@ func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
 	db = withCond(db, condition.Condition)
 
 	if condition.Sort != nil {
-		return sortPools(db, condition.Sort.PoolSort, condition.Sort.Desc)
+		return sortPoolData(db, condition.Sort.PoolSort, condition.Sort.Desc)
 	}
 
 	return db
 }
 
-func sortPools(db *gorm.DB, sort PoolSortType, desc bool) *gorm.DB {
+func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 	db = db.Joins("left join pool_data on pools.id = pool_data.pool_id").
 		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = pools.id)`).
 		Group("pools.id")
