@@ -13,6 +13,7 @@ const (
 	EverSOL      = "EverSOL"
 	JPool        = "JPool"
 	Socean       = "Socean"
+	DaoPool      = "daoPool"
 )
 
 type (
