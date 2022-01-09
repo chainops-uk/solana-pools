@@ -17,7 +17,16 @@ var doc = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -25,12 +34,15 @@ var doc = `{
     "paths": {
         "/coins": {
             "get": {
-                "description": "get coins",
+                "description": "The information on tokens with the specified search parameters.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "coin"
                 ],
                 "summary": "RestAPI",
                 "parameters": [
@@ -108,12 +120,15 @@ var doc = `{
         },
         "/epoch": {
             "get": {
-                "description": "get epoch",
+                "description": "The current epoch value is returned.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "epoch"
                 ],
                 "summary": "RestAPI",
                 "responses": {
@@ -170,6 +185,9 @@ var doc = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "governance"
                 ],
                 "summary": "RestAPI",
                 "parameters": [
@@ -265,12 +283,15 @@ var doc = `{
         },
         "/pool-coins": {
             "get": {
-                "description": "get pools coins",
+                "description": "The information about pool tokens with the specified search parameters.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "coin"
                 ],
                 "summary": "RestAPI",
                 "parameters": [
@@ -366,19 +387,22 @@ var doc = `{
         },
         "/pool-statistic": {
             "get": {
-                "description": "get statistic by pool",
+                "description": "The pool statistic for the specified aggregation.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "pool"
+                ],
                 "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "Marinade",
-                        "description": "pool name",
+                        "default": "EverSOL",
+                        "description": "Name of the pool with strict observance of the case.",
                         "name": "name",
                         "in": "query",
                         "required": true
@@ -392,7 +416,7 @@ var doc = `{
                             "year"
                         ],
                         "type": "string",
-                        "description": "aggregation",
+                        "description": "Type of data aggregation for a time period",
                         "name": "aggregation",
                         "in": "query",
                         "required": true
@@ -449,18 +473,21 @@ var doc = `{
         },
         "/pool-validators/{name}": {
             "get": {
-                "description": "get pool validators",
+                "description": "This list with pool's validators.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "validator"
+                ],
                 "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "Marinade",
+                        "default": "EverSOL",
                         "description": "Pool name",
                         "name": "name",
                         "in": "path",
@@ -563,19 +590,22 @@ var doc = `{
         },
         "/pool/{name}": {
             "get": {
-                "description": "get pool",
+                "description": "Creates a WS request to get server data for the pool with the pool name specified in the request.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "pool"
+                ],
                 "summary": "WebSocket",
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "Marinade",
-                        "description": "Pool name",
+                        "default": "EverSOL",
+                        "description": "Name of the pool with strict observance of the case.",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -629,18 +659,21 @@ var doc = `{
         },
         "/pools": {
             "get": {
-                "description": "get pools",
+                "description": "This Pools list with ability to sort \u0026 search by name.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "pool"
+                ],
                 "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "stake-pool name",
+                        "description": "The name of the pool without strict observance of the case.",
                         "name": "name",
                         "in": "query"
                     },
@@ -655,14 +688,14 @@ var doc = `{
                         ],
                         "type": "string",
                         "default": "apy",
-                        "description": "sort param",
+                        "description": "The parameter by the value of which the pools will be sorted.",
                         "name": "sort",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
                         "default": true,
-                        "description": "desc",
+                        "description": "Sort in descending order",
                         "name": "desc",
                         "in": "query"
                     },
@@ -734,12 +767,15 @@ var doc = `{
         },
         "/pools-statistic": {
             "get": {
-                "description": "get statistic",
+                "description": "Creates a WS request to get current statistics.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "pool"
                 ],
                 "summary": "WebSocket",
                 "responses": {
@@ -1150,6 +1186,9 @@ var doc = `{
                 }
             }
         }
+    },
+    "x-extension-openapi": {
+        "example": "value on a json format"
     }
 }`
 

@@ -14,8 +14,9 @@ import (
 // GetPoolValidators godoc
 // @Summary RestAPI
 // @Schemes
-// @Description get pool validators
-// @Param name path string true "Pool name" default(Marinade)
+// @Description This list with pool's validators.
+// @Tags validator
+// @Param name path string true "Pool name" default(EverSOL)
 // @Param name query string false "validator name"
 // @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
 // @Param desc query bool false "desc" default(true)

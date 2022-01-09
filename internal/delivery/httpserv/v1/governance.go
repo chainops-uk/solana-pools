@@ -11,6 +11,7 @@ import (
 // @Summary RestAPI
 // @Schemes
 // @Description get governance
+// @Tags governance
 // @Accept json
 // @Produce json
 // @Param name query string false "governance name"

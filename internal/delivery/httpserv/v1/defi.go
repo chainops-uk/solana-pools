@@ -10,7 +10,8 @@ import (
 // GetCoins godoc
 // @Summary RestAPI
 // @Schemes
-// @Description get coins
+// @Description The information on tokens with the specified search parameters.
+// @Tags coin
 // @Accept json
 // @Produce json
 // @Param offset query number true "offset for aggregation" default(0)
@@ -54,7 +55,8 @@ func (h *Handler) GetCoins(ctx *gin.Context) (interface{}, error) {
 // GetPoolsCoins godoc
 // @Summary RestAPI
 // @Schemes
-// @Description get pools coins
+// @Description The information about pool tokens with the specified search parameters.
+// @Tags coin
 // @Accept json
 // @Produce json
 // @Param name query string false "coin name"

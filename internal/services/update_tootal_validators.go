@@ -79,9 +79,12 @@ func (s Imp) UpdateValidators() error {
 			return fmt.Errorf("getAPY: %w", err)
 		}
 
+		apy = apy.Mul(decimal.NewFromFloat(correlation))
+
 		validators = append(validators, &dmodels.Validator{
 			ID:              v.NodePubKey,
 			Name:            vInfo.Name,
+			Image:           vInfo.AvatarURL,
 			Delinquent:      true,
 			VotePK:          v.VotePubKey,
 			APY:             apy,
@@ -90,7 +93,7 @@ func (s Imp) UpdateValidators() error {
 			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
 			Score:           vInfo.TotalScore,
 			SkippedSlots:    skippedSlots,
-			DataCenter:      vInfo.DataCenterHost,
+			DataCenter:      vInfo.DataCenterKey,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
 		})

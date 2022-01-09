@@ -47,6 +47,12 @@ func (api *API) Run() error {
 	)
 
 	docs.SwaggerInfo.BasePath = "/v1"
+	docs.SwaggerInfo.Title = "Stake-Solana API"
+	docs.SwaggerInfo.Description = "This is API for Rest & WebSocket requests"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = api.cfg.HttpSwaggerAddress
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Schemes = []string{"http", "https", "ws"}
 	router.GET("/", func(ctx *gin.Context) {
 		links := []string{
 			fmt.Sprintf(`<a href="http://%s">%s</a> - swagger`,

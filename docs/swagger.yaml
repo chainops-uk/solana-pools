@@ -237,13 +237,20 @@ definitions:
         type: string
     type: object
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
 paths:
   /coins:
     get:
       consumes:
       - application/json
-      description: get coins
+      description: The information on tokens with the specified search parameters.
       parameters:
       - default: 0
         description: offset for aggregation
@@ -292,11 +299,13 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - coin
   /epoch:
     get:
       consumes:
       - application/json
-      description: get epoch
+      description: The current epoch value is returned.
       produces:
       - application/json
       responses:
@@ -326,6 +335,8 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - epoch
   /governance:
     get:
       consumes:
@@ -392,11 +403,13 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - governance
   /pool-coins:
     get:
       consumes:
       - application/json
-      description: get pools coins
+      description: The information about pool tokens with the specified search parameters.
       parameters:
       - description: coin name
         in: query
@@ -458,19 +471,21 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - coin
   /pool-statistic:
     get:
       consumes:
       - application/json
-      description: get statistic by pool
+      description: The pool statistic for the specified aggregation.
       parameters:
-      - default: Marinade
-        description: pool name
+      - default: EverSOL
+        description: Name of the pool with strict observance of the case.
         in: query
         name: name
         required: true
         type: string
-      - description: aggregation
+      - description: Type of data aggregation for a time period
         enum:
         - week
         - month
@@ -512,13 +527,15 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - pool
   /pool-validators/{name}:
     get:
       consumes:
       - application/json
-      description: get pool validators
+      description: This list with pool's validators.
       parameters:
-      - default: Marinade
+      - default: EverSOL
         description: Pool name
         in: path
         name: name
@@ -589,14 +606,17 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - validator
   /pool/{name}:
     get:
       consumes:
       - application/json
-      description: get pool
+      description: Creates a WS request to get server data for the pool with the pool
+        name specified in the request.
       parameters:
-      - default: Marinade
-        description: Pool name
+      - default: EverSOL
+        description: Name of the pool with strict observance of the case.
         in: path
         name: name
         required: true
@@ -630,18 +650,20 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: WebSocket
+      tags:
+      - pool
   /pools:
     get:
       consumes:
       - application/json
-      description: get pools
+      description: This Pools list with ability to sort & search by name.
       parameters:
-      - description: stake-pool name
+      - description: The name of the pool without strict observance of the case.
         in: query
         name: name
         type: string
       - default: apy
-        description: sort param
+        description: The parameter by the value of which the pools will be sorted.
         enum:
         - apy
         - pool stake
@@ -653,7 +675,7 @@ paths:
         name: sort
         type: string
       - default: true
-        description: desc
+        description: Sort in descending order
         in: query
         name: desc
         type: boolean
@@ -700,11 +722,13 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
+      tags:
+      - pool
   /pools-statistic:
     get:
       consumes:
       - application/json
-      description: get statistic
+      description: Creates a WS request to get current statistics.
       produces:
       - application/json
       responses:
@@ -734,4 +758,8 @@ paths:
           schema:
             $ref: '#/definitions/tools.ResponseError'
       summary: WebSocket
+      tags:
+      - pool
 swagger: "2.0"
+x-extension-openapi:
+  example: value on a json format

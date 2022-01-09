@@ -8,6 +8,8 @@ import (
 )
 
 type HandlerFunc func(*gin.Context) (interface{}, error)
+type WSHandlerFunc func(*gin.Context, []byte) (interface{}, error)
+
 type Status struct {
 	code  int
 	error error
@@ -51,7 +53,7 @@ func Must(handlerFunc HandlerFunc) gin.HandlerFunc {
 	}
 }
 
-func WSMust(handlerFunc HandlerFunc, TimeSleep time.Duration) gin.HandlerFunc {
+func WSMust(handlerFunc WSHandlerFunc, TimeSleep time.Duration) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var upGrader = websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -67,8 +69,45 @@ func WSMust(handlerFunc HandlerFunc, TimeSleep time.Duration) gin.HandlerFunc {
 		defer ws.Close()
 		ws.SetReadLimit(0)
 
+		rch := make(chan []byte)
+		cch := make(chan struct{})
+		go func() {
+
+			for {
+				_, p, err := ws.ReadMessage()
+				if err != nil {
+					if _, ok := err.(*websocket.CloseError); ok {
+						close(cch)
+						break
+					}
+					context.Error(err)
+					break
+				}
+				rch <- p
+			}
+			close(rch)
+		}()
+
 		for {
-			result, err := handlerFunc(context)
+			var b []byte
+			select {
+			case <-cch:
+				return
+			case message, ok := <-rch:
+				if !ok {
+					if err := ws.WriteJSON(gin.H{
+						"error": "internal server error",
+					}); err != nil {
+						context.Error(err)
+					}
+					return
+				}
+				b = message
+			default:
+				b = nil
+			}
+
+			result, err := handlerFunc(context, b)
 			if err != nil {
 				switch t := err.(type) {
 				case *Status:

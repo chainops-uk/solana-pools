@@ -17,8 +17,9 @@ import (
 // GetPool godoc
 // @Summary WebSocket
 // @Schemes
-// @Description get pool
-// @Param name path string true "Pool name" default(Marinade)
+// @Description Creates a WS request to get server data for the pool with the pool name specified in the request.
+// @Tags pool
+// @Param name path string true "Name of the pool with strict observance of the case." default(EverSOL)
 // @Accept json
 // @Produce json
 // @Success 200 {object} tools.ResponseData{data=pool} "Ok"
@@ -26,7 +27,7 @@ import (
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pool/{name} [get]
-func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
+func (h *Handler) GetPool(g *gin.Context, message []byte) (interface{}, error) {
 	name := g.Param("name")
 
 	resp, err := h.svc.GetPool(name)
@@ -42,35 +43,16 @@ func (h *Handler) GetPool(g *gin.Context) (interface{}, error) {
 	return (&pool{}).Set(&resp.Pool), nil
 }
 
-// GetEpoch godoc
-// @Summary RestAPI
-// @Schemes
-// @Description get epoch
-// @Accept json
-// @Produce json
-// @Success 200 {object} tools.ResponseData{data=epoch} "Ok"
-// @Failure 400,404 {object} tools.ResponseError "bad request"
-// @Failure 500 {object} tools.ResponseError "internal server error"
-// @Failure default {object} tools.ResponseError "default response"
-// @Router /epoch [get]
-func (h *Handler) GetEpoch(ctx *gin.Context) (interface{}, error) {
-	e, err := h.svc.GetEpoch()
-	if err != nil {
-		return nil, err
-	}
-
-	return tools.ResponseData{Data: (&epoch{}).Set(e)}, nil
-}
-
 // GetPools godoc
 // @Summary RestAPI
 // @Schemes
-// @Description get pools
+// @Description This Pools list with ability to sort & search by name.
+// @Tags pool
 // @Accept json
 // @Produce json
-// @Param name query string false "stake-pool name"
-// @Param sort query string false "sort param" Enums(apy, pool stake, validators, score, skipped slot, token price) default(apy)
-// @Param desc query bool false "desc" default(true)
+// @Param name query string false "The name of the pool without strict observance of the case."
+// @Param sort query string false "The parameter by the value of which the pools will be sorted." Enums(apy, pool stake, validators, score, skipped slot, token price) default(apy)
+// @Param desc query bool false "Sort in descending order" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Success 200 {object} tools.ResponseArrayData{data=[]poolMainPage} "Ok"
@@ -113,7 +95,8 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // GetTotalPoolsStatistic godoc
 // @Summary WebSocket
 // @Schemes
-// @Description get statistic
+// @Description Creates a WS request to get current statistics.
+// @Tags pool
 // @Accept json
 // @Produce json
 // @Success 200 {object} tools.ResponseData{data=TotalPoolsStatistic} "Ok"
@@ -121,7 +104,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pools-statistic [get]
-func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) {
+func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (interface{}, error) {
 	apy, err := h.svc.GetAPY()
 	if err != nil {
 		if errors.Is(err, cache.KeyWasNotFound) {
@@ -178,11 +161,12 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context) (interface{}, error) 
 // GetPoolsStatistic godoc
 // @Summary RestAPI
 // @Schemes
-// @Description get statistic by pool
+// @Description The pool statistic for the specified aggregation.
+// @Tags pool
 // @Accept json
 // @Produce json
-// @Param name query string true "pool name" default(Marinade)
-// @Param aggregation query string true "aggregation" Enums(week, month, quarter, half-year, year)
+// @Param name query string true "Name of the pool with strict observance of the case." default(EverSOL)
+// @Param aggregation query string true "Type of data aggregation for a time period" Enums(week, month, quarter, half-year, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
