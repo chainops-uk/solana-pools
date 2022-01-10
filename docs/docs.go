@@ -75,7 +75,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/tools.ResponseData"
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
                                 },
                                 {
                                     "type": "object",
@@ -238,7 +238,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/tools.ResponseData"
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
                                 },
                                 {
                                     "type": "object",
@@ -247,6 +247,92 @@ var doc = `{
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/v1.governance"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "bad request",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "default response",
+                        "schema": {
+                            "$ref": "#/definitions/tools.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/liquidity-pool": {
+            "get": {
+                "description": "This Liquidity Pools list with search by name.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pool"
+                ],
+                "summary": "RestAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the pool without strict observance of the case.",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "default": 0,
+                        "description": "offset for aggregation",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 10,
+                        "description": "limit for aggregation",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.poolMainPage"
                                             }
                                         }
                                     }
@@ -342,7 +428,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/tools.ResponseData"
+                                    "$ref": "#/definitions/tools.ResponseArrayData"
                                 },
                                 {
                                     "type": "object",
@@ -1005,6 +1091,9 @@ var doc = `{
         "v1.liquidityPool": {
             "type": "object",
             "properties": {
+                "about": {
+                    "type": "string"
+                },
                 "image": {
                     "type": "string"
                 },

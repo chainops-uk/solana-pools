@@ -117,6 +117,8 @@ definitions:
     type: object
   v1.liquidityPool:
     properties:
+      about:
+        type: string
       image:
         type: string
       name:
@@ -275,7 +277,7 @@ paths:
           description: Ok
           schema:
             allOf:
-            - $ref: '#/definitions/tools.ResponseData'
+            - $ref: '#/definitions/tools.ResponseArrayData'
             - properties:
                 data:
                   items:
@@ -379,7 +381,7 @@ paths:
           description: Ok
           schema:
             allOf:
-            - $ref: '#/definitions/tools.ResponseData'
+            - $ref: '#/definitions/tools.ResponseArrayData'
             - properties:
                 data:
                   items:
@@ -405,6 +407,61 @@ paths:
       summary: RestAPI
       tags:
       - governance
+  /liquidity-pool:
+    get:
+      consumes:
+      - application/json
+      description: This Liquidity Pools list with search by name.
+      parameters:
+      - description: The name of the pool without strict observance of the case.
+        in: query
+        name: name
+        type: string
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseArrayData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.poolMainPage'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
+      tags:
+      - pool
   /pool-coins:
     get:
       consumes:
@@ -447,7 +504,7 @@ paths:
           description: Ok
           schema:
             allOf:
-            - $ref: '#/definitions/tools.ResponseData'
+            - $ref: '#/definitions/tools.ResponseArrayData'
             - properties:
                 data:
                   items:

@@ -10,6 +10,14 @@ func (db *DB) GetLiquidityPools(cond *Condition) ([]*dmodels.LiquidityPool, erro
 	return lp, withCond(db.DB, cond).Order("name").Find(&lp).Error
 }
 
+func (db *DB) GetLiquidityPoolsCount(cond *Condition) (int64, error) {
+	var count int64
+	if err := withCond(db.DB, cond).Model(&dmodels.LiquidityPool{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (db *DB) GetLiquidityPool(cond *Condition) (*dmodels.LiquidityPool, error) {
 	var pool *dmodels.LiquidityPool
 	if err := withCond(db.DB, cond).First(&pool).Error; err != nil {

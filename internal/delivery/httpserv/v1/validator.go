@@ -42,7 +42,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	resp, count, err := h.svc.GetPoolValidators(name, q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
+	resp, amount, err := h.svc.GetPoolValidators(name, q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		if errors.Is(err, postgres.ErrorRecordNotFounded) {
@@ -61,7 +61,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 		MetaData: &tools.MetaData{
 			Offset:      q.Offset,
 			Limit:       q.Limit,
-			TotalAmount: count,
+			TotalAmount: amount,
 		},
 	}, nil
 }

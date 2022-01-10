@@ -19,7 +19,7 @@ import (
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Success 200 {object} tools.ResponseData{data=[]governance} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]governance} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -36,7 +36,7 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	gc, count, err := h.svc.GetGovernance(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
+	gc, amount, err := h.svc.GetGovernance(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 		MetaData: &tools.MetaData{
 			Offset:      q.Offset,
 			Limit:       q.Limit,
-			TotalAmount: count,
+			TotalAmount: amount,
 		},
 	}, err
 }

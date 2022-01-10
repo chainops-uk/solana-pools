@@ -20,6 +20,9 @@ func (s Imp) UpdateDeFi() error {
 	if err := updateAtrix(&s); err != nil {
 		return fmt.Errorf("updateAtrix() %w", err)
 	}
+	if err := updateSaber(&s); err != nil {
+		return fmt.Errorf("updateSaber() %w", err)
+	}
 
 	return nil
 }
@@ -142,7 +145,7 @@ func updateRaydium(s *Imp) error {
 				for _, d := range coins {
 					address := d.Address
 					if strings.Contains(address, "11111111111111111111111111111111") {
-						address = "So" + address
+						address = "So11111111111111111111111111111111"
 					}
 					if strings.Contains(paris.PairID, fmt.Sprintf("-%s", address)) {
 						defis = append(defis, &dmodels.DEFI{
@@ -219,6 +222,75 @@ func updateAtrix(s *Imp) error {
 							SaleCoinID:      poolCoin.ID,
 							BuyCoinID:       d.ID,
 							Liquidity:       v.Tvl,
+							APY:             decimal.NewFromInt(0),
+						})
+					}
+				}
+			}
+		}
+
+	}
+
+	if err := s.dao.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
+		return err
+	}
+
+	if err := s.dao.SaveDEFIs(defis...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateSaber(s *Imp) error {
+	pool, err := s.dao.GetLiquidityPool(&postgres.Condition{Names: []string{"Saber"}})
+	if err != nil {
+		return err
+	}
+	if pool == nil {
+		return nil
+	}
+
+	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	if err != nil {
+		return fmt.Errorf("dao.GetPools: %w", err)
+	}
+
+	ids := make([]uuid.UUID, len(pools))
+	for i, pool := range pools {
+		ids[i] = pool.CoinID
+	}
+
+	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+		Condition: &postgres.Condition{
+			IDs: ids,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("dao.GetCoins: %w", err)
+	}
+
+	coins, err := s.dao.GetCoins(nil)
+	if err != nil {
+		return err
+	}
+
+	saber, err := s.saber.GetPools()
+	if err != nil {
+		return err
+	}
+
+	defis := make([]*dmodels.DEFI, 0)
+	for _, poolCoin := range poolCoins {
+		for _, v := range saber {
+			if v.Coin.Address == poolCoin.Address {
+				for _, d := range coins {
+					if d.Address == v.PC.Address {
+						defis = append(defis, &dmodels.DEFI{
+							LiquidityPoolID: pool.ID,
+							SaleCoinID:      poolCoin.ID,
+							BuyCoinID:       d.ID,
+							Liquidity:       v.Stats.TvlPC,
 							APY:             decimal.NewFromInt(0),
 						})
 					}

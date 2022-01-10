@@ -17,7 +17,7 @@ import (
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Param name query string false "stake-pool name"
-// @Success 200 {object} tools.ResponseData{data=[]coin} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]coin} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -64,7 +64,7 @@ func (h *Handler) GetCoins(ctx *gin.Context) (interface{}, error) {
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Success 200 {object} tools.ResponseData{data=[]coin} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]coin} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -103,12 +103,14 @@ func (h *Handler) GetPoolsCoins(ctx *gin.Context) (interface{}, error) {
 
 type liquidityPool struct {
 	Name  string
+	About string
 	Image string
 	URL   string
 }
 
 func (lp *liquidityPool) Set(pool *smodels.LiquidityPool) *liquidityPool {
 	lp.Name = pool.Name
+	lp.About = pool.About
 	lp.URL = pool.URL
 	lp.Image = pool.Image
 	return lp

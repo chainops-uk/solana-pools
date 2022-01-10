@@ -32,15 +32,17 @@ type (
 		GetValidatorByVotePK(key solana.PublicKey) (*dmodels.Validator, error)
 		GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
 		GetDEFIs(cond *postgres.DeFiCondition) ([]*dmodels.DEFI, error)
+		GetLiquidityPool(cond *postgres.Condition) (*dmodels.LiquidityPool, error)
 
 		GetPoolCount(*postgres.Condition) (int64, error)
 		GetCoinsCount(cond *postgres.CoinCondition) (int64, error)
 		GetGovernanceCount(cond *postgres.GovernanceCondition) (int64, error)
 		GetValidatorCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
+		GetLiquidityPoolsCount(cond *postgres.Condition) (int64, error)
 
 		GetPools(condition *postgres.PoolCondition) ([]dmodels.Pool, error)
 		GetCoins(cond *postgres.CoinCondition) ([]*dmodels.Coin, error)
-		GetLiquidityPool(cond *postgres.Condition) (*dmodels.LiquidityPool, error)
+		GetLiquidityPools(cond *postgres.Condition) ([]*dmodels.LiquidityPool, error)
 		GetGovernance(cond *postgres.GovernanceCondition) ([]*dmodels.Governance, error)
 		GetValidators(condition *postgres.Condition) ([]*dmodels.Validator, error)
 		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)

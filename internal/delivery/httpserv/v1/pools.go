@@ -72,7 +72,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	pools, amounnt, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
+	pools, amount, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
@@ -88,7 +88,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		MetaData: &tools.MetaData{
 			Offset:      q.Offset,
 			Limit:       q.Limit,
-			TotalAmount: amounnt,
+			TotalAmount: amount,
 		}}, nil
 }
 

@@ -51,7 +51,6 @@ func (api *API) Run() error {
 	docs.SwaggerInfo.Description = "This is API for Rest & WebSocket requests"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = api.cfg.HttpSwaggerAddress
-	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http", "https", "ws"}
 	router.GET("/", func(ctx *gin.Context) {
 		links := []string{
@@ -75,6 +74,7 @@ func (api *API) Run() error {
 	v1g.GET("/pool/:name", tools.WSMust(api.v1.GetPool, time.Second*30))
 	v1g.GET("/pool-statistic", tools.Must(api.v1.GetPoolsStatistic))
 	v1g.GET("/pools-statistic", tools.WSMust(api.v1.GetTotalPoolsStatistic, time.Second*30))
+	v1g.GET("/liquidity-pool", tools.Must(api.v1.GetLiquidityPools))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	api.log.Info("Starting API server", zap.Uint64("port", api.cfg.HttpPort))
 	return router.Run(fmt.Sprintf(":%d", api.cfg.HttpPort))
