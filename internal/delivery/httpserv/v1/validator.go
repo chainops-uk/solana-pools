@@ -28,7 +28,7 @@ import (
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
-// @Router /pool-validators/{name} [get]
+// @Router /pool-validators/{pname} [get]
 func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	name := ctx.Param("pname")
 	q := struct {
