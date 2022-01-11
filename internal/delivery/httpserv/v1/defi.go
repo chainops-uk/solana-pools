@@ -117,10 +117,10 @@ func (lp *liquidityPool) Set(pool *smodels.LiquidityPool) *liquidityPool {
 }
 
 type deFi struct {
-	BuyCoin       *coin
-	LiquidityPool *liquidityPool
-	Liquidity     float64
-	APY           float64
+	BuyCoin       *coin          `json:"buy_coin"`
+	LiquidityPool *liquidityPool `json:"liquidity_pool"`
+	Liquidity     float64        `json:"liquidity"`
+	APY           float64        `json:"apy"`
 }
 
 func (f *deFi) Set(defi *smodels.DeFi, buyCoin *coin, liquidityPool *liquidityPool) *deFi {
