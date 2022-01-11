@@ -102,10 +102,10 @@ func (h *Handler) GetPoolsCoins(ctx *gin.Context) (interface{}, error) {
 }
 
 type liquidityPool struct {
-	Name  string
-	About string
-	Image string
-	URL   string
+	Name  string `json:"name"`
+	About string `json:"about"`
+	Image string `json:"image"`
+	URL   string `json:"url"`
 }
 
 func (lp *liquidityPool) Set(pool *smodels.LiquidityPool) *liquidityPool {
