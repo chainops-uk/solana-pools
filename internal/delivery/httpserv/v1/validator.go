@@ -16,8 +16,8 @@ import (
 // @Schemes
 // @Description This list with pool's validators.
 // @Tags validator
-// @Param name path string true "Pool name" default(EverSOL)
-// @Param name query string false "validator name"
+// @Param pname path string true "Name of the pool with strict observance of the case." default(EverSOL)
+// @Param vname query string false "The name of the validator without strict observance of the case."
 // @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
@@ -30,9 +30,9 @@ import (
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pool-validators/{name} [get]
 func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
-	name := ctx.Param("name")
+	name := ctx.Param("pname")
 	q := struct {
-		Name   string `form:"name"`
+		Name   string `form:"vname"`
 		Sort   string `form:"sort,default=apy"`
 		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
