@@ -17,11 +17,11 @@ import (
 // @Param name query string false "The name of the pool without strict observance of the case."
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Success 200 {object} tools.ResponseArrayData{data=[]poolMainPage} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]liquidityPool} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
-// @Router /liquidity-pool [get]
+// @Router /liquidity-pools [get]
 func (h *Handler) GetLiquidityPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`

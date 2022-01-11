@@ -74,7 +74,7 @@ func (api *API) Run() error {
 	v1g.GET("/pool/:name", tools.WSMust(api.v1.GetPool, time.Second*30))
 	v1g.GET("/pool-statistic", tools.Must(api.v1.GetPoolsStatistic))
 	v1g.GET("/pools-statistic", tools.WSMust(api.v1.GetTotalPoolsStatistic, time.Second*30))
-	v1g.GET("/liquidity-pool", tools.Must(api.v1.GetLiquidityPools))
+	v1g.GET("/liquidity-pools", tools.Must(api.v1.GetLiquidityPools))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	api.log.Info("Starting API server", zap.Uint64("port", api.cfg.HttpPort))
 	return router.Run(fmt.Sprintf(":%d", api.cfg.HttpPort))
