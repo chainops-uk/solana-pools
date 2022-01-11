@@ -574,15 +574,15 @@ var doc = `{
                     {
                         "type": "string",
                         "default": "EverSOL",
-                        "description": "Pool name",
-                        "name": "name",
+                        "description": "Name of the pool with strict observance of the case.",
+                        "name": "pname",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "validator name",
-                        "name": "name",
+                        "description": "The name of the validator without strict observance of the case.",
+                        "name": "vname",
                         "in": "query"
                     },
                     {

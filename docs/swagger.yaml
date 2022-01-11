@@ -593,14 +593,14 @@ paths:
       description: This list with pool's validators.
       parameters:
       - default: EverSOL
-        description: Pool name
+        description: Name of the pool with strict observance of the case.
         in: path
-        name: name
+        name: pname
         required: true
         type: string
-      - description: validator name
+      - description: The name of the validator without strict observance of the case.
         in: query
-        name: name
+        name: vname
         type: string
       - default: apy
         description: sort param
