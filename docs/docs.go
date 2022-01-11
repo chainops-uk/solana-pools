@@ -557,7 +557,7 @@ var doc = `{
                 }
             }
         },
-        "/pool-validators/{name}": {
+        "/pool-validators/{pname}": {
             "get": {
                 "description": "This list with pool's validators.",
                 "consumes": [

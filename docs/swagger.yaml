@@ -586,7 +586,7 @@ paths:
       summary: RestAPI
       tags:
       - pool
-  /pool-validators/{name}:
+  /pool-validators/{pname}:
     get:
       consumes:
       - application/json
