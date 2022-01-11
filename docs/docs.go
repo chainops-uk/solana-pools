@@ -281,7 +281,7 @@ var doc = `{
                 }
             }
         },
-        "/liquidity-pool": {
+        "/liquidity-pools": {
             "get": {
                 "description": "This Liquidity Pools list with search by name.",
                 "consumes": [
@@ -332,7 +332,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.poolMainPage"
+                                                "$ref": "#/definitions/v1.liquidityPool"
                                             }
                                         }
                                     }
@@ -1031,13 +1031,13 @@ var doc = `{
                 "apy": {
                     "type": "number"
                 },
-                "buyCoin": {
+                "buy_coin": {
                     "$ref": "#/definitions/v1.coin"
                 },
                 "liquidity": {
                     "type": "number"
                 },
-                "liquidityPool": {
+                "liquidity_pool": {
                     "$ref": "#/definitions/v1.liquidityPool"
                 }
             }
