@@ -165,7 +165,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 			},
 		})
 	case PoolTokenPrice:
-		db = db.Select("pools.*, (CASE WHEN pool_data.total_tokens_supply IS NULL THEN 0 WHEN pool_data.total_tokens_supply = 0 THEN 0 ELSE pool_data.total_lamports / pool_data.total_tokens_supply END) as price").
+		db = db.Select("pools.*, (CASE WHEN pool_data.total_tokens_supply IS NULL THEN 0 WHEN pool_data.total_tokens_supply = 0 THEN 0 ELSE pool_data.total_lamports::float8 / pool_data.total_tokens_supply::float8 END) as price").
 			Group("pool_data.id")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
