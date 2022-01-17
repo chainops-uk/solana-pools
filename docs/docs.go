@@ -1083,8 +1083,17 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "symbol": {
+                    "type": "string"
+                },
                 "usd": {
                     "type": "number"
+                },
+                "vote_url": {
+                    "type": "string"
+                },
+                "web_site_url": {
+                    "type": "string"
                 }
             }
         },

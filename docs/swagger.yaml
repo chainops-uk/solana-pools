@@ -112,8 +112,14 @@ definitions:
         type: number
       name:
         type: string
+      symbol:
+        type: string
       usd:
         type: number
+      vote_url:
+        type: string
+      web_site_url:
+        type: string
     type: object
   v1.liquidityPool:
     properties:
