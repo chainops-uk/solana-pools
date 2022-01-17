@@ -7,6 +7,9 @@ import (
 type Governance struct {
 	ID                 uuid.UUID `gorm:"primaryKey;type:uuid;default:uuid_generate_v4();not null;"`
 	Name               string    `gorm:"type:varchar(40)"`
+	Symbol             string    `gorm:"type:varchar(40)"`
+	VoiceURL           string    `gorm:"type:text;default:'null';not null;index:idx_governance_vote_url,unique,where:vote_url != 'null';"`
+	WebSiteURL         string    `gorm:"type:text;default:'null';not null;index:idx_governance_web_url,unique,where:web_site_url != 'null';"`
 	Image              string    `gorm:"type:text;default:'null';not null;"`
 	GeckoKey           string    `gorm:"type:varchar(40);not null;"`
 	Blockchain         string    `gorm:"type:varchar(40);not null;"`

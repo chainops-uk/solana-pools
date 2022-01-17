@@ -6,6 +6,9 @@ import (
 
 type Governance struct {
 	Name               string
+	Symbol             string
+	VoiceURL           string
+	WebSiteURL         string
 	Image              string
 	GeckoKey           string
 	Blockchain         string
@@ -17,6 +20,9 @@ type Governance struct {
 
 func (g *Governance) Set(governance *dmodels.Governance) *Governance {
 	g.Name = governance.Name
+	g.Symbol = governance.Symbol
+	g.VoiceURL = governance.VoiceURL
+	g.WebSiteURL = governance.WebSiteURL
 	g.Image = governance.Image
 	g.GeckoKey = governance.GeckoKey
 	g.Blockchain = governance.Blockchain

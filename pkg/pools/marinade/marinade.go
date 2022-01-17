@@ -133,6 +133,9 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 	var totalActiveStake uint64
 	var validators []types.PoolValidator
 	for _, v := range validatorsData {
+		if v.Stake == 0 {
+			continue
+		}
 		validators = append(validators, types.PoolValidator{
 			ActiveStake: v.Stake,
 			VotePK:      v.Address,
