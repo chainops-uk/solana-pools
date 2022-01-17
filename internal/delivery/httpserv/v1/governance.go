@@ -59,7 +59,7 @@ func (h *Handler) GetGovernance(ctx *gin.Context) (interface{}, error) {
 type governance struct {
 	Name               string  `json:"name"`
 	Symbol             string  `json:"symbol"`
-	VoiceURL           string  `json:"voice_url"`
+	VoteURL            string  `json:"vote_url"`
 	WebSiteURL         string  `json:"web_site_url"`
 	Image              string  `json:"image"`
 	Blockchain         string  `json:"blockchain"`
@@ -72,7 +72,7 @@ type governance struct {
 func (g *governance) Set(governance *smodels.Governance) *governance {
 	g.Name = governance.Name
 	g.Symbol = governance.Symbol
-	g.VoiceURL = governance.VoiceURL
+	g.VoteURL = governance.VoteURL
 	g.WebSiteURL = governance.WebSiteURL
 	g.Image = governance.Image
 	g.Blockchain = governance.Blockchain
