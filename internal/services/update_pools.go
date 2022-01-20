@@ -82,6 +82,10 @@ func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
 		return fmt.Errorf("pool.GetData: %s", err.Error())
 	}
 
+	if "EverSOL" == dPool.Name {
+		data.APY = data.APY / 12
+	}
+
 	dmodel := &dmodels.PoolData{
 		ID:                uuid.NewV4(),
 		PoolID:            dPool.ID,
