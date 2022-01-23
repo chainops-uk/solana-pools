@@ -143,10 +143,6 @@ func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
 		dmodel.APY = SumValAPY.Div(decimal.NewFromInt(int64(len(validatorsPoolData))))
 	}
 
-	if "EverSOL" == dPool.Name {
-		dmodel.APY = dmodel.APY.Div(decimal.NewFromInt(12))
-	}
-
 	err = s.dao.UpdatePoolData(dmodel)
 	if err != nil {
 		return fmt.Errorf("dao.UpdatePoolData: %s", err.Error())
