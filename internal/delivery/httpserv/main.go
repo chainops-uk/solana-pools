@@ -70,6 +70,7 @@ func (api *API) Run() error {
 	v1g.GET("/coins", tools.Must(api.v1.GetCoins))
 	v1g.GET("/pool-coins", tools.Must(api.v1.GetPoolsCoins))
 	v1g.GET("/governance", tools.Must(api.v1.GetGovernance))
+	v1g.GET("/validators", tools.Must(api.v1.GetAllValidators))
 	v1g.GET("/pool-validators/:pname", tools.Must(api.v1.GetPoolValidators))
 	v1g.GET("/pool/:name", tools.WSMust(api.v1.GetPool, time.Second*30))
 	v1g.GET("/pool-statistic", tools.Must(api.v1.GetPoolsStatistic))
