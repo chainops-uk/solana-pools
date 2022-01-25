@@ -82,7 +82,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
-// @Router /validators
+// @Router /validators [get]
 func (h *Handler) GetAllValidators(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
