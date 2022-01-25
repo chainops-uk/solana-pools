@@ -823,6 +823,79 @@ paths:
       summary: WebSocket
       tags:
       - pool
+  /validators:
+    get:
+      consumes:
+      - application/json
+      description: This list with all Solana's validators.
+      parameters:
+      - description: The name of the validator without strict observance of the case.
+        in: query
+        name: name
+        type: string
+      - default: apy
+        description: sort param
+        enum:
+        - apy
+        - pool stake
+        - stake
+        - fee
+        - score
+        - skipped slot
+        - data center
+        in: query
+        name: sort
+        type: string
+      - default: true
+        description: desc
+        in: query
+        name: desc
+        type: boolean
+      - default: 0
+        description: offset for aggregation
+        in: query
+        name: offset
+        required: true
+        type: number
+      - default: 10
+        description: limit for aggregation
+        in: query
+        name: limit
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/tools.ResponseArrayData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/v1.validator'
+                  type: array
+              type: object
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "404":
+          description: bad request
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+        default:
+          description: default response
+          schema:
+            $ref: '#/definitions/tools.ResponseError'
+      summary: RestAPI
+      tags:
+      - validator
 swagger: "2.0"
 x-extension-openapi:
   example: value on a json format
