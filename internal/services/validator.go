@@ -52,6 +52,48 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		PoolDataIDs: []uuid.UUID{
 			poolData.ID,
 		},
+		Condition: &postgres.Condition{
+			Name: validatorName,
+		},
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("dao.GetValidatorCount: %w", err)
+	}
+
+	return arr, uint64(count), nil
+}
+
+func (s Imp) GetAllValidators(validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error) {
+	pvd, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{
+		Sort: &postgres.ValidatorSort{
+			ValidatorSort: postgres.SearchValidatorSort(sort),
+			Desc:          desc,
+		},
+		Condition: &postgres.Condition{
+			Name: validatorName,
+			Pagination: postgres.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
+		},
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
+	}
+
+	arr := make([]*smodels.Validator, len(pvd))
+	for i, data := range pvd {
+		val, err := s.dao.GetValidator(data.ValidatorID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("dao.GetValidator: %w", err)
+		}
+		arr[i] = (&smodels.Validator{}).Set(data.ActiveStake, val)
+	}
+
+	count, err := s.dao.GetValidatorCount(&postgres.PoolValidatorDataCondition{
+		Condition: &postgres.Condition{
+			Name: validatorName,
+		},
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetValidatorCount: %w", err)

@@ -66,6 +66,55 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	}, nil
 }
 
+// GetAllValidators godoc
+// @Summary RestAPI
+// @Schemes
+// @Description This list with all Solana's validators.
+// @Tags validator
+// @Param name query string false "The name of the validator without strict observance of the case."
+// @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
+// @Param desc query bool false "desc" default(true)
+// @Param offset query number true "offset for aggregation" default(0)
+// @Param limit query number true "limit for aggregation" default(10)
+// @Accept json
+// @Produce json
+// @Success 200 {object} tools.ResponseArrayData{data=[]validator} "Ok"
+// @Failure 400,404 {object} tools.ResponseError "bad request"
+// @Failure 500 {object} tools.ResponseError "internal server error"
+// @Failure default {object} tools.ResponseError "default response"
+// @Router /validators
+func (h *Handler) GetAllValidators(ctx *gin.Context) (interface{}, error) {
+	q := struct {
+		Name   string `form:"name"`
+		Sort   string `form:"sort,default=apy"`
+		Desc   bool   `form:"desc,default=true"`
+		Offset uint64 `form:"offset,default=0"`
+		Limit  uint64 `form:"limit,default=10"`
+	}{}
+	if err := ctx.ShouldBind(&q); err != nil {
+		return nil, tools.NewStatus(http.StatusBadRequest, err)
+	}
+
+	resp, amount, err := h.svc.GetAllValidators(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
+	if err != nil {
+		return nil, tools.NewStatus(http.StatusInternalServerError, err)
+	}
+
+	arr := make([]*validator, len(resp))
+	for i, v := range resp {
+		arr[i] = (&validator{}).Set(v)
+	}
+
+	return tools.ResponseArrayData{
+		Data: arr,
+		MetaData: &tools.MetaData{
+			Offset:      q.Offset,
+			Limit:       q.Limit,
+			TotalAmount: amount,
+		},
+	}, nil
+}
+
 type validator struct {
 	Name             string  `json:"name"`
 	Image            string  `json:"image"`
