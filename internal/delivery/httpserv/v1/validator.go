@@ -15,16 +15,16 @@ import (
 // @Summary RestAPI
 // @Schemes
 // @Description This list with pool's validators.
-// @Tags validator
+// @Tags validatorData
 // @Param pname path string true "Name of the pool with strict observance of the case." default(EverSOL)
-// @Param vname query string false "The name of the validator without strict observance of the case."
+// @Param vname query string false "The name of the validatorData without strict observance of the case."
 // @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
 // @Accept json
 // @Produce json
-// @Success 200 {object} tools.ResponseArrayData{data=[]validator} "Ok"
+// @Success 200 {object} tools.ResponseArrayData{data=[]validatorData} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
@@ -51,9 +51,9 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
 	}
 
-	arr := make([]*validator, len(resp))
+	arr := make([]*validatorData, len(resp))
 	for i, v := range resp {
-		arr[i] = (&validator{}).Set(v)
+		arr[i] = (&validatorData{}).Set(v)
 	}
 
 	return tools.ResponseArrayData{
@@ -70,9 +70,9 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 // @Summary RestAPI
 // @Schemes
 // @Description This list with all Solana's validators.
-// @Tags validator
-// @Param name query string false "The name of the validator without strict observance of the case."
-// @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
+// @Tags validatorData
+// @Param name query string false "The name of the validatorData without strict observance of the case."
+// @Param sort query string false "sort param" Enums(apy, stake, fee, score, skipped slot, data center) default(apy)
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
@@ -121,7 +121,6 @@ type validator struct {
 	NodePK           string  `json:"node_pk"`
 	APY              float64 `json:"apy"`
 	VotePK           string  `json:"vote_pk"`
-	PoolActiveStake  float64 `json:"pool_active_stake"`
 	TotalActiveStake float64 `json:"total_active_stake"`
 	Fee              float64 `json:"fee"`
 	Score            int64   `json:"score"`
@@ -130,6 +129,35 @@ type validator struct {
 }
 
 func (v *validator) Set(validator *smodels.Validator) *validator {
+	v.NodePK = validator.NodePK
+	v.Name = validator.Name
+	v.Image = validator.Image
+	v.APY, _ = validator.APY.Float64()
+	v.VotePK = validator.VotePK
+	v.TotalActiveStake, _ = validator.TotalActiveStake.Float64()
+	v.Fee, _ = validator.Fee.Float64()
+	v.Score = validator.Score
+	v.SkippedSlots, _ = validator.SkippedSlots.Float64()
+	v.DataCenter = validator.DataCenter
+
+	return v
+}
+
+type validatorData struct {
+	Name             string  `json:"name"`
+	Image            string  `json:"image"`
+	NodePK           string  `json:"node_pk"`
+	APY              float64 `json:"apy"`
+	VotePK           string  `json:"vote_pk"`
+	PoolActiveStake  float64 `json:"pool_active_stake"`
+	TotalActiveStake float64 `json:"total_active_stake"`
+	Fee              float64 `json:"fee"`
+	Score            int64   `json:"score"`
+	SkippedSlots     float64 `json:"skipped_slots"`
+	DataCenter       string  `json:"data_center"`
+}
+
+func (v *validatorData) Set(validator *smodels.ValidatorData) *validatorData {
 	v.NodePK = validator.NodePK
 	v.Name = validator.Name
 	v.Image = validator.Image

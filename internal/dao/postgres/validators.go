@@ -4,6 +4,7 @@ import (
 	"github.com/dfuse-io/solana-go"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.Validator, error) {
@@ -24,9 +25,108 @@ func (db *DB) GetValidator(validatorID string) (*dmodels.Validator, error) {
 	return validator, err
 }
 
-func (db *DB) GetValidators(condition *Condition) ([]*dmodels.Validator, error) {
+func (db *DB) GetValidators(condition *ValidatorCondition) ([]*dmodels.Validator, error) {
 	validators := make([]*dmodels.Validator, 0)
-	return validators, withCond(db.DB, condition).Find(&validators).Error
+	return validators, withValidatorCondition(db.DB, condition).Find(&validators).Error
+}
+
+func (db *DB) GetValidatorCount(condition *ValidatorCondition) (int64, error) {
+	i := int64(0)
+	return i, withValidatorCondition(db.DB.Model(&dmodels.PoolValidatorData{}), condition).Count(&i).Error
+}
+
+func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB {
+	if condition == nil {
+		return db
+	}
+
+	if condition.Condition != nil {
+		if condition.Condition.Name != "" {
+			db = db.Where(`pools.name ilike ?`, "%"+condition.Condition.Name+"%")
+		}
+		condition.Condition.Name = ""
+	}
+
+	db = withCond(db, condition.Condition)
+
+	if condition.Sort != nil {
+		return sortValidator(db, condition.Sort.ValidatorSort, condition.Sort.Desc)
+	}
+
+	return db
+}
+
+func sortValidator(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
+	switch sort {
+	case ValidatorAPY:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.apy",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case ValidatorStake:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.active_stake",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case ValidatorFee:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.fee",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case ValidatorScore:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.score",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case ValidatorSkippedSlot:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.skipped_slots",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	case ValidatorDataCenter:
+		return db.Clauses(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "validators.data_center",
+					},
+					Desc: desc,
+				},
+			},
+		})
+	}
+
+	return db
 }
 
 func (db *DB) UpdateValidators(validators ...*dmodels.Validator) error {

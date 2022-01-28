@@ -116,7 +116,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (inte
 	validators, err := h.svc.GetValidators()
 	if err != nil {
 		if errors.Is(err, cache.KeyWasNotFound) {
-			return nil, tools.NewStatus(500, fmt.Errorf("validator metric is empty"))
+			return nil, tools.NewStatus(500, fmt.Errorf("validatorData metric is empty"))
 		}
 		return nil, err
 	}

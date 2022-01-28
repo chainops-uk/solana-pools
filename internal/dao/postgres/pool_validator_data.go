@@ -23,7 +23,7 @@ func (db *DB) DeleteValidators(poolID uuid.UUID) error {
 	return db.Where("pool_data_id = ?", poolID).Delete(&dmodels.PoolValidatorData{}).Error
 }
 
-func (db *DB) GetValidatorCount(condition *PoolValidatorDataCondition) (int64, error) {
+func (db *DB) GetValidatorDataCount(condition *PoolValidatorDataCondition) (int64, error) {
 	i := int64(0)
 	return i, withPoolValidatorDataCondition(db.DB.Model(&dmodels.PoolValidatorData{}), condition).Count(&i).Error
 }
@@ -44,15 +44,15 @@ func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCon
 	if condition.Sort != nil {
 		db = db.Joins("join validators on validators.id = pool_validator_data.validator_id").
 			Select("pool_validator_data.*")
-		return sortValidators(db, condition.Sort.ValidatorSort, condition.Sort.Desc)
+		return sortValidators(db, condition.Sort.ValidatorDataSort, condition.Sort.Desc)
 	}
 
 	return db
 }
 
-func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
+func sortValidators(db *gorm.DB, sort ValidatorDataSortType, desc bool) *gorm.DB {
 	switch sort {
-	case ValidatorPoolStake:
+	case ValidatorDataPoolStake:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -63,7 +63,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorAPY:
+	case ValidatorDataAPY:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -74,7 +74,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorStake:
+	case ValidatorDataStake:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -85,7 +85,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorFee:
+	case ValidatorDataFee:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -96,7 +96,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorScore:
+	case ValidatorDataScore:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -107,7 +107,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorSkippedSlot:
+	case ValidatorDataSkippedSlot:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -118,7 +118,7 @@ func sortValidators(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case ValidatorDataCenter:
+	case ValidatorDataDataCenter:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{

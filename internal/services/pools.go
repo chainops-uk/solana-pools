@@ -37,14 +37,14 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}
-	validatorsS := make([]*smodels.Validator, len(dValidators))
+	validatorsS := make([]*smodels.ValidatorData, len(dValidators))
 	validatorsD := make([]*dmodels.Validator, len(dValidators))
 	for i, v := range dValidators {
 		validatorsD[i], err = s.dao.GetValidator(v.ValidatorID)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetValidator(%s): %w", err)
 		}
-		validatorsS[i] = (&smodels.Validator{}).Set(v.ActiveStake, validatorsD[i])
+		validatorsS[i] = (&smodels.ValidatorData{}).Set(v.ActiveStake, validatorsD[i])
 	}
 
 	coin, err := s.dao.GetCoinByID(dPool.CoinID)
@@ -244,7 +244,7 @@ func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, 
 	data := make([]*smodels.Pool, len(a))
 	for i, v := range a {
 		data[i] = (&smodels.Pool{}).Set(v, coin, pool, nil)
-		data[i].ValidatorCount, err = s.dao.GetValidatorCount(&postgres.PoolValidatorDataCondition{
+		data[i].ValidatorCount, err = s.dao.GetValidatorDataCount(&postgres.PoolValidatorDataCondition{
 			PoolDataIDs: []uuid.UUID{
 				v.ID,
 			},

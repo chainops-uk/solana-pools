@@ -15,11 +15,18 @@ const (
 	MainNet = "mainnet"
 )
 
-type PoolValidatorDataCondition struct {
+type ValidatorCondition struct {
 	*Condition
 	PoolDataIDs  []uuid.UUID
 	ValidatorIDs []string
 	Sort         *ValidatorSort
+}
+
+type PoolValidatorDataCondition struct {
+	*Condition
+	PoolDataIDs  []uuid.UUID
+	ValidatorIDs []string
+	Sort         *ValidatorDataSort
 }
 
 type CoinCondition struct {
@@ -95,6 +102,42 @@ func SearchCoinSort(sort string) CoinSortType {
 		return CoinPrice
 	default:
 		return CoinName
+	}
+}
+
+type ValidatorDataSortType int
+
+type ValidatorDataSort struct {
+	ValidatorDataSort ValidatorDataSortType
+	Desc              bool
+}
+
+const (
+	ValidatorDataAPY = ValidatorDataSortType(iota)
+	ValidatorDataPoolStake
+	ValidatorDataStake
+	ValidatorDataFee
+	ValidatorDataScore
+	ValidatorDataSkippedSlot
+	ValidatorDataDataCenter
+)
+
+func SearchValidatorDataSort(sort string) ValidatorDataSortType {
+	switch sort {
+	case "pool stake":
+		return ValidatorDataPoolStake
+	case "stake":
+		return ValidatorDataStake
+	case "fee":
+		return ValidatorDataFee
+	case "score":
+		return ValidatorDataScore
+	case "skipped slot":
+		return ValidatorDataSkippedSlot
+	case "data center":
+		return ValidatorDataDataCenter
+	default:
+		return ValidatorDataAPY
 	}
 }
 

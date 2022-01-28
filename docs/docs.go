@@ -567,7 +567,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "validator"
+                    "validatorData"
                 ],
                 "summary": "RestAPI",
                 "parameters": [
@@ -581,7 +581,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "The name of the validator without strict observance of the case.",
+                        "description": "The name of the validatorData without strict observance of the case.",
                         "name": "vname",
                         "in": "query"
                     },
@@ -639,7 +639,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.validator"
+                                                "$ref": "#/definitions/v1.validatorData"
                                             }
                                         }
                                     }
@@ -920,20 +920,19 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "validator"
+                    "validatorData"
                 ],
                 "summary": "RestAPI",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The name of the validator without strict observance of the case.",
+                        "description": "The name of the validatorData without strict observance of the case.",
                         "name": "name",
                         "in": "query"
                     },
                     {
                         "enum": [
                             "apy",
-                            "pool stake",
                             "stake",
                             "fee",
                             "score",
@@ -1356,6 +1355,41 @@ var doc = `{
             }
         },
         "v1.validator": {
+            "type": "object",
+            "properties": {
+                "apy": {
+                    "type": "number"
+                },
+                "data_center": {
+                    "type": "string"
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_pk": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "skipped_slots": {
+                    "type": "number"
+                },
+                "total_active_stake": {
+                    "type": "number"
+                },
+                "vote_pk": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.validatorData": {
             "type": "object",
             "properties": {
                 "apy": {

@@ -37,7 +37,7 @@ type (
 		GetGovernance(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error)
 		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
 		GetAllValidators(validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
-		GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
+		GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.ValidatorData, uint64, error)
 		GetLiquidityPools(name string, limit uint64, offset uint64) ([]*smodels.LiquidityPool, uint64, error)
 		GetAvgSlotTimeMS() (float64, error)
 

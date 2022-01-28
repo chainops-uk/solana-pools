@@ -233,6 +233,29 @@ definitions:
         type: string
       node_pk:
         type: string
+      score:
+        type: integer
+      skipped_slots:
+        type: number
+      total_active_stake:
+        type: number
+      vote_pk:
+        type: string
+    type: object
+  v1.validatorData:
+    properties:
+      apy:
+        type: number
+      data_center:
+        type: string
+      fee:
+        type: number
+      image:
+        type: string
+      name:
+        type: string
+      node_pk:
+        type: string
       pool_active_stake:
         type: number
       score:
@@ -604,7 +627,8 @@ paths:
         name: pname
         required: true
         type: string
-      - description: The name of the validator without strict observance of the case.
+      - description: The name of the validatorData without strict observance of the
+          case.
         in: query
         name: vname
         type: string
@@ -649,7 +673,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/v1.validator'
+                    $ref: '#/definitions/v1.validatorData'
                   type: array
               type: object
         "400":
@@ -670,7 +694,7 @@ paths:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
       tags:
-      - validator
+      - validatorData
   /pool/{name}:
     get:
       consumes:
@@ -829,7 +853,8 @@ paths:
       - application/json
       description: This list with all Solana's validators.
       parameters:
-      - description: The name of the validator without strict observance of the case.
+      - description: The name of the validatorData without strict observance of the
+          case.
         in: query
         name: name
         type: string
@@ -837,7 +862,6 @@ paths:
         description: sort param
         enum:
         - apy
-        - pool stake
         - stake
         - fee
         - score
@@ -895,7 +919,7 @@ paths:
             $ref: '#/definitions/tools.ResponseError'
       summary: RestAPI
       tags:
-      - validator
+      - validatorData
 swagger: "2.0"
 x-extension-openapi:
   example: value on a json format
