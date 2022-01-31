@@ -211,6 +211,8 @@ type (
 		Validators uint64 `json:"validators"`
 	}
 	poolStatistic struct {
+		TotalSol           float64   `json:"total_sol"`
+		TokensSupply       float64   `json:"tokens_supply"`
 		ActiveStake        float64   `json:"active_stake"`
 		APY                float64   `json:"apy"`
 		UnstackedLiquidity float64   `json:"unstacked_liquidity"`
@@ -263,6 +265,8 @@ func (e *epoch) Set(data *smodels.EpochInfo) *epoch {
 }
 
 func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
+	ps.TotalSol, _ = data.TotalLamports.Float64()
+	ps.TokensSupply, _ = data.TokensSupply.Float64()
 	ps.APY, _ = data.APY.Float64()
 	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
 	ps.ActiveStake, _ = data.ActiveStake.Float64()
