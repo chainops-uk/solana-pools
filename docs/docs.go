@@ -1349,6 +1349,12 @@ var doc = `{
                 "number_of_validators": {
                     "type": "integer"
                 },
+                "tokens_supply": {
+                    "type": "number"
+                },
+                "total_sol": {
+                    "type": "number"
+                },
                 "unstacked_liquidity": {
                     "type": "number"
                 }
