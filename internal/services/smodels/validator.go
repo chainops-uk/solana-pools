@@ -20,7 +20,7 @@ type Validator struct {
 	DataCenter       string
 }
 
-func (v *Validator) Set(vv *dmodels.Validator) *Validator {
+func (v *Validator) Set(vv *dmodels.ValidatorView) *Validator {
 	v.Name = vv.Name
 	v.Image = vv.Image
 	v.StakingAccounts = vv.StakingAccounts

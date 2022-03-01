@@ -16,7 +16,7 @@ import (
 // @Produce json
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
-// @Param name query string false "stake-pool name"
+// @Param name query string false "coin name"
 // @Success 200 {object} tools.ResponseArrayData{data=[]coin} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"
 // @Failure 500 {object} tools.ResponseError "internal server error"

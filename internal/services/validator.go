@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s Imp) GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.ValidatorData, uint64, error) {
+func (s Imp) GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.PoolValidatorData, uint64, error) {
 	pool, err := s.dao.GetPool(name)
 	if err != nil {
 		return nil, 0, fmt.Errorf("dao.GetPool: %w", err)
@@ -39,13 +39,13 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 	}
 
-	arr := make([]*smodels.ValidatorData, len(pvd))
+	arr := make([]*smodels.PoolValidatorData, len(pvd))
 	for i, data := range pvd {
 		val, err := s.dao.GetValidator(data.ValidatorID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("dao.GetValidator: %w", err)
 		}
-		arr[i] = (&smodels.ValidatorData{}).Set(data.ActiveStake, val)
+		arr[i] = (&smodels.PoolValidatorData{}).Set(data.ActiveStake, val)
 	}
 
 	count, err := s.dao.GetValidatorDataCount(&postgres.PoolValidatorDataCondition{

@@ -46,7 +46,7 @@ type (
 	}
 )
 
-func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Pool, validator []*dmodels.Validator) *Pool {
+func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Pool, validator []*dmodels.ValidatorView) *Pool {
 	if pool != nil {
 		p.Name = pool.Name
 		p.Address = pool.Address

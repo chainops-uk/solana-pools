@@ -6,7 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type ValidatorData struct {
+type PoolValidatorData struct {
 	Name             string
 	Image            string
 	StakingAccounts  uint64
@@ -21,7 +21,7 @@ type ValidatorData struct {
 	DataCenter       string
 }
 
-func (v *ValidatorData) Set(activeStake uint64, vv *dmodels.Validator) *ValidatorData {
+func (v *PoolValidatorData) Set(activeStake uint64, vv *dmodels.ValidatorView) *PoolValidatorData {
 	if vv == nil {
 		v.PoolActiveStake.SetLamports(activeStake)
 		return v

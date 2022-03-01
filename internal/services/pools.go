@@ -37,14 +37,14 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dao.GetPoolValidatorData: %s", err.Error())
 	}
-	validatorsS := make([]*smodels.ValidatorData, len(dValidators))
-	validatorsD := make([]*dmodels.Validator, len(dValidators))
+	validatorsS := make([]*smodels.PoolValidatorData, len(dValidators))
+	validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 	for i, v := range dValidators {
 		validatorsD[i], err = s.dao.GetValidator(v.ValidatorID)
 		if err != nil {
 			return nil, fmt.Errorf("dao.GetValidator(%s): %w", err)
 		}
-		validatorsS[i] = (&smodels.ValidatorData{}).Set(v.ActiveStake, validatorsD[i])
+		validatorsS[i] = (&smodels.PoolValidatorData{}).Set(v.ActiveStake, validatorsD[i])
 	}
 
 	coin, err := s.dao.GetCoinByID(dPool.CoinID)
@@ -102,7 +102,7 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 			return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 		}
 
-		validatorsD := make([]*dmodels.Validator, len(dValidators))
+		validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 		for i, v2 := range dValidators {
 			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID)
 			if err != nil {
@@ -115,7 +115,7 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 			return nil, 0, fmt.Errorf("dao.GetCoinByID: %w", err)
 		}
 
-		pools[i].Set(dLastPoolData, coin, &v1, validatorsD)
+		pools[i].Set(dLastPoolData, coin, v1, validatorsD)
 	}
 
 	count, err := s.dao.GetPoolCount(&postgres.Condition{
@@ -171,7 +171,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			return nil, fmt.Errorf("dao.GetValidators: %w", err)
 		}
 
-		validatorsD := make([]*dmodels.Validator, len(dValidators))
+		validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 		for i, v2 := range dValidators {
 			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID)
 			if err != nil {
@@ -184,7 +184,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			return nil, fmt.Errorf("dao.GetCoinByID: %w", err)
 		}
 
-		pools[i].Set(dLastPoolData, coin, &v1, validatorsD)
+		pools[i].Set(dLastPoolData, coin, v1, validatorsD)
 
 		once.Do(func() {
 			stat.MINScore = pools[i].AVGScore

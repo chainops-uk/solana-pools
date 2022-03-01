@@ -157,7 +157,7 @@ type validatorData struct {
 	DataCenter       string  `json:"data_center"`
 }
 
-func (v *validatorData) Set(validator *smodels.ValidatorData) *validatorData {
+func (v *validatorData) Set(validator *smodels.PoolValidatorData) *validatorData {
 	v.NodePK = validator.NodePK
 	v.Name = validator.Name
 	v.Image = validator.Image

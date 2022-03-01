@@ -146,7 +146,6 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 	return &types.Pool{
 		Address:          solana.MustPublicKeyFromBase58(address),
 		Epoch:            poolData.StakeSystem.LastStakeDeltaEpoch,
-		APY:              1,
 		SolanaStake:      totalActiveStake,
 		TotalTokenSupply: poolData.MsolSupply,
 		TotalLamports:    poolData.ValidatorSystem.TotalActiveBalance,

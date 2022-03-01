@@ -7,6 +7,7 @@ import (
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	solana_sdk "github.com/everstake/solana-pools/pkg/extension/solana-sdk"
 	"github.com/everstake/solana-pools/pkg/validatorsapp"
+	uuid "github.com/satori/go.uuid"
 	"github.com/shopspring/decimal"
 	"math"
 	"time"
@@ -29,6 +30,7 @@ func (s Imp) UpdateValidators() error {
 	}
 
 	validators := make([]*dmodels.Validator, 0, len(va.Current)+len(va.Delinquent))
+	validatorsData := make([]*dmodels.ValidatorData, 0, len(va.Current)+len(va.Delinquent))
 
 	for _, v := range va.Current {
 		var vInfo validatorsapp.ValidatorAppInfo
@@ -45,21 +47,34 @@ func (s Imp) UpdateValidators() error {
 			return fmt.Errorf("getAPY: %w", err)
 		}
 
+		epoch, err := client.RpcClient.GetEpochInfo(ctx)
+		if err != nil {
+			return fmt.Errorf("GetEpochInfo: %w", err)
+		}
+
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
 		validators = append(validators, &dmodels.Validator{
-			ID:              v.NodePubKey,
-			Name:            vInfo.Name,
-			Image:           vInfo.AvatarURL,
-			Delinquent:      false,
-			VotePK:          v.VotePubKey,
+			ID:         v.NodePubKey,
+			Name:       vInfo.Name,
+			Image:      vInfo.AvatarURL,
+			Delinquent: false,
+			VotePK:     v.VotePubKey,
+			DataCenter: vInfo.DataCenterKey,
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		})
+
+		validatorsData = append(validatorsData, &dmodels.ValidatorData{
+			ID:              uuid.NewV4(),
+			ValidatorID:     v.NodePubKey,
+			Epoch:           epoch.Result.Epoch,
 			APY:             apy,
 			StakingAccounts: stakingAccounts,
 			ActiveStake:     uint64(v.ActivatedStake),
 			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
 			Score:           vInfo.TotalScore,
 			SkippedSlots:    skippedSlots,
-			DataCenter:      vInfo.DataCenterKey,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
 		})
@@ -79,21 +94,34 @@ func (s Imp) UpdateValidators() error {
 			return fmt.Errorf("getAPY: %w", err)
 		}
 
+		epoch, err := client.RpcClient.GetEpochInfo(ctx)
+		if err != nil {
+			return fmt.Errorf("GetEpochInfo: %w", err)
+		}
+
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
 		validators = append(validators, &dmodels.Validator{
-			ID:              v.NodePubKey,
-			Name:            vInfo.Name,
-			Image:           vInfo.AvatarURL,
-			Delinquent:      true,
-			VotePK:          v.VotePubKey,
+			ID:         v.NodePubKey,
+			Name:       vInfo.Name,
+			Image:      vInfo.AvatarURL,
+			Delinquent: true,
+			VotePK:     v.VotePubKey,
+			DataCenter: vInfo.DataCenterKey,
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		})
+
+		validatorsData = append(validatorsData, &dmodels.ValidatorData{
+			ID:              uuid.NewV4(),
+			ValidatorID:     v.NodePubKey,
+			Epoch:           epoch.Result.Epoch,
 			APY:             apy,
 			StakingAccounts: stakingAccounts,
 			ActiveStake:     uint64(v.ActivatedStake),
 			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
 			Score:           vInfo.TotalScore,
 			SkippedSlots:    skippedSlots,
-			DataCenter:      vInfo.DataCenterKey,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
 		})
@@ -108,8 +136,14 @@ func (s Imp) UpdateValidators() error {
 			if err := s.dao.UpdateValidators(validators[offset:]...); err != nil {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
 			}
+			if err := s.dao.UpdateValidatorsData(validatorsData[offset:]...); err != nil {
+				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			}
 		} else {
 			if err := s.dao.UpdateValidators(validators[offset : offset+step]...); err != nil {
+				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			}
+			if err := s.dao.UpdateValidatorsData(validatorsData[offset : offset+step]...); err != nil {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
 			}
 		}

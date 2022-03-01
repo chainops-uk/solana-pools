@@ -65,7 +65,7 @@ func (s Imp) UpdatePools() error {
 	return nil
 }
 
-func (s Imp) updatePool(dPool dmodels.Pool, correlation float64) error {
+func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 	net := config.Network(dPool.Network)
 	rpcCli, ok := s.rpcClients[net]
 

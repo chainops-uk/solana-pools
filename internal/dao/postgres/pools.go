@@ -10,7 +10,7 @@ import (
 
 func (db *DB) GetPool(name string) (*dmodels.Pool, error) {
 	var pool *dmodels.Pool
-	if err := db.First(&pool, "name = ?", name).Error; err != nil {
+	if err := db.First(pool, "name = ?", name).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -19,8 +19,8 @@ func (db *DB) GetPool(name string) (*dmodels.Pool, error) {
 	return pool, nil
 }
 
-func (db *DB) GetPools(cond *PoolCondition) ([]dmodels.Pool, error) {
-	var pools []dmodels.Pool
+func (db *DB) GetPools(cond *PoolCondition) ([]*dmodels.Pool, error) {
+	var pools []*dmodels.Pool
 	return pools, withPoolCondition(db.DB, cond).Find(&pools).Error
 }
 
@@ -34,7 +34,7 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 
 func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
-	if err := db.DB.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
+	if err := db.DB.Table("pool_data_view as pool_data").Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -45,7 +45,7 @@ func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 
 func (db *DB) GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
-	if err := db.Where(`pool_id = ?`, PoolID).
+	if err := db.Table("pool_data_view as pool_data").Where(`pool_id = ?`, PoolID).
 		Where(`epoch < ?`, currentEpoch).
 		Order("created_at desc").Limit(1).First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -58,7 +58,7 @@ func (db *DB) GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmod
 
 func (db *DB) GetPoolStatistic(PoolID uuid.UUID, aggregate Aggregate) ([]*dmodels.PoolData, error) {
 	var data []*dmodels.PoolData
-	w, err := aggregateByDate(aggregate, db.DB)
+	w, err := aggregateByDate(aggregate, db.DB.Table("pool_data_view as pool_data"))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
 
 func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 	db = db.Joins("left join pool_data on pools.id = pool_data.pool_id").
-		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE  t1.pool_id = pools.id)`).
+		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE t1.pool_id = pools.id)`).
 		Group("pools.id")
 	switch sort {
 	case PoolAPY:
@@ -138,7 +138,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 		})
 	case PoolScore:
 		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
-			Joins("join validators on pool_validator_data.validator_id = validators.id").
+			Joins("join validator_view as validators on pool_validator_data.validator_id = validators.id").
 			Select("pools.*, avg(validators.score) as avg_score")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
@@ -152,7 +152,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 		})
 	case PoolSkippedSlot:
 		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
-			Joins("join validators on pool_validator_data.validator_id = validators.id").
+			Joins("join validator_view as validators on pool_validator_data.validator_id = validators.id").
 			Select("pools.*, avg(validators.skipped_slots) as avg_skipped_slots")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{

@@ -215,6 +215,7 @@ type (
 		TokensSupply       float64   `json:"tokens_supply"`
 		ActiveStake        float64   `json:"active_stake"`
 		APY                float64   `json:"apy"`
+		Delinquent         float64   `json:"delinquent"`
 		UnstackedLiquidity float64   `json:"unstacked_liquidity"`
 		NumberOfValidators int64     `json:"number_of_validators"`
 		CreatedAt          time.Time `json:"created_at"`
@@ -271,6 +272,7 @@ func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
 	ps.ActiveStake, _ = data.ActiveStake.Float64()
 	ps.NumberOfValidators = data.ValidatorCount
+	ps.Delinquent, _ = data.Delinquent.Float64()
 	ps.CreatedAt = data.CreatedAt
 	return ps
 }

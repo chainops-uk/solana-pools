@@ -7,32 +7,32 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.Validator, error) {
-	validator := &dmodels.Validator{}
-	err := db.Where("vote_pk = ?", key.String()).First(validator).Error
+func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView, error) {
+	validator := &dmodels.ValidatorView{}
+	err := db.Table("public.validator_view as validators").Where("vote_pk = ?", key.String()).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return validator, err
 }
 
-func (db *DB) GetValidator(validatorID string) (*dmodels.Validator, error) {
-	validator := &dmodels.Validator{}
-	err := db.Where("id = ?", validatorID).First(validator).Error
+func (db *DB) GetValidator(validatorID string) (*dmodels.ValidatorView, error) {
+	validator := &dmodels.ValidatorView{}
+	err := db.Table("public.validator_view as validators").Where("id = ?", validatorID).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return validator, err
 }
 
-func (db *DB) GetValidators(condition *ValidatorCondition) ([]*dmodels.Validator, error) {
-	validators := make([]*dmodels.Validator, 0)
-	return validators, withValidatorCondition(db.DB, condition).Find(&validators).Error
+func (db *DB) GetValidators(condition *ValidatorCondition) ([]*dmodels.ValidatorView, error) {
+	validators := make([]*dmodels.ValidatorView, 0)
+	return validators, withValidatorCondition(db.DB.Table("public.validator_view as validators"), condition).Find(&validators).Error
 }
 
 func (db *DB) GetValidatorCount(condition *ValidatorCondition) (int64, error) {
 	i := int64(0)
-	return i, withValidatorCondition(db.DB.Model(&dmodels.PoolValidatorData{}), condition).Count(&i).Error
+	return i, withValidatorCondition(db.DB.Table("public.validator_view as validators"), condition).Count(&i).Error
 }
 
 func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB {
@@ -131,4 +131,8 @@ func sortValidator(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 
 func (db *DB) UpdateValidators(validators ...*dmodels.Validator) error {
 	return db.Save(&validators).Error
+}
+
+func (db *DB) UpdateValidatorsData(data ...*dmodels.ValidatorData) error {
+	return db.Save(&data).Error
 }
