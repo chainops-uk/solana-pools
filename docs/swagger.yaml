@@ -214,6 +214,8 @@ definitions:
         type: number
       created_at:
         type: string
+      delinquent:
+        type: number
       number_of_validators:
         type: integer
       tokens_supply:
@@ -299,7 +301,7 @@ paths:
         name: limit
         required: true
         type: number
-      - description: stake-pool name
+      - description: coin name
         in: query
         name: name
         type: string

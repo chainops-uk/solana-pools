@@ -64,7 +64,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "stake-pool name",
+                        "description": "coin name",
                         "name": "name",
                         "in": "query"
                     }
@@ -1345,6 +1345,9 @@ var doc = `{
                 },
                 "created_at": {
                     "type": "string"
+                },
+                "delinquent": {
+                    "type": "number"
                 },
                 "number_of_validators": {
                     "type": "integer"

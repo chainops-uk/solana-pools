@@ -46,7 +46,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "stake-pool name",
+                        "description": "coin name",
                         "name": "name",
                         "in": "query"
                     }
@@ -1327,6 +1327,9 @@
                 },
                 "created_at": {
                     "type": "string"
+                },
+                "delinquent": {
+                    "type": "number"
                 },
                 "number_of_validators": {
                     "type": "integer"
