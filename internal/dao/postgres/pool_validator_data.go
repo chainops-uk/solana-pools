@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"fmt"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -10,11 +9,6 @@ import (
 
 func (db *DB) GetPoolValidatorData(condition *PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
 	var vd []*dmodels.PoolValidatorData
-	sql := db.DB.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return withPoolValidatorDataCondition(tx, condition).Find(vd)
-	})
-
-	fmt.Println(sql)
 	return vd, withPoolValidatorDataCondition(db.DB, condition).Find(&vd).Error
 }
 
