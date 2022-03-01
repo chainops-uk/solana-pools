@@ -143,12 +143,11 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 		dmodel.APY = SumValAPY.Div(decimal.NewFromInt(int64(len(validatorsPoolData))))
 	}
 
-	err = s.dao.UpdatePoolData(dmodel)
-	if err != nil {
+	if err = s.dao.UpdatePoolData(dmodel); err != nil {
 		return fmt.Errorf("dao.UpdatePoolData: %s", err.Error())
 	}
-	err = s.dao.CreatePoolValidatorData(validatorsPoolData...)
-	if err != nil {
+
+	if err = s.dao.CreatePoolValidatorData(validatorsPoolData...); err != nil {
 		return fmt.Errorf("dao.UpdateValidators: %s", err.Error())
 	}
 	return nil

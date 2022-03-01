@@ -10,7 +10,7 @@ import (
 
 func (db *DB) GetPool(name string) (*dmodels.Pool, error) {
 	var pool *dmodels.Pool
-	if err := db.First(pool, "name = ?", name).Error; err != nil {
+	if err := db.First(&pool, "name = ?", name).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -34,12 +34,13 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 
 func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
-	if err := db.DB.Table("pool_data_view as pool_data").Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
+	if err := db.DB.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
 		return nil, err
 	}
+
 	return pool, nil
 }
 

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -9,6 +10,11 @@ import (
 
 func (db *DB) GetPoolValidatorData(condition *PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
 	var vd []*dmodels.PoolValidatorData
+	sql := db.DB.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return withPoolValidatorDataCondition(tx, condition).Find(vd)
+	})
+
+	fmt.Println(sql)
 	return vd, withPoolValidatorDataCondition(db.DB, condition).Find(&vd).Error
 }
 
@@ -42,7 +48,7 @@ func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCon
 	}
 
 	if condition.Sort != nil {
-		db = db.Joins("join validators on validators.id = pool_validator_data.validator_id").
+		db = db.Joins("join validator_view as validators on validators.id = pool_validator_data.validator_id").
 			Select("pool_validator_data.*")
 		return sortValidators(db, condition.Sort.ValidatorDataSort, condition.Sort.Desc)
 	}
@@ -65,6 +71,7 @@ func sortValidators(db *gorm.DB, sort ValidatorDataSortType, desc bool) *gorm.DB
 		})
 	case ValidatorDataAPY:
 		return db.Clauses(clause.OrderBy{
+
 			Columns: []clause.OrderByColumn{
 				{
 					Column: clause.Column{
