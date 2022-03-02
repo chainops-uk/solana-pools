@@ -20,7 +20,7 @@ type (
 		AVGSkippedSlots  decimal.Decimal
 		AVGScore         int64
 		StakingAccounts  uint64
-		Delinquent       decimal.Decimal
+		Delinquent       uint64
 		UnstakeLiquidity sol.SOL
 		DepossitFee      decimal.Decimal
 		WithdrawalFee    decimal.Decimal
@@ -41,7 +41,7 @@ type (
 		MAXScore         int64
 		AVGScore         int64
 		MINScore         int64
-		Delinquent       decimal.Decimal
+		Delinquent       uint64
 		UnstakeLiquidity sol.SOL
 	}
 )
@@ -74,13 +74,12 @@ func (p *Pool) Set(data *dmodels.PoolData, coin *dmodels.Coin, pool *dmodels.Poo
 				p.AVGScore += v.Score
 				p.AVGSkippedSlots = p.AVGSkippedSlots.Add(v.SkippedSlots)
 				if v.Delinquent {
-					p.Delinquent = p.Delinquent.Add(decimal.NewFromInt(1))
+					p.Delinquent++
 				}
 				p.StakingAccounts += v.StakingAccounts
 			}
 			p.AVGSkippedSlots = p.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(validator))))
 			p.AVGScore /= int64(len(validator))
-			p.Delinquent = p.Delinquent.Div(decimal.NewFromInt(int64(len(validator))))
 
 		}
 	}

@@ -215,7 +215,7 @@ type (
 		TokensSupply       float64   `json:"tokens_supply"`
 		ActiveStake        float64   `json:"active_stake"`
 		APY                float64   `json:"apy"`
-		Delinquent         float64   `json:"delinquent"`
+		Delinquent         uint64    `json:"delinquent"`
 		UnstackedLiquidity float64   `json:"unstacked_liquidity"`
 		NumberOfValidators int64     `json:"number_of_validators"`
 		CreatedAt          time.Time `json:"created_at"`
@@ -248,7 +248,7 @@ type (
 		AVGSkippedSlots  float64 `json:"avg_skipped_slots"`
 		AVGScore         int64   `json:"avg_score"`
 		StakingAccounts  uint64  `json:"staking_accounts"`
-		Delinquent       float64 `json:"delinquent"`
+		Delinquent       uint64  `json:"delinquent"`
 		UnstakeLiquidity float64 `json:"unstake_liquidity"`
 		DepossitFee      float64 `json:"depossit_fee"`
 		WithdrawalFee    float64 `json:"withdrawal_fee"`
@@ -272,7 +272,7 @@ func (ps *poolStatistic) Set(data *smodels.Pool) *poolStatistic {
 	ps.UnstackedLiquidity, _ = data.UnstakeLiquidity.Float64()
 	ps.ActiveStake, _ = data.ActiveStake.Float64()
 	ps.NumberOfValidators = data.ValidatorCount
-	ps.Delinquent, _ = data.Delinquent.Float64()
+	ps.Delinquent = data.Delinquent
 	ps.CreatedAt = data.CreatedAt
 	return ps
 }
@@ -295,7 +295,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.AVGSkippedSlots, _ = pool.AVGSkippedSlots.Float64()
 	pl.AVGScore = pool.AVGScore
 	pl.StakingAccounts = pool.StakingAccounts
-	pl.Delinquent, _ = pool.Delinquent.Float64()
+	pl.Delinquent = pool.Delinquent
 	pl.UnstakeLiquidity, _ = pool.UnstakeLiquidity.Float64()
 	pl.DepossitFee, _ = pool.DepossitFee.Float64()
 	pl.WithdrawalFee, _ = pool.WithdrawalFee.Float64()

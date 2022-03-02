@@ -203,7 +203,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		UnstakeSum += dLastPoolData.UnstakeLiquidity
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(pools[i].AVGSkippedSlots)
 		stat.AVGScore += pools[i].AVGScore
-		stat.Delinquent = stat.Delinquent.Add(pools[i].Delinquent)
+		stat.Delinquent += pools[i].Delinquent
 		stat.AVGPoolsApy = stat.AVGPoolsApy.Add(pools[i].APY)
 	}
 
