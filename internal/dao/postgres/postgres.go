@@ -33,10 +33,9 @@ func NewDB(dsn string) (db *DB, err error) {
 	z, _ := zap.NewProduction()
 	logger := zapgorm.New(z)
 	logger.SetAsDefault()
-	logger.LogMode(gormlogger.Error)
 	logger.IgnoreRecordNotFoundError = true
 	d, err := gorm.Open(gormlogger_gorm.Open(dsn), &gorm.Config{
-		Logger: logger,
+		Logger: logger.LogMode(gormlogger.Error),
 	})
 	if err != nil {
 		return db, fmt.Errorf("gorm.Open: %s", err.Error())

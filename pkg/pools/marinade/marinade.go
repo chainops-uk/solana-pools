@@ -149,7 +149,7 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		SolanaStake:      totalActiveStake,
 		TotalTokenSupply: poolData.MsolSupply,
 		TotalLamports:    poolData.ValidatorSystem.TotalActiveBalance,
-		UnstakeLiquidity: poolData.LiquiditySolCap,
+		UnstakeLiquidity: 0, //poolData.LiquiditySolCap,
 		RewardsFee:       float64(poolData.RewardFee) / 100,
 		DepositFee:       0,
 		WithdrawalFee:    0.03,
