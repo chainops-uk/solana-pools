@@ -153,6 +153,7 @@ func (p Pool) GetData(address string) (*types.Pool, error) {
 		RewardsFee:       float64(poolData.RewardFee) / 100,
 		DepositFee:       0,
 		WithdrawalFee:    0.03,
+		APY:              1,
 		Validators:       validators,
 	}, nil
 }
