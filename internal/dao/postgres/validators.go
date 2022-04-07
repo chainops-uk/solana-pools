@@ -9,7 +9,7 @@ import (
 
 func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView, error) {
 	validator := &dmodels.ValidatorView{}
-	err := db.Table("public.validator_view as validators").Where("vote_pk = ?", key.String()).First(validator).Error
+	err := db.Table("public.material_validator_data_view as validators").Where("vote_pk = ?", key.String()).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -18,7 +18,7 @@ func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView
 
 func (db *DB) GetValidator(validatorID string) (*dmodels.ValidatorView, error) {
 	validator := &dmodels.ValidatorView{}
-	err := db.Table("public.validator_view as validators").Where("id = ?", validatorID).First(validator).Error
+	err := db.Table("public.material_validator_data_view as validators").Where("id = ?", validatorID).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -27,12 +27,12 @@ func (db *DB) GetValidator(validatorID string) (*dmodels.ValidatorView, error) {
 
 func (db *DB) GetValidators(condition *ValidatorCondition) ([]*dmodels.ValidatorView, error) {
 	validators := make([]*dmodels.ValidatorView, 0)
-	return validators, withValidatorCondition(db.DB.Table("public.validator_view as validators"), condition).Find(&validators).Error
+	return validators, withValidatorCondition(db.DB.Table("public.material_validator_data_view as validators"), condition).Find(&validators).Error
 }
 
 func (db *DB) GetValidatorCount(condition *ValidatorCondition) (int64, error) {
 	i := int64(0)
-	return i, withValidatorCondition(db.DB.Table("public.validator_view as validators"), condition).Count(&i).Error
+	return i, withValidatorCondition(db.DB.Table("public.material_validator_data_view as validators"), condition).Count(&i).Error
 }
 
 func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB {
