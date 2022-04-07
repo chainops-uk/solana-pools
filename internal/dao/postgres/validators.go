@@ -42,7 +42,7 @@ func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB
 
 	if condition.Condition != nil {
 		if condition.Condition.Name != "" {
-			db = db.Where(`pools.name ilike ?`, "%"+condition.Condition.Name+"%")
+			db = db.Where(`material_validator_data_view.name ilike ?`, "%"+condition.Condition.Name+"%")
 		}
 		condition.Condition.Name = ""
 	}
