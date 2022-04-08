@@ -7,21 +7,14 @@ SELECT v.id,
        vd.staking_accounts,
        vd.active_stake,
        vd.fee,
-       avg_data.apy,
-       avg_data.score,
-       avg_data.skipped_slots,
+       (SELECT avg(apy) FROM validator_data where epoch >= vd.epoch-10 AND validator_id = vd.validator_id) as apy,
+       (SELECT avg(score) FROM validator_data where epoch >= vd.epoch-10 AND validator_id = vd.validator_id) as score,
+       (SELECT avg(skipped_slots) FROM validator_data where epoch >= vd.epoch-10 AND validator_id = vd.validator_id) as skipped_slots,
        v.data_center,
        v.created_at,
        v.updated_at
 FROM validator_data vd
          JOIN validators v ON v.id::text = vd.validator_id::text
-         JOIN (SELECT validator_data.validator_id,
-                      avg(validator_data.apy)::numeric(8, 4)           AS apy,
-                      avg(validator_data.score)::bigint                AS score,
-                      avg(validator_data.skipped_slots)::numeric(5, 2) AS skipped_slots
-               FROM validator_data
-               WHERE validator_data.epoch >= (validator_data.epoch - 10)
-               GROUP BY validator_data.validator_id) avg_data ON v.id::text = avg_data.validator_id::text
 WHERE ((vd.validator_id::text, vd.updated_at) IN (SELECT validator_data.validator_id,
                                                          max(validator_data.updated_at)
                                                   FROM validator_data
@@ -52,8 +45,7 @@ $$
 BEGIN
     IF EXISTS(SELECT 1 FROM "public"."material_validator_data_view" WHERE id = NEW.validator_id) THEN
         UPDATE "public"."material_validator_data_view"
-        SET id = subquery.id,
-            image = subquery.image,
+        SET image = subquery.image,
             name = subquery.name,
             delinquent = subquery.delinquent,
             vote_pk = subquery.vote_pk,
@@ -67,8 +59,8 @@ BEGIN
             updated_at = now()
         FROM (SELECT *
               FROM "public"."validator_view"
-              WHERE id = NEW.validator_id
-              LIMIT 1) subquery;
+              WHERE id = NEW.validator_id) subquery
+        WHERE subquery.id = material_validator_data_view.id;
         return new;
     end if;
 
