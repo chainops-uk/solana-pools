@@ -132,6 +132,7 @@ func (s Imp) UpdateValidators() error {
 	n := int(math.Ceil(float64(len(validators)) / float64(step)))
 	offset := 0
 	for i := 0; i < n; i++ {
+		S := step - 1
 		if offset+step > len(validators) {
 			if err := s.dao.UpdateValidators(validators[offset:]...); err != nil {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
@@ -140,10 +141,10 @@ func (s Imp) UpdateValidators() error {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
 			}
 		} else {
-			if err := s.dao.UpdateValidators(validators[offset : offset+step]...); err != nil {
+			if err := s.dao.UpdateValidators(validators[offset : offset+S]...); err != nil {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
 			}
-			if err := s.dao.UpdateValidatorsData(validatorsData[offset : offset+step]...); err != nil {
+			if err := s.dao.UpdateValidatorsData(validatorsData[offset : offset+S]...); err != nil {
 				return fmt.Errorf("dao.UpdateValidators: %w", err)
 			}
 		}

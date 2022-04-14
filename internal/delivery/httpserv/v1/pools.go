@@ -242,7 +242,7 @@ type (
 		Currency         string  `json:"currency"`
 		ActiveStake      float64 `json:"active_stake"`
 		TokensSupply     float64 `json:"tokens_supply"`
-		TotalLamports    float64 `json:"total_lamports"`
+		TotalSol         float64 `json:"total_sol"`
 		APY              float64 `json:"apy"`
 		Validators       int64   `json:"validators"`
 		AVGSkippedSlots  float64 `json:"avg_skipped_slots"`
@@ -290,7 +290,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.Currency = pool.Currency
 	pl.ActiveStake, _ = pool.ActiveStake.Float64()
 	pl.TokensSupply, _ = pool.TokensSupply.Float64()
-	pl.TotalLamports, _ = pool.TotalLamports.Float64()
+	pl.TotalSol, _ = pool.TotalLamports.Float64()
 	pl.APY, _ = pool.APY.Float64()
 	pl.AVGSkippedSlots, _ = pool.AVGSkippedSlots.Float64()
 	pl.AVGScore = pool.AVGScore
