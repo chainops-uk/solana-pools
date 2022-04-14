@@ -1226,9 +1226,9 @@
                     "type": "string"
                 },
                 "delinquent": {
-                    "type": "number"
+                    "type": "integer"
                 },
-                "depossit_fee": {
+                "deposit_fee": {
                     "type": "number"
                 },
                 "image": {
@@ -1246,7 +1246,7 @@
                 "tokens_supply": {
                     "type": "number"
                 },
-                "total_lamports": {
+                "total_sol": {
                     "type": "number"
                 },
                 "unstake_liquidity": {
@@ -1282,9 +1282,9 @@
                     "type": "string"
                 },
                 "delinquent": {
-                    "type": "number"
+                    "type": "integer"
                 },
-                "depossit_fee": {
+                "deposit_fee": {
                     "type": "number"
                 },
                 "image": {
@@ -1302,7 +1302,7 @@
                 "tokens_supply": {
                     "type": "number"
                 },
-                "total_lamports": {
+                "total_sol": {
                     "type": "number"
                 },
                 "unstake_liquidity": {
@@ -1329,7 +1329,7 @@
                     "type": "string"
                 },
                 "delinquent": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "number_of_validators": {
                     "type": "integer"

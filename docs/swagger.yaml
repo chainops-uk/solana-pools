@@ -147,8 +147,8 @@ definitions:
       currency:
         type: string
       delinquent:
-        type: number
-      depossit_fee:
+        type: integer
+      deposit_fee:
         type: number
       image:
         type: string
@@ -160,7 +160,7 @@ definitions:
         type: integer
       tokens_supply:
         type: number
-      total_lamports:
+      total_sol:
         type: number
       unstake_liquidity:
         type: number
@@ -184,8 +184,8 @@ definitions:
       currency:
         type: string
       delinquent:
-        type: number
-      depossit_fee:
+        type: integer
+      deposit_fee:
         type: number
       image:
         type: string
@@ -197,7 +197,7 @@ definitions:
         type: integer
       tokens_supply:
         type: number
-      total_lamports:
+      total_sol:
         type: number
       unstake_liquidity:
         type: number
@@ -215,7 +215,7 @@ definitions:
       created_at:
         type: string
       delinquent:
-        type: number
+        type: integer
       number_of_validators:
         type: integer
       tokens_supply:
