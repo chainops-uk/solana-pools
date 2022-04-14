@@ -250,7 +250,7 @@ type (
 		StakingAccounts  uint64  `json:"staking_accounts"`
 		Delinquent       uint64  `json:"delinquent"`
 		UnstakeLiquidity float64 `json:"unstake_liquidity"`
-		DepossitFee      float64 `json:"depossit_fee"`
+		DepositFee       float64 `json:"deposit_fee"`
 		WithdrawalFee    float64 `json:"withdrawal_fee"`
 		RewardsFee       float64 `json:"rewards_fee"`
 	}
@@ -297,7 +297,7 @@ func (pl *pool) Set(pool *smodels.Pool) *pool {
 	pl.StakingAccounts = pool.StakingAccounts
 	pl.Delinquent = pool.Delinquent
 	pl.UnstakeLiquidity, _ = pool.UnstakeLiquidity.Float64()
-	pl.DepossitFee, _ = pool.DepossitFee.Float64()
+	pl.DepositFee, _ = pool.DepossitFee.Float64()
 	pl.WithdrawalFee, _ = pool.WithdrawalFee.Float64()
 	pl.RewardsFee, _ = pool.RewardsFee.Float64()
 	pl.Validators = pool.ValidatorCount
