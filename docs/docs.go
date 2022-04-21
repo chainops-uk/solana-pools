@@ -1075,7 +1075,7 @@ var doc = `{
                 "pools": {
                     "type": "integer"
                 },
-                "pools_avg_apy": {
+                "pools_max_apy": {
                     "type": "number"
                 },
                 "skipped_slot": {

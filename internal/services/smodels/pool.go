@@ -37,7 +37,7 @@ type (
 		ActiveStake      sol.SOL
 		TotalSupply      sol.SOL
 		AVGSkippedSlots  decimal.Decimal
-		AVGPoolsApy      decimal.Decimal
+		MAXPoolsApy      decimal.Decimal
 		MAXScore         int64
 		AVGScore         int64
 		MINScore         int64

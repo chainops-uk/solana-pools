@@ -146,7 +146,8 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		return nil, nil
 	}
 	stat = &smodels.Statistic{
-		Pools: uint64(len(dPools)),
+		Pools:       uint64(len(dPools)),
+		MAXPoolsApy: decimal.NewFromInt(0),
 	}
 
 	once := sync.Once{}
@@ -204,11 +205,12 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Add(pools[i].AVGSkippedSlots)
 		stat.AVGScore += pools[i].AVGScore
 		stat.Delinquent += pools[i].Delinquent
-		stat.AVGPoolsApy = stat.AVGPoolsApy.Add(pools[i].APY)
+		if pools[i].APY.GreaterThan(stat.MAXPoolsApy) {
+			stat.MAXPoolsApy = pools[i].APY
+		}
 	}
 
 	if len(dPools) > 0 {
-		stat.AVGPoolsApy = stat.AVGPoolsApy.Div(decimal.NewFromInt(int64(len(dPools))))
 		stat.AVGSkippedSlots = stat.AVGSkippedSlots.Div(decimal.NewFromInt(int64(len(dPools))))
 		stat.AVGScore /= int64(len(dPools))
 	}
