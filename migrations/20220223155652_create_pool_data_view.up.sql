@@ -7,7 +7,7 @@ SELECT pd.id,
        pd.total_lamports,
        (SELECT AVG(t.apy)::numeric(25,9)
         FROM pool_data t
-        WHERE t.epoch between pd.epoch - 10 AND pd.epoch AND t.pool_id = pd.pool_id) as apy,
+        WHERE t.epoch between pd.epoch - 9 AND pd.epoch AND t.pool_id = pd.pool_id) as apy,
        pd.unstake_liquidity,
        pd.depossit_fee,
        pd.withdrawal_fee,
