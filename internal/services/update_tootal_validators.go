@@ -65,6 +65,12 @@ func (s Imp) UpdateValidators() error {
 			UpdatedAt:  time.Now(),
 		})
 
+		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
+
+		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
+			continue
+		}
+
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
 			ValidatorID:     v.NodePubKey,
@@ -72,7 +78,7 @@ func (s Imp) UpdateValidators() error {
 			APY:             apy,
 			StakingAccounts: stakingAccounts,
 			ActiveStake:     uint64(v.ActivatedStake),
-			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
+			Fee:             fee,
 			Score:           vInfo.TotalScore,
 			SkippedSlots:    skippedSlots,
 			CreatedAt:       time.Now(),
@@ -112,6 +118,12 @@ func (s Imp) UpdateValidators() error {
 			UpdatedAt:  time.Now(),
 		})
 
+		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
+
+		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
+			continue
+		}
+
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
 			ValidatorID:     v.NodePubKey,
@@ -119,7 +131,7 @@ func (s Imp) UpdateValidators() error {
 			APY:             apy,
 			StakingAccounts: stakingAccounts,
 			ActiveStake:     uint64(v.ActivatedStake),
-			Fee:             decimal.NewFromFloat(float64(vInfo.Commission) / 100.0),
+			Fee:             fee,
 			Score:           vInfo.TotalScore,
 			SkippedSlots:    skippedSlots,
 			CreatedAt:       time.Now(),
