@@ -2,9 +2,7 @@ package stdpool
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
-	bin "github.com/dfuse-io/binary"
 	"github.com/dfuse-io/solana-go"
 	"github.com/everstake/solana-pools/pkg/pools/types"
 	"github.com/near/borsh-go"
@@ -43,19 +41,19 @@ type PoolData struct {
 	LastUpdateEpoch                       uint64
 	Lockup                                Lockup
 	EpochFee                              Fee
-	NextEpochFee                          Fee
-	PreferredDepositValidatorVoteAddress  solana.PublicKey
-	PreferredWithdrawValidatorVoteAddress solana.PublicKey
+	NextEpochFee                          *Fee
+	PreferredDepositValidatorVoteAddress  *solana.PublicKey
+	PreferredWithdrawValidatorVoteAddress *solana.PublicKey
 	StakeDepositFee                       Fee
 	StakeWithdrawalFee                    Fee
-	NextStakeWithdrawalFee                Fee
+	NextStakeWithdrawalFee                *Fee
 	StakeReferralFee                      uint8
-	SolDepositAuthority                   solana.PublicKey
+	SolDepositAuthority                   *solana.PublicKey
 	SolDepositFee                         Fee
 	SolReferralFee                        uint8
-	SolWithdrawAuthority                  solana.PublicKey
+	SolWithdrawAuthority                  *solana.PublicKey
 	SolWithdrawalFee                      Fee
-	NextSolWithdrawalFee                  Fee
+	NextSolWithdrawalFee                  *Fee
 	LastEpochPoolTokenSupply              uint64
 	LastEpochTotalLamports                uint64
 }
@@ -91,20 +89,17 @@ type ValidatorStakeInfo struct {
 func validatorListFromBytes(b []byte) ([]ValidatorStakeInfo, error) {
 	if len(b) > 8 { // todo
 		data := ValidatorsData{}
-		err := borsh.Deserialize(&data, b)
-		if err != nil {
+		if err := borsh.Deserialize(&data, b); err != nil {
 			return nil, fmt.Errorf("borsh.Deserialize(ValidatorData): %s", err.Error())
 		}
 
-		return data.Validators, err
+		return data.Validators, nil
 	}
 	return nil, fmt.Errorf("bad data")
 }
 
 func (sp *PoolData) SetFromBytes(b []byte) (*PoolData, error) {
-	data := make([]byte, binary.Size(*sp))
-	copy(data, b)
-	if err := bin.NewDecoder(data).Decode(sp); err != nil {
+	if err := borsh.Deserialize(sp, b); err != nil {
 		return nil, err
 	}
 
