@@ -34,6 +34,7 @@ func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCon
 	}
 
 	db = withCond(db, condition.Condition)
+
 	if len(condition.PoolDataIDs) > 0 {
 		db = db.Where("pool_data_id in (?)", condition.PoolDataIDs)
 	}

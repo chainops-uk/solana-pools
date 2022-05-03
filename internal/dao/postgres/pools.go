@@ -34,7 +34,7 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 
 func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
-	if err := db.DB.Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
+	if err := db.DB.Table("pool_data_view as pool_data").Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -96,12 +96,12 @@ func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
 }
 
 func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
-	db = db.Joins("left join pool_data on pools.id = pool_data.pool_id").
+	db = db.Joins("left join pool_data_view as pool_data on pools.id = pool_data.pool_id").
 		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE t1.pool_id = pools.id)`).
 		Group("pools.id")
 	switch sort {
 	case PoolAPY:
-		db = db.Group(`"pool_data"."id"`).Select("pools.*")
+		db = db.Group(`"pool_data"."apy"`).Select("pools.*")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
@@ -113,7 +113,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 			},
 		})
 	case PoolStake:
-		db = db.Group(`"pool_data"."id"`).Select("pools.*")
+		db = db.Group(`"pool_data"."active_stake"`).Select("pools.*")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
