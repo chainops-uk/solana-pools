@@ -85,7 +85,7 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 	dmodel := &dmodels.PoolData{
 		ID:                uuid.NewV1(),
 		PoolID:            dPool.ID,
-		APY:               decimal.NewFromFloat(data.APY),
+		APY:               decimal.NewFromFloat(data.APY).Truncate(9),
 		ActiveStake:       data.SolanaStake,
 		TotalTokensSupply: data.TotalTokenSupply,
 		TotalLamports:     data.TotalLamports,
@@ -140,7 +140,7 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 			dmodel.APY = decimal.NewFromInt(0)
 		}
 	} else {
-		dmodel.APY = SumValAPY.Div(decimal.NewFromInt(int64(len(validatorsPoolData))))
+		dmodel.APY = SumValAPY.Div(decimal.NewFromInt(int64(len(validatorsPoolData)))).Truncate(9)
 	}
 
 	if err = s.dao.UpdatePoolData(dmodel); err != nil {
