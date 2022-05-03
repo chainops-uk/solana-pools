@@ -139,7 +139,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 		})
 	case PoolScore:
 		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
-			Joins("join validator_view as validators on pool_validator_data.validator_id = validators.id").
+			Joins("join material_validator_data_view as validators on pool_validator_data.validator_id = validators.id").
 			Select("pools.*, avg(validators.score) as avg_score")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
@@ -153,7 +153,7 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 		})
 	case PoolSkippedSlot:
 		db = db.Joins("left join pool_validator_data on pool_data.id = pool_validator_data.pool_data_id").
-			Joins("join validator_view as validators on pool_validator_data.validator_id = validators.id").
+			Joins("join material_validator_data_view as validators on pool_validator_data.validator_id = validators.id").
 			Select("pools.*, avg(validators.skipped_slots) as avg_skipped_slots")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
@@ -166,8 +166,10 @@ func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
 			},
 		})
 	case PoolTokenPrice:
-		db = db.Select("pools.*, (CASE WHEN pool_data.total_tokens_supply IS NULL THEN 0 WHEN pool_data.total_tokens_supply = 0 THEN 0 ELSE pool_data.total_lamports::float8 / pool_data.total_tokens_supply::float8 END) as price").
-			Group("pool_data.id")
+		db = db.Select("pools.*, (CASE WHEN pool_data.total_tokens_supply IS NULL THEN 0 " +
+			"WHEN pool_data.total_tokens_supply = 0 THEN 0 " +
+			"ELSE pool_data.total_lamports::float8 / pool_data.total_tokens_supply::float8 END) as price").
+			Group("pool_data.id, price")
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{

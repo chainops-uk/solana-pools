@@ -5,7 +5,7 @@ SELECT pd.id,
        pd.active_stake,
        pd.total_tokens_supply,
        pd.total_lamports,
-       (SELECT AVG(t.apy)::numeric(25,9)
+       (SELECT AVG(t.apy)::numeric
         FROM pool_data t
         WHERE t.epoch between pd.epoch - 9 AND pd.epoch AND t.pool_id = pd.pool_id) as apy,
        pd.unstake_liquidity,
