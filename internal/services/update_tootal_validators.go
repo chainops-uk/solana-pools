@@ -66,7 +66,7 @@ func (s Imp) UpdateValidators() error {
 		})
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
-			ID:              uuid.NewV4(),
+			ID:              uuid.NewV1(),
 			ValidatorID:     v.NodePubKey,
 			Epoch:           epoch.Result.Epoch,
 			APY:             apy,
@@ -113,7 +113,7 @@ func (s Imp) UpdateValidators() error {
 		})
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
-			ID:              uuid.NewV4(),
+			ID:              uuid.NewV1(),
 			ValidatorID:     v.NodePubKey,
 			Epoch:           epoch.Result.Epoch,
 			APY:             apy,

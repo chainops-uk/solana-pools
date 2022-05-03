@@ -83,7 +83,7 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 	}
 
 	dmodel := &dmodels.PoolData{
-		ID:                uuid.NewV4(),
+		ID:                uuid.NewV1(),
 		PoolID:            dPool.ID,
 		APY:               decimal.NewFromFloat(data.APY),
 		ActiveStake:       data.SolanaStake,
