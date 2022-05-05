@@ -22,7 +22,7 @@ type Validator struct {
 	Image      string    `gorm:"type:text"`
 	Name       string    `gorm:"type:varchar(100);not null;"`
 	Delinquent bool      `gorm:"not null"`
-	VotePK     string    `gorm:"index:idx_vote_pk,unique;type:varchar(44);not null;"`
+	VotePK     string    `gorm:"type:varchar(44);not null;"`
 	DataCenter string    `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"index;not null"`
 	UpdatedAt  time.Time `gorm:"not null"`
