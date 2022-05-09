@@ -28,7 +28,7 @@ func (s Imp) UpdateDeFi() error {
 }
 
 func updateOrca(s *Imp) error {
-	pool, err := s.dao.GetLiquidityPool(&postgres.Condition{Names: []string{"Orca"}})
+	pool, err := s.DAO.GetLiquidityPool(&postgres.Condition{Names: []string{"Orca"}})
 	if err != nil {
 		return err
 	}
@@ -36,9 +36,9 @@ func updateOrca(s *Imp) error {
 		return nil
 	}
 
-	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	pools, err := s.DAO.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
-		return fmt.Errorf("dao.GetPools: %w", err)
+		return fmt.Errorf("DAO.GetPools: %w", err)
 	}
 
 	ids := make([]uuid.UUID, len(pools))
@@ -46,16 +46,16 @@ func updateOrca(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+	poolCoins, err := s.DAO.GetCoins(&postgres.CoinCondition{
 		Condition: &postgres.Condition{
 			IDs: ids,
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("dao.GetCoins: %w", err)
+		return fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
-	coins, err := s.dao.GetCoins(nil)
+	coins, err := s.DAO.GetCoins(nil)
 	if err != nil {
 		return err
 	}
@@ -89,11 +89,11 @@ func updateOrca(s *Imp) error {
 
 	}
 
-	if err := s.dao.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
+	if err := s.DAO.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
 		return err
 	}
 
-	if err := s.dao.SaveDEFIs(defis...); err != nil {
+	if err := s.DAO.SaveDEFIs(defis...); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func updateOrca(s *Imp) error {
 }
 
 func updateRaydium(s *Imp) error {
-	pool, err := s.dao.GetLiquidityPool(&postgres.Condition{Names: []string{"Raydium"}})
+	pool, err := s.DAO.GetLiquidityPool(&postgres.Condition{Names: []string{"Raydium"}})
 	if err != nil {
 		return err
 	}
@@ -109,9 +109,9 @@ func updateRaydium(s *Imp) error {
 		return nil
 	}
 
-	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	pools, err := s.DAO.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
-		return fmt.Errorf("dao.GetPools: %w", err)
+		return fmt.Errorf("DAO.GetPools: %w", err)
 	}
 
 	ids := make([]uuid.UUID, len(pools))
@@ -119,16 +119,16 @@ func updateRaydium(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+	poolCoins, err := s.DAO.GetCoins(&postgres.CoinCondition{
 		Condition: &postgres.Condition{
 			IDs: ids,
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("dao.GetCoins: %w", err)
+		return fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
-	coins, err := s.dao.GetCoins(nil)
+	coins, err := s.DAO.GetCoins(nil)
 	if err != nil {
 		return err
 	}
@@ -162,11 +162,11 @@ func updateRaydium(s *Imp) error {
 
 	}
 
-	if err := s.dao.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
+	if err := s.DAO.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
 		return err
 	}
 
-	if err := s.dao.SaveDEFIs(defis...); err != nil {
+	if err := s.DAO.SaveDEFIs(defis...); err != nil {
 		return err
 	}
 
@@ -174,7 +174,7 @@ func updateRaydium(s *Imp) error {
 }
 
 func updateAtrix(s *Imp) error {
-	pool, err := s.dao.GetLiquidityPool(&postgres.Condition{Names: []string{"Atrix"}})
+	pool, err := s.DAO.GetLiquidityPool(&postgres.Condition{Names: []string{"Atrix"}})
 	if err != nil {
 		return err
 	}
@@ -182,9 +182,9 @@ func updateAtrix(s *Imp) error {
 		return nil
 	}
 
-	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	pools, err := s.DAO.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
-		return fmt.Errorf("dao.GetPools: %w", err)
+		return fmt.Errorf("DAO.GetPools: %w", err)
 	}
 
 	ids := make([]uuid.UUID, len(pools))
@@ -192,16 +192,16 @@ func updateAtrix(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+	poolCoins, err := s.DAO.GetCoins(&postgres.CoinCondition{
 		Condition: &postgres.Condition{
 			IDs: ids,
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("dao.GetCoins: %w", err)
+		return fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
-	coins, err := s.dao.GetCoins(nil)
+	coins, err := s.DAO.GetCoins(nil)
 	if err != nil {
 		return err
 	}
@@ -231,11 +231,11 @@ func updateAtrix(s *Imp) error {
 
 	}
 
-	if err := s.dao.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
+	if err := s.DAO.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
 		return err
 	}
 
-	if err := s.dao.SaveDEFIs(defis...); err != nil {
+	if err := s.DAO.SaveDEFIs(defis...); err != nil {
 		return err
 	}
 
@@ -243,7 +243,7 @@ func updateAtrix(s *Imp) error {
 }
 
 func updateSaber(s *Imp) error {
-	pool, err := s.dao.GetLiquidityPool(&postgres.Condition{Names: []string{"Saber"}})
+	pool, err := s.DAO.GetLiquidityPool(&postgres.Condition{Names: []string{"Saber"}})
 	if err != nil {
 		return err
 	}
@@ -251,9 +251,9 @@ func updateSaber(s *Imp) error {
 		return nil
 	}
 
-	pools, err := s.dao.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
+	pools, err := s.DAO.GetPools(&postgres.PoolCondition{Condition: &postgres.Condition{Network: postgres.MainNet}})
 	if err != nil {
-		return fmt.Errorf("dao.GetPools: %w", err)
+		return fmt.Errorf("DAO.GetPools: %w", err)
 	}
 
 	ids := make([]uuid.UUID, len(pools))
@@ -261,16 +261,16 @@ func updateSaber(s *Imp) error {
 		ids[i] = pool.CoinID
 	}
 
-	poolCoins, err := s.dao.GetCoins(&postgres.CoinCondition{
+	poolCoins, err := s.DAO.GetCoins(&postgres.CoinCondition{
 		Condition: &postgres.Condition{
 			IDs: ids,
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("dao.GetCoins: %w", err)
+		return fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
-	coins, err := s.dao.GetCoins(nil)
+	coins, err := s.DAO.GetCoins(nil)
 	if err != nil {
 		return err
 	}
@@ -300,11 +300,11 @@ func updateSaber(s *Imp) error {
 
 	}
 
-	if err := s.dao.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
+	if err := s.DAO.DeleteDeFis(&postgres.DeFiCondition{LiquidityPoolIDs: []uuid.UUID{pool.ID}}); err != nil {
 		return err
 	}
 
-	if err := s.dao.SaveDEFIs(defis...); err != nil {
+	if err := s.DAO.SaveDEFIs(defis...); err != nil {
 		return err
 	}
 

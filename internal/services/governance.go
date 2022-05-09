@@ -7,7 +7,7 @@ import (
 )
 
 func (s Imp) GetGovernance(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error) {
-	gov, err := s.dao.GetGovernance(&postgres.GovernanceCondition{
+	gov, err := s.DAO.GetGovernance(&postgres.GovernanceCondition{
 		Condition: &postgres.Condition{
 			Name:       name,
 			Pagination: postgres.Pagination{Limit: limit, Offset: offset},
@@ -18,7 +18,7 @@ func (s Imp) GetGovernance(name string, sort string, desc bool, limit uint64, of
 		},
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetCoins: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
 	sgov := make([]*smodels.Governance, len(gov))
@@ -26,13 +26,13 @@ func (s Imp) GetGovernance(name string, sort string, desc bool, limit uint64, of
 		sgov[i] = (&smodels.Governance{}).Set(g)
 	}
 
-	count, err := s.dao.GetGovernanceCount(&postgres.GovernanceCondition{
+	count, err := s.DAO.GetGovernanceCount(&postgres.GovernanceCondition{
 		Condition: &postgres.Condition{
 			Name: name,
 		},
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetCoinsCount: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetCoinsCount: %w", err)
 	}
 
 	return sgov, uint64(count), nil

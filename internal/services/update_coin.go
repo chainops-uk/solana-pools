@@ -3,9 +3,9 @@ package services
 import "fmt"
 
 func (s Imp) UpdateCoins() error {
-	coins, err := s.dao.GetCoins(nil)
+	coins, err := s.DAO.GetCoins(nil)
 	if err != nil {
-		return fmt.Errorf("dao.GetCoins: %w", err)
+		return fmt.Errorf("DAO.GetCoins: %w", err)
 	}
 
 	for _, coin := range coins {
@@ -30,8 +30,8 @@ func (s Imp) UpdateCoins() error {
 		coin.SmallImage = c.Image.Small
 	}
 
-	if err := s.dao.SaveCoin(coins...); err != nil {
-		return fmt.Errorf("dao.SaveCoin: %w", err)
+	if err := s.DAO.SaveCoin(coins...); err != nil {
+		return fmt.Errorf("DAO.SaveCoin: %w", err)
 	}
 
 	return nil

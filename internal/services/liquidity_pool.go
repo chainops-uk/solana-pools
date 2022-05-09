@@ -7,12 +7,12 @@ import (
 )
 
 func (s Imp) GetLiquidityPools(name string, limit uint64, offset uint64) ([]*smodels.LiquidityPool, uint64, error) {
-	gov, err := s.dao.GetLiquidityPools(&postgres.Condition{
+	gov, err := s.DAO.GetLiquidityPools(&postgres.Condition{
 		Name:       name,
 		Pagination: postgres.Pagination{Limit: limit, Offset: offset},
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetLiquidityPools: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetLiquidityPools: %w", err)
 	}
 
 	arr := make([]*smodels.LiquidityPool, len(gov))
@@ -20,9 +20,9 @@ func (s Imp) GetLiquidityPools(name string, limit uint64, offset uint64) ([]*smo
 		arr[i] = (&smodels.LiquidityPool{}).Set(g)
 	}
 
-	count, err := s.dao.GetLiquidityPoolsCount(&postgres.Condition{Name: name})
+	count, err := s.DAO.GetLiquidityPoolsCount(&postgres.Condition{Name: name})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetLiquidityPoolsCount: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetLiquidityPoolsCount: %w", err)
 	}
 
 	return arr, uint64(count), nil

@@ -9,6 +9,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+//go:generate moq -out postgres_mock.go . Postgres
+
 type (
 	DAO interface {
 		Postgres

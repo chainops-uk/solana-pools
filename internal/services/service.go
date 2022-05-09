@@ -54,7 +54,7 @@ type (
 		rpcClients    map[config.Network]*client.Client
 		cache         *cache.Cache
 		cfg           config.Env
-		dao           dao.DAO
+		DAO           dao.DAO
 		coinGecko     *coingecko.Client
 		log           *zap.Logger
 		raydium       *raydium.Client
@@ -76,7 +76,7 @@ func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 		},
 		cache:         cache.New(time.Hour*24, time.Hour*24),
 		cfg:           cfg,
-		dao:           d,
+		DAO:           d,
 		raydium:       raydium.NewClient(httpClient),
 		orca:          orca.NewClient(httpClient),
 		saber:         saber.NewClient(httpClient),

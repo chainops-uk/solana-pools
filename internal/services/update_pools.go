@@ -33,9 +33,9 @@ func (s Imp) UpdatePools() error {
 		return fmt.Errorf("imp.GetAvgSlotTimeMS: %w", err)
 	}
 
-	dPools, err := s.dao.GetPools(nil)
+	dPools, err := s.DAO.GetPools(nil)
 	if err != nil {
-		return fmt.Errorf("dao.GetPools: %s", err.Error())
+		return fmt.Errorf("DAO.GetPools: %s", err.Error())
 	}
 	var success, fail uint64
 	start := time.Now()
@@ -101,9 +101,9 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 	validatorsPoolData := make([]*dmodels.PoolValidatorData, 0, len(data.Validators))
 	var SumValAPY decimal.Decimal
 	for _, v := range data.Validators {
-		validator, err := s.dao.GetValidatorByVotePK(v.VotePK)
+		validator, err := s.DAO.GetValidatorByVotePK(v.VotePK)
 		if err != nil {
-			return fmt.Errorf("dao.GetValidatorByVotePK(%s): %w", v.VotePK, err)
+			return fmt.Errorf("DAO.GetValidatorByVotePK(%s): %w", v.VotePK, err)
 		}
 		if validator == nil {
 			continue
@@ -119,9 +119,9 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 	}
 
 	if dmodel.APY.IsZero() {
-		d, err := s.dao.GetLastEpochPoolData(dmodel.PoolID, dmodel.Epoch)
+		d, err := s.DAO.GetLastEpochPoolData(dmodel.PoolID, dmodel.Epoch)
 		if err != nil {
-			return fmt.Errorf("dao.UpdatePoolData: %w", err)
+			return fmt.Errorf("DAO.UpdatePoolData: %w", err)
 		}
 		if d != nil {
 			var epochRate decimal.Decimal
@@ -145,12 +145,12 @@ func (s Imp) updatePool(dPool *dmodels.Pool, correlation float64) error {
 
 	dmodel.APY = dmodel.APY.Truncate(9)
 
-	if err = s.dao.UpdatePoolData(dmodel); err != nil {
-		return fmt.Errorf("dao.UpdatePoolData: %s", err.Error())
+	if err = s.DAO.UpdatePoolData(dmodel); err != nil {
+		return fmt.Errorf("DAO.UpdatePoolData: %s", err.Error())
 	}
 
-	if err = s.dao.CreatePoolValidatorData(validatorsPoolData...); err != nil {
-		return fmt.Errorf("dao.UpdateValidators: %s", err.Error())
+	if err = s.DAO.CreatePoolValidatorData(validatorsPoolData...); err != nil {
+		return fmt.Errorf("DAO.UpdateValidators: %s", err.Error())
 	}
 	return nil
 }

@@ -146,18 +146,18 @@ func (s Imp) UpdateValidators() error {
 	for i := 0; i < n; i++ {
 		S := step - 1
 		if offset+step > len(validators) {
-			if err := s.dao.UpdateValidators(validators[offset:]...); err != nil {
-				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			if err := s.DAO.UpdateValidators(validators[offset:]...); err != nil {
+				return fmt.Errorf("DAO.UpdateValidators: %w", err)
 			}
-			if err := s.dao.UpdateValidatorsData(validatorsData[offset:]...); err != nil {
-				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			if err := s.DAO.UpdateValidatorsData(validatorsData[offset:]...); err != nil {
+				return fmt.Errorf("DAO.UpdateValidators: %w", err)
 			}
 		} else {
-			if err := s.dao.UpdateValidators(validators[offset : offset+S]...); err != nil {
-				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			if err := s.DAO.UpdateValidators(validators[offset : offset+S]...); err != nil {
+				return fmt.Errorf("DAO.UpdateValidators: %w", err)
 			}
-			if err := s.dao.UpdateValidatorsData(validatorsData[offset : offset+S]...); err != nil {
-				return fmt.Errorf("dao.UpdateValidators: %w", err)
+			if err := s.DAO.UpdateValidatorsData(validatorsData[offset : offset+S]...); err != nil {
+				return fmt.Errorf("DAO.UpdateValidators: %w", err)
 			}
 		}
 
