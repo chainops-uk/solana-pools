@@ -8,7 +8,7 @@ import (
 )
 
 func (s Imp) GetAvgSlotTimeMS() (float64, error) {
-	arr, err := s.cache.GetSlotArr()
+	arr, err := s.Cache.GetSlotArr()
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return 0, err
 	}
@@ -66,7 +66,7 @@ rep:
 		return err
 	}
 
-	arr, err := s.cache.GetSlotArr()
+	arr, err := s.Cache.GetSlotArr()
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return err
 	}
@@ -86,7 +86,7 @@ rep:
 
 	}
 
-	s.cache.SetSlotArr(arr)
+	s.Cache.SetSlotArr(arr)
 
 	return nil
 }

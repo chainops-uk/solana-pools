@@ -14,7 +14,7 @@ import (
 )
 
 func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
-	pd, err := s.cache.GetPool(name)
+	pd, err := s.Cache.GetPool(name)
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 		Pool: *Pool,
 	}
 
-	s.cache.SetPool(pd, time.Second*30)
+	s.Cache.SetPool(pd, time.Second*30)
 
 	return pd, nil
 }
@@ -130,7 +130,7 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 }
 
 func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
-	stat, err := s.cache.GetCurrentStatistic()
+	stat, err := s.Cache.GetCurrentStatistic()
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 	stat.TotalSupply.SetLamports(SupplySum)
 	stat.UnstakeLiquidity.SetLamports(UnstakeSum)
 
-	s.cache.SetCurrentStatistic(stat, time.Second*30)
+	s.Cache.SetCurrentStatistic(stat, time.Second*30)
 
 	return stat, nil
 }
@@ -260,7 +260,7 @@ func (s *Imp) GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, 
 }
 
 func (s *Imp) GetNetworkAPY() (float64, error) {
-	d, err := s.cache.GetAPY()
+	d, err := s.Cache.GetAPY()
 	if err != nil {
 		return 0, err
 	}
@@ -271,7 +271,7 @@ func (s *Imp) GetNetworkAPY() (float64, error) {
 }
 
 func (s *Imp) GetUSD() (float64, error) {
-	d, err := s.cache.GetPrice()
+	d, err := s.Cache.GetPrice()
 	if err != nil {
 		return 0, err
 	}

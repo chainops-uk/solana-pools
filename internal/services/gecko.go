@@ -23,7 +23,7 @@ func (s Imp) UpdatePrice() error {
 		return fmt.Errorf("UpdatePrice: %w", errors.New("usd price not found"))
 	}
 
-	s.cache.SetPrice(decimal.NewFromFloat(usd))
+	s.Cache.SetPrice(decimal.NewFromFloat(usd))
 
 	return nil
 }

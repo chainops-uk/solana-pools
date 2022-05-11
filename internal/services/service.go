@@ -52,7 +52,7 @@ type (
 	}
 	Imp struct {
 		rpcClients    map[config.Network]*client.Client
-		cache         *cache.Cache
+		Cache         *cache.Cache
 		cfg           config.Env
 		DAO           dao.DAO
 		coinGecko     *coingecko.Client
@@ -74,7 +74,7 @@ func NewService(cfg config.Env, d dao.DAO, l *zap.Logger) Service {
 			config.Mainnet: client.NewClient(cfg.MainnetNode),
 			config.Testnet: client.NewClient(cfg.TestnetNode),
 		},
-		cache:         cache.New(time.Hour*24, time.Hour*24),
+		Cache:         cache.New(time.Hour*24, time.Hour*24),
 		cfg:           cfg,
 		DAO:           d,
 		raydium:       raydium.NewClient(httpClient),

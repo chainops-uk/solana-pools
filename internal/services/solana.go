@@ -6,7 +6,7 @@ import (
 )
 
 func (s Imp) GetPrice() (decimal.Decimal, error) {
-	price, err := s.cache.GetPrice()
+	price, err := s.Cache.GetPrice()
 	if err != nil {
 		return decimal.Decimal{}, err
 	}
@@ -15,7 +15,7 @@ func (s Imp) GetPrice() (decimal.Decimal, error) {
 }
 
 func (s Imp) GetAPY() (decimal.Decimal, error) {
-	apy, err := s.cache.GetAPY()
+	apy, err := s.Cache.GetAPY()
 	if err != nil {
 		return decimal.Decimal{}, err
 	}
@@ -24,7 +24,7 @@ func (s Imp) GetAPY() (decimal.Decimal, error) {
 }
 
 func (s Imp) GetValidators() (int64, error) {
-	c, err := s.cache.GetValidatorsCount()
+	c, err := s.Cache.GetValidatorsCount()
 	if err != nil {
 		return 0, err
 	}
@@ -33,7 +33,7 @@ func (s Imp) GetValidators() (int64, error) {
 }
 
 func (s Imp) GetActiveStake() uint64 {
-	c, err := s.cache.GetActiveStake()
+	c, err := s.Cache.GetActiveStake()
 	if err != nil {
 		return 0
 	}
@@ -42,7 +42,7 @@ func (s Imp) GetActiveStake() uint64 {
 }
 
 func (s Imp) GetEpoch() (*smodels.EpochInfo, error) {
-	c, err := s.cache.GetCurrentEpochInfo()
+	c, err := s.Cache.GetCurrentEpochInfo()
 	if err != nil {
 		return nil, err
 	}

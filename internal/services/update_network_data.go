@@ -30,7 +30,7 @@ func (s Imp) UpdateNetworkData() error {
 
 	sps := 1 / (st / 1000)
 
-	s.cache.SetCurrentEpochInfo(&smodels.EpochInfo{
+	s.Cache.SetCurrentEpochInfo(&smodels.EpochInfo{
 		Epoch:        ei.Result.Epoch,
 		SlotsInEpoch: ei.Result.SlotsInEpoch,
 		SPS:          sps,
@@ -51,8 +51,8 @@ func (s Imp) UpdateNetworkData() error {
 		activeStake += uint64(v.ActivatedStake)
 	}
 
-	s.cache.SetValidatorCount(int64(len(va.Current) + len(va.Delinquent)))
-	s.cache.SetActiveStake(activeStake)
+	s.Cache.SetValidatorCount(int64(len(va.Current) + len(va.Delinquent)))
+	s.Cache.SetActiveStake(activeStake)
 
 	rate, err := client.RpcClient.GetInflationRate(ctx)
 	if err != nil {
@@ -67,7 +67,7 @@ func (s Imp) UpdateNetworkData() error {
 	apy := rate.Result.Total *
 		(float64(sol.Value.Total) / float64(activeStake))
 	APY := decimal.NewFromFloat(apy).Mul(decimal.NewFromInt(400).Div(decimal.NewFromFloat(st)))
-	s.cache.SetAPY(APY)
+	s.Cache.SetAPY(APY)
 
 	return nil
 }
