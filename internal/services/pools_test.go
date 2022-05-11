@@ -941,3 +941,252 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 		})
 	}
 }
+
+func TestGetPoolStatistic(t *testing.T) {
+	data := map[string]struct {
+		DAO  services.Imp
+		Data struct {
+			name      string
+			aggregate string
+		}
+		Result []*smodels.Pool
+		Err    error
+	}{
+		"first": {
+			Data: struct {
+				name      string
+				aggregate string
+			}{name: "pool1", aggregate: "quarter"},
+			Result: []*smodels.Pool{
+				{
+					Address:          "addr1",
+					Name:             "pool1",
+					Image:            "img1",
+					Currency:         "coin1",
+					ActiveStake:      sol.SOL{decimal.NewFromFloat(0.000456215)},
+					TokensSupply:     sol.SOL{decimal.NewFromFloat(0.00000001)},
+					TotalLamports:    sol.SOL{decimal.NewFromFloat(0.00000002)},
+					APY:              decimal.Decimal{},
+					AVGSkippedSlots:  decimal.Decimal{},
+					AVGScore:         0,
+					StakingAccounts:  0,
+					Delinquent:       0,
+					UnstakeLiquidity: sol.SOL{decimal.NewFromFloat(0.00000003)},
+					DepossitFee:      decimal.Decimal{},
+					WithdrawalFee:    decimal.Decimal{},
+					RewardsFee:       decimal.Decimal{},
+					ValidatorCount:   1,
+					CreatedAt:        time.Time{},
+				},
+			},
+			Err: nil,
+			DAO: services.Imp{
+				DAO: &dao.PostgresMock{
+					GetPoolFunc: func(name string) (*dmodels.Pool, error) {
+						if name != "pool1" {
+							return nil, fmt.Errorf("name != pool1, name is %s", name)
+						}
+						return &dPool, nil
+					},
+					GetPoolStatisticFunc: func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error) {
+						if poolID != dPool.ID {
+							return nil, fmt.Errorf("poolID != %s, poolID = %s", dPool.ID, poolID)
+						}
+						if aggregate != 2 {
+							return nil, fmt.Errorf("aggregate != 2, aggregate = %d", aggregate)
+						}
+						return []*dmodels.PoolData{&dPoolData}, nil
+					},
+					GetCoinByIDFunc: func(id uuid.UUID) (*dmodels.Coin, error) {
+						if id != dPool.CoinID {
+							return nil, fmt.Errorf("id != %s, id is %s", dPool.CoinID, id)
+						}
+						return coinArr[0], nil
+					},
+					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+						if condition.PoolDataIDs[0] != dPoolData.ID {
+							return 0, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.ID, condition.PoolDataIDs[0])
+						}
+						return 1, nil
+					},
+				},
+			},
+		},
+		"second": {
+			Data: struct {
+				name      string
+				aggregate string
+			}{name: "pool1", aggregate: "quarter"},
+			Result: nil,
+			Err:    fmt.Errorf("DAO.GetPool(%s): %w", "pool1", postgres.ErrorRecordNotFounded),
+			DAO: services.Imp{
+				DAO: &dao.PostgresMock{
+					GetPoolFunc: func(name string) (*dmodels.Pool, error) {
+						if name == "pool1" {
+							return nil, nil
+						}
+						return &dPool, nil
+					},
+				},
+			},
+		},
+		"third": {
+			Data: struct {
+				name      string
+				aggregate string
+			}{name: "pool1", aggregate: "quarter"},
+			Result: nil,
+			Err:    fmt.Errorf("some error"),
+			DAO: services.Imp{
+				DAO: &dao.PostgresMock{
+					GetPoolFunc: func(name string) (*dmodels.Pool, error) {
+						if name != "pool1" {
+							return nil, fmt.Errorf("name != pool1, name is %s", name)
+						}
+						return &dPool, nil
+					},
+					GetPoolStatisticFunc: func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error) {
+						return nil, fmt.Errorf("some error")
+					},
+				},
+			},
+		},
+		"forth": {
+			Data: struct {
+				name      string
+				aggregate string
+			}{name: "pool1", aggregate: "quarter"},
+			Result: nil,
+			Err:    fmt.Errorf("DAO.GetCoinByID: %w", fmt.Errorf("some error")),
+			DAO: services.Imp{
+				DAO: &dao.PostgresMock{
+					GetPoolFunc: func(name string) (*dmodels.Pool, error) {
+						if name != "pool1" {
+							return nil, fmt.Errorf("name != pool1, name is %s", name)
+						}
+						return &dPool, nil
+					},
+					GetPoolStatisticFunc: func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error) {
+						if poolID != dPool.ID {
+							return nil, fmt.Errorf("poolID != %s, poolID = %s", dPool.ID, poolID)
+						}
+						if aggregate != 2 {
+							return nil, fmt.Errorf("aggregate != 2, aggregate = %d", aggregate)
+						}
+						return []*dmodels.PoolData{&dPoolData}, nil
+					},
+					GetCoinByIDFunc: func(id uuid.UUID) (*dmodels.Coin, error) {
+						return nil, fmt.Errorf("some error")
+					},
+				},
+			},
+		},
+		"fifth": {
+			Data: struct {
+				name      string
+				aggregate string
+			}{name: "pool1", aggregate: "quarter"},
+			Result: nil,
+			Err:    gorm.ErrRecordNotFound,
+			DAO: services.Imp{
+				DAO: &dao.PostgresMock{
+					GetPoolFunc: func(name string) (*dmodels.Pool, error) {
+						if name != "pool1" {
+							return nil, fmt.Errorf("name != pool1, name is %s", name)
+						}
+						return &dPool, nil
+					},
+					GetPoolStatisticFunc: func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error) {
+						if poolID != dPool.ID {
+							return nil, fmt.Errorf("poolID != %s, poolID = %s", dPool.ID, poolID)
+						}
+						if aggregate != 2 {
+							return nil, fmt.Errorf("aggregate != 2, aggregate = %d", aggregate)
+						}
+						return []*dmodels.PoolData{&dPoolData}, nil
+					},
+					GetCoinByIDFunc: func(id uuid.UUID) (*dmodels.Coin, error) {
+						if id != dPool.CoinID {
+							return nil, fmt.Errorf("id != %s, id is %s", dPool.CoinID, id)
+						}
+						return coinArr[0], nil
+					},
+					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+						if condition.PoolDataIDs[0] == dPoolData.ID {
+							return 0, gorm.ErrRecordNotFound
+						}
+						return 1, nil
+					},
+				},
+			},
+		},
+	}
+	for s, s2 := range data {
+		t.Run(s, func(t *testing.T) {
+			stat, err := s2.DAO.GetPoolStatistic(s2.Data.name, s2.Data.aggregate)
+			if err != nil {
+				assert.Equal(t, err.Error(), s2.Err.Error())
+				return
+			}
+			t.Run(fmt.Sprintf("statistics[%s]", s), func(t *testing.T) {
+				assert.DeepEqual(t, stat, s2.Result)
+			})
+		})
+	}
+}
+
+func TestGetNetworkAPY(t *testing.T) {
+	data := map[string]struct {
+		DAO    services.Imp
+		Result float64
+		Err    error
+	}{
+		"first": {
+			Result: 0,
+			Err:    fmt.Errorf("%w: %s", cache.KeyWasNotFound, "apy_key"),
+		},
+	}
+
+	for s, s2 := range data {
+		s2.DAO.Cache = cache.New(time.Minute, time.Minute)
+		t.Run(s, func(t *testing.T) {
+			napy, err := s2.DAO.GetNetworkAPY()
+			if err != nil {
+				assert.Equal(t, err.Error(), s2.Err.Error())
+				return
+			}
+			t.Run(fmt.Sprintf("statistics[%s]", s), func(t *testing.T) {
+				assert.DeepEqual(t, napy, s2.Result)
+			})
+
+		})
+	}
+}
+
+func TestGetUSD(t *testing.T) {
+	data := map[string]struct {
+		DAO    services.Imp
+		Result float64
+		Err    error
+	}{
+		"first": {
+			Result: 0,
+			Err:    fmt.Errorf("%w: %s", cache.KeyWasNotFound, "price_key"),
+		},
+	}
+
+	for s, s2 := range data {
+		s2.DAO.Cache = cache.New(time.Minute, time.Minute)
+		t.Run(s, func(t *testing.T) {
+			napy, err := s2.DAO.GetUSD()
+			if err != nil {
+				assert.Equal(t, err.Error(), s2.Err.Error())
+				return
+			}
+			t.Run(fmt.Sprintf("statistics[%s]", s), func(t *testing.T) {
+				assert.DeepEqual(t, napy, s2.Result)
+			})
+
+		})
+	}
+}
