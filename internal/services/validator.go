@@ -39,23 +39,13 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
 	}
 
-	vIds := make([]string, len(pvd))
-	vmap := make(map[string]uint64)
-	for i := range pvd {
-		vIds[i] = pvd[i].ValidatorID
-		vmap[vIds[i]] = pvd[i].ActiveStake
-	}
-
-	val, err := s.dao.GetValidators(&postgres.ValidatorCondition{
-		ValidatorIDs: vIds,
-	})
-	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetValidators: %w", err)
-	}
-
-	arr := make([]*smodels.PoolValidatorData, len(val))
-	for i := range val {
-		arr[i] = (&smodels.PoolValidatorData{}).Set(vmap[val[i].ID], val[i])
+	arr := make([]*smodels.PoolValidatorData, len(pvd))
+	for i, data := range pvd {
+		val, err := s.dao.GetValidator(data.ValidatorID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("dao.GetValidator: %w", err)
+		}
+		arr[i] = (&smodels.PoolValidatorData{}).Set(data.ActiveStake, val)
 	}
 
 	count, err := s.dao.GetValidatorDataCount(&postgres.PoolValidatorDataCondition{
