@@ -44,7 +44,10 @@ func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB
 		if condition.Condition.Name != "" {
 			db = db.Where(`validators.name ilike ?`, "%"+condition.Condition.Name+"%")
 		}
-		condition.Condition.Name = ""
+
+		if len(condition.ValidatorIDs) != 0 {
+			db = db.Where(`validators.name in (?)`, condition.ValidatorIDs)
+		}
 	}
 
 	db = withCond(db, condition.Condition)
