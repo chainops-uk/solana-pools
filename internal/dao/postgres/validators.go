@@ -46,7 +46,7 @@ func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB
 		}
 
 		if len(condition.ValidatorIDs) != 0 {
-			db = db.Where(`validators.name in (?)`, condition.ValidatorIDs)
+			db = db.Where(`validators.id in (?)`, condition.ValidatorIDs)
 		}
 	}
 
