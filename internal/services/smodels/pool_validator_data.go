@@ -29,9 +29,9 @@ func (v *PoolValidatorData) Set(activeStake uint64, vv *dmodels.ValidatorView) *
 	v.Name = vv.Name
 	v.Image = vv.Image
 	v.StakingAccounts = vv.StakingAccounts
-	v.NodePK = vv.ID
+	v.NodePK = vv.NodePK
 	v.APY = vv.APY
-	v.VotePK = vv.VotePK
+	v.VotePK = vv.ID
 	v.PoolActiveStake.SetLamports(activeStake)
 	v.TotalActiveStake.SetLamports(vv.ActiveStake)
 	v.Fee = vv.Fee

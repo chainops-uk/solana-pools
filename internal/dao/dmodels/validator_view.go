@@ -10,7 +10,7 @@ type ValidatorView struct {
 	Image           string          `gorm:"column:image"`
 	Name            string          `gorm:"column:name"`
 	Delinquent      bool            `gorm:"column:delinquent"`
-	VotePK          string          `gorm:"column:vote_pk"`
+	NodePK          string          `gorm:"column:node_pk"`
 	APY             decimal.Decimal `gorm:"column:apy"`
 	StakingAccounts uint64          `gorm:"column:staking_accounts"`
 	ActiveStake     uint64          `gorm:"column:active_stake"`

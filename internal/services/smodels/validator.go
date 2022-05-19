@@ -24,9 +24,9 @@ func (v *Validator) Set(vv *dmodels.ValidatorView) *Validator {
 	v.Name = vv.Name
 	v.Image = vv.Image
 	v.StakingAccounts = vv.StakingAccounts
-	v.NodePK = vv.ID
+	v.NodePK = vv.NodePK
 	v.APY = vv.APY
-	v.VotePK = vv.VotePK
+	v.VotePK = vv.ID
 	v.TotalActiveStake.SetLamports(vv.ActiveStake)
 	v.Fee = vv.Fee
 	v.Score = vv.Score

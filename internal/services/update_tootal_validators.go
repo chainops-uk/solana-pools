@@ -61,11 +61,11 @@ func (s Imp) UpdateValidators() error {
 		}
 
 		validators = append(validators, &dmodels.Validator{
-			ID:         v.NodePubKey,
+			ID:         v.VotePubKey,
 			Name:       vInfo.Name,
 			Image:      vInfo.AvatarURL,
 			Delinquent: false,
-			VotePK:     v.VotePubKey,
+			NodePK:     v.NodePubKey,
 			DataCenter: vInfo.DataCenterKey,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
@@ -73,7 +73,7 @@ func (s Imp) UpdateValidators() error {
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
-			ValidatorID:     v.NodePubKey,
+			ValidatorID:     v.VotePubKey,
 			Epoch:           epoch.Result.Epoch,
 			APY:             apy.Truncate(4),
 			StakingAccounts: stakingAccounts,
@@ -114,11 +114,11 @@ func (s Imp) UpdateValidators() error {
 		}
 
 		validators = append(validators, &dmodels.Validator{
-			ID:         v.NodePubKey,
+			ID:         v.VotePubKey,
 			Name:       vInfo.Name,
 			Image:      vInfo.AvatarURL,
 			Delinquent: true,
-			VotePK:     v.VotePubKey,
+			NodePK:     v.VotePubKey,
 			DataCenter: vInfo.DataCenterKey,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),

@@ -22,7 +22,7 @@ type Validator struct {
 	Image      string    `gorm:"type:text"`
 	Name       string    `gorm:"type:varchar(100);not null;"`
 	Delinquent bool      `gorm:"not null"`
-	VotePK     string    `gorm:"type:varchar(44);not null;"`
+	NodePK     string    `gorm:"type:varchar(44);not null;"`
 	DataCenter string    `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"index;not null"`
 	UpdatedAt  time.Time `gorm:"not null"`
@@ -40,4 +40,5 @@ type ValidatorData struct {
 	SkippedSlots    decimal.Decimal `gorm:"type:decimal(5,2);not null;"`
 	CreatedAt       time.Time       `gorm:"index;not null"`
 	UpdatedAt       time.Time       `gorm:"not null"`
+	Validator       Validator       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Restrict;"`
 }
