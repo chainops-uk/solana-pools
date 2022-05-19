@@ -107,6 +107,12 @@ func (s Imp) UpdateValidators() error {
 
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
+		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
+
+		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
+			continue
+		}
+
 		validators = append(validators, &dmodels.Validator{
 			ID:         v.NodePubKey,
 			Name:       vInfo.Name,
@@ -117,12 +123,6 @@ func (s Imp) UpdateValidators() error {
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		})
-
-		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
-
-		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
-			continue
-		}
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
