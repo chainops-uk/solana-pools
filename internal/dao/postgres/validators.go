@@ -9,7 +9,7 @@ import (
 
 func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView, error) {
 	validator := &dmodels.ValidatorView{}
-	err := db.Table("public.material_validator_data_view as validators").Where("vote_pk = ?", key.String()).First(validator).Error
+	err := db.Table("public.material_validator_data_view as validators").Where("id = ?", key.String()).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
