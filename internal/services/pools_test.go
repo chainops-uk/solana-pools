@@ -113,16 +113,6 @@ var poolVD = []*dmodels.PoolValidatorData{
 		Validator:   dmodels.Validator{},
 		PoolData:    dmodels.PoolData{},
 	},
-	//{
-	//	ID:          uuid.Must(uuid.FromString("4b70cb5a-4289-4d41-afec-b71f697cb82e")),
-	//	PoolDataID:  uuid.Must(uuid.FromString("6aeb256a-55c9-450c-94b8-e3029eab0ed3")),
-	//	ValidatorID: "id2",
-	//	ActiveStake: 594624,
-	//	CreatedAt:   time.Time{},
-	//	UpdatedAt:   time.Time{},
-	//	Validator:   dmodels.Validator{},
-	//	PoolData:    dmodels.PoolData{},
-	//},
 }
 
 var dValView = dmodels.ValidatorView{
