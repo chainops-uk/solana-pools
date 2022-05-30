@@ -52,6 +52,10 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		PoolDataIDs: []uuid.UUID{
 			poolData.ID,
 		},
+		Sort: &postgres.ValidatorDataSort{
+			ValidatorDataSort: postgres.SearchValidatorDataSort(sort),
+			Desc:              desc,
+		},
 		Condition: &postgres.Condition{
 			Name: validatorName,
 		},
