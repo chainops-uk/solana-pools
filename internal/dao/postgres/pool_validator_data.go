@@ -7,9 +7,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *DB) GetPoolValidatorData(condition *PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+func (db *DB) GetPoolValidatorData(condition *PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 	var vd []*dmodels.PoolValidatorData
-	return vd, withPoolValidatorDataCondition(db.DB, condition).Find(&vd).Error
+	return vd, withPoolValidatorDataCondition(db.DB, condition, epoch).Find(&vd).Error
 }
 
 func (db *DB) CreatePoolValidatorData(validatorsPoolData ...*dmodels.PoolValidatorData) error {
@@ -23,12 +23,12 @@ func (db *DB) DeleteValidators(poolID uuid.UUID) error {
 	return db.Where("pool_data_id = ?", poolID).Delete(&dmodels.PoolValidatorData{}).Error
 }
 
-func (db *DB) GetValidatorDataCount(condition *PoolValidatorDataCondition) (int64, error) {
+func (db *DB) GetValidatorDataCount(condition *PoolValidatorDataCondition, epoch uint64) (int64, error) {
 	i := int64(0)
-	return i, withPoolValidatorDataCondition(db.DB.Model(&dmodels.PoolValidatorData{}), condition).Count(&i).Error
+	return i, withPoolValidatorDataCondition(db.DB.Model(&dmodels.PoolValidatorData{}), condition, epoch).Count(&i).Error
 }
 
-func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCondition) *gorm.DB {
+func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCondition, epoch uint64) *gorm.DB {
 	if condition == nil {
 		return db
 	}
@@ -43,8 +43,13 @@ func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCon
 	}
 
 	if condition.Sort != nil {
-		db = db.Joins("join material_validator_data_view as validators on validators.id = pool_validator_data.validator_id").
-			Select("pool_validator_data.id, pool_validator_data.pool_data_id, pool_validator_data.validator_id, pool_validator_data.active_stake, pool_validator_data.created_at, pool_validator_data.updated_at")
+		if epoch == 10 {
+			db = db.Joins("join material_validator_data_view as validators on validators.id = pool_validator_data.validator_id")
+		} else {
+			db = db.Joins("join validator_view_current_data as validators on validators.id = pool_validator_data.validator_id")
+		}
+
+		db = db.Select("pool_validator_data.id, pool_validator_data.pool_data_id, pool_validator_data.validator_id, pool_validator_data.active_stake, pool_validator_data.created_at, pool_validator_data.updated_at")
 		return sortValidators(db, condition.Sort.ValidatorDataSort, condition.Sort.Desc)
 	}
 

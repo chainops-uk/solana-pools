@@ -53,6 +53,7 @@ type Condition struct {
 }
 
 type PoolDataSort struct {
+	Epoch    uint64
 	PoolSort PoolDataSortType
 	Desc     bool
 }

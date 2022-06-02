@@ -41,7 +41,7 @@ type (
 		GetPoolCount(*postgres.Condition) (int64, error)
 		GetCoinsCount(cond *postgres.CoinCondition) (int64, error)
 		GetGovernanceCount(cond *postgres.GovernanceCondition) (int64, error)
-		GetValidatorDataCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
+		GetValidatorDataCount(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error)
 		GetValidatorCount(condition *postgres.ValidatorCondition, epoch uint64) (int64, error)
 		GetLiquidityPoolsCount(cond *postgres.Condition) (int64, error)
 
@@ -51,7 +51,7 @@ type (
 		GetGovernance(cond *postgres.GovernanceCondition) ([]*dmodels.Governance, error)
 		GetValidators(condition *postgres.ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error)
 		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)
-		GetPoolValidatorData(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error)
+		GetPoolValidatorData(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error)
 	}
 	Imp struct {
 		*postgres.DB

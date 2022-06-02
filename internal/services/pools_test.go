@@ -120,7 +120,7 @@ var dValView = dmodels.ValidatorView{
 	Image:           "img1",
 	Name:            "val1",
 	Delinquent:      true,
-	VotePK:          "pk1",
+	NodePK:          "pk1",
 	APY:             decimal.Decimal{},
 	StakingAccounts: 500,
 	ActiveStake:     100,
@@ -183,16 +183,17 @@ func TestGetPool(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
+
 						return &dValView, nil
 					},
 					GetCoinByIDFunc: func(id uuid.UUID) (*dmodels.Coin, error) {
@@ -275,7 +276,7 @@ func TestGetPool(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						return nil, fmt.Errorf("some error")
 					},
 				},
@@ -301,13 +302,13 @@ func TestGetPool(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						return nil, fmt.Errorf("some error")
 					},
 				},
@@ -333,13 +334,13 @@ func TestGetPool(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -356,7 +357,7 @@ func TestGetPool(t *testing.T) {
 	for s, s2 := range data {
 		s2.DAO.Cache = cache.New(time.Minute, time.Minute)
 		t.Run(s, func(t *testing.T) {
-			pool, err := s2.DAO.GetPool(s2.Data.name)
+			pool, err := s2.DAO.GetPool(s2.Data.name, 10)
 			if err != nil {
 				assert.Equal(t, err.Error(), s2.Err.Error())
 				return
@@ -446,13 +447,13 @@ func TestGetPools(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -539,13 +540,13 @@ func TestGetPools(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -647,13 +648,13 @@ func TestGetPools(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						return nil, fmt.Errorf("some error")
 					},
 				},
@@ -698,13 +699,13 @@ func TestGetPools(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -725,7 +726,7 @@ func TestGetPools(t *testing.T) {
 	}
 	for s, s2 := range data {
 		t.Run(s, func(t *testing.T) {
-			pools, count, err := s2.DAO.GetPools(s2.Data.name, s2.Data.sort, s2.Data.desc, s2.Data.limit, s2.Data.offset)
+			pools, count, err := s2.DAO.GetPools(s2.Data.name, s2.Data.sort, s2.Data.desc, 10, s2.Data.limit, s2.Data.offset)
 			if err != nil {
 				assert.Equal(t, err.Error(), s2.Err.Error())
 				return
@@ -775,13 +776,13 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -813,13 +814,13 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -868,13 +869,13 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						return nil, fmt.Errorf("some error")
 					},
 				},
@@ -897,13 +898,13 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 						}
 						return &dPoolData, nil
 					},
-					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+					GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return nil, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.PoolID, condition.PoolDataIDs[0])
 						}
 						return poolVD, nil
 					},
-					GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+					GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 						if validatorID != poolVD[0].ValidatorID {
 							return nil, fmt.Errorf("validatorID != %s, validatorID is %s", poolVD[0].ValidatorID, validatorID)
 						}
@@ -919,7 +920,7 @@ func TestGetPoolsCurrentStatistic(t *testing.T) {
 	for s, s2 := range data {
 		s2.DAO.Cache = cache.New(time.Minute, time.Minute)
 		t.Run(s, func(t *testing.T) {
-			stat, err := s2.DAO.GetPoolsCurrentStatistic()
+			stat, err := s2.DAO.GetPoolsCurrentStatistic(10)
 			if err != nil {
 				assert.Equal(t, err.Error(), s2.Err.Error())
 				return
@@ -993,7 +994,7 @@ func TestGetPoolStatistic(t *testing.T) {
 						}
 						return coinArr[0], nil
 					},
-					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error) {
 						if condition.PoolDataIDs[0] != dPoolData.ID {
 							return 0, fmt.Errorf("condition.PoolDataIDs[0] != %s, condition.PoolDataIDs[0] is %s", dPoolData.ID, condition.PoolDataIDs[0])
 						}
@@ -1101,7 +1102,7 @@ func TestGetPoolStatistic(t *testing.T) {
 						}
 						return coinArr[0], nil
 					},
-					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+					GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error) {
 						if condition.PoolDataIDs[0] == dPoolData.ID {
 							return 0, gorm.ErrRecordNotFound
 						}

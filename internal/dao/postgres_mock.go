@@ -51,8 +51,11 @@ var _ Postgres = &PostgresMock{}
 // 			GetLastEpochPoolDataFunc: func(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error) {
 // 				panic("mock out the GetLastEpochPoolData method")
 // 			},
-// 			GetLastPoolDataFunc: func(poolID uuid.UUID) (*dmodels.PoolData, error) {
+// 			GetLastPoolDataFunc: func(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 // 				panic("mock out the GetLastPoolData method")
+// 			},
+// 			GetLastPoolDataWithApyForTenEpochFunc: func(poolID uuid.UUID) (*dmodels.PoolData, error) {
+// 				panic("mock out the GetLastPoolDataWithApyForTenEpoch method")
 // 			},
 // 			GetLiquidityPoolFunc: func(cond *postgres.Condition) (*dmodels.LiquidityPool, error) {
 // 				panic("mock out the GetLiquidityPool method")
@@ -72,25 +75,25 @@ var _ Postgres = &PostgresMock{}
 // 			GetPoolStatisticFunc: func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error) {
 // 				panic("mock out the GetPoolStatistic method")
 // 			},
-// 			GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+// 			GetPoolValidatorDataFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 // 				panic("mock out the GetPoolValidatorData method")
 // 			},
 // 			GetPoolsFunc: func(condition *postgres.PoolCondition) ([]*dmodels.Pool, error) {
 // 				panic("mock out the GetPools method")
 // 			},
-// 			GetValidatorFunc: func(validatorID string) (*dmodels.ValidatorView, error) {
+// 			GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 // 				panic("mock out the GetValidator method")
 // 			},
 // 			GetValidatorByVotePKFunc: func(key solana.PublicKey) (*dmodels.ValidatorView, error) {
 // 				panic("mock out the GetValidatorByVotePK method")
 // 			},
-// 			GetValidatorCountFunc: func(condition *postgres.ValidatorCondition) (int64, error) {
+// 			GetValidatorCountFunc: func(condition *postgres.ValidatorCondition, epoch uint64) (int64, error) {
 // 				panic("mock out the GetValidatorCount method")
 // 			},
-// 			GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+// 			GetValidatorDataCountFunc: func(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error) {
 // 				panic("mock out the GetValidatorDataCount method")
 // 			},
-// 			GetValidatorsFunc: func(condition *postgres.ValidatorCondition) ([]*dmodels.ValidatorView, error) {
+// 			GetValidatorsFunc: func(condition *postgres.ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error) {
 // 				panic("mock out the GetValidators method")
 // 			},
 // 			SaveCoinFunc: func(coin ...*dmodels.Coin) error {
@@ -149,7 +152,10 @@ type PostgresMock struct {
 	GetLastEpochPoolDataFunc func(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
 
 	// GetLastPoolDataFunc mocks the GetLastPoolData method.
-	GetLastPoolDataFunc func(poolID uuid.UUID) (*dmodels.PoolData, error)
+	GetLastPoolDataFunc func(PoolID uuid.UUID) (*dmodels.PoolData, error)
+
+	// GetLastPoolDataWithApyForTenEpochFunc mocks the GetLastPoolDataWithApyForTenEpoch method.
+	GetLastPoolDataWithApyForTenEpochFunc func(poolID uuid.UUID) (*dmodels.PoolData, error)
 
 	// GetLiquidityPoolFunc mocks the GetLiquidityPool method.
 	GetLiquidityPoolFunc func(cond *postgres.Condition) (*dmodels.LiquidityPool, error)
@@ -170,25 +176,25 @@ type PostgresMock struct {
 	GetPoolStatisticFunc func(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)
 
 	// GetPoolValidatorDataFunc mocks the GetPoolValidatorData method.
-	GetPoolValidatorDataFunc func(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error)
+	GetPoolValidatorDataFunc func(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error)
 
 	// GetPoolsFunc mocks the GetPools method.
 	GetPoolsFunc func(condition *postgres.PoolCondition) ([]*dmodels.Pool, error)
 
 	// GetValidatorFunc mocks the GetValidator method.
-	GetValidatorFunc func(validatorID string) (*dmodels.ValidatorView, error)
+	GetValidatorFunc func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error)
 
 	// GetValidatorByVotePKFunc mocks the GetValidatorByVotePK method.
 	GetValidatorByVotePKFunc func(key solana.PublicKey) (*dmodels.ValidatorView, error)
 
 	// GetValidatorCountFunc mocks the GetValidatorCount method.
-	GetValidatorCountFunc func(condition *postgres.ValidatorCondition) (int64, error)
+	GetValidatorCountFunc func(condition *postgres.ValidatorCondition, epoch uint64) (int64, error)
 
 	// GetValidatorDataCountFunc mocks the GetValidatorDataCount method.
-	GetValidatorDataCountFunc func(condition *postgres.PoolValidatorDataCondition) (int64, error)
+	GetValidatorDataCountFunc func(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error)
 
 	// GetValidatorsFunc mocks the GetValidators method.
-	GetValidatorsFunc func(condition *postgres.ValidatorCondition) ([]*dmodels.ValidatorView, error)
+	GetValidatorsFunc func(condition *postgres.ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error)
 
 	// SaveCoinFunc mocks the SaveCoin method.
 	SaveCoinFunc func(coin ...*dmodels.Coin) error
@@ -264,6 +270,11 @@ type PostgresMock struct {
 		}
 		// GetLastPoolData holds details about calls to the GetLastPoolData method.
 		GetLastPoolData []struct {
+			// PoolID is the PoolID argument value.
+			PoolID uuid.UUID
+		}
+		// GetLastPoolDataWithApyForTenEpoch holds details about calls to the GetLastPoolDataWithApyForTenEpoch method.
+		GetLastPoolDataWithApyForTenEpoch []struct {
 			// PoolID is the poolID argument value.
 			PoolID uuid.UUID
 		}
@@ -303,6 +314,8 @@ type PostgresMock struct {
 		GetPoolValidatorData []struct {
 			// Condition is the condition argument value.
 			Condition *postgres.PoolValidatorDataCondition
+			// Epoch is the epoch argument value.
+			Epoch uint64
 		}
 		// GetPools holds details about calls to the GetPools method.
 		GetPools []struct {
@@ -313,6 +326,8 @@ type PostgresMock struct {
 		GetValidator []struct {
 			// ValidatorID is the validatorID argument value.
 			ValidatorID string
+			// Epoch is the epoch argument value.
+			Epoch uint64
 		}
 		// GetValidatorByVotePK holds details about calls to the GetValidatorByVotePK method.
 		GetValidatorByVotePK []struct {
@@ -323,16 +338,22 @@ type PostgresMock struct {
 		GetValidatorCount []struct {
 			// Condition is the condition argument value.
 			Condition *postgres.ValidatorCondition
+			// Epoch is the epoch argument value.
+			Epoch uint64
 		}
 		// GetValidatorDataCount holds details about calls to the GetValidatorDataCount method.
 		GetValidatorDataCount []struct {
 			// Condition is the condition argument value.
 			Condition *postgres.PoolValidatorDataCondition
+			// Epoch is the epoch argument value.
+			Epoch uint64
 		}
 		// GetValidators holds details about calls to the GetValidators method.
 		GetValidators []struct {
 			// Condition is the condition argument value.
 			Condition *postgres.ValidatorCondition
+			// Epoch is the epoch argument value.
+			Epoch uint64
 		}
 		// SaveCoin holds details about calls to the SaveCoin method.
 		SaveCoin []struct {
@@ -365,36 +386,37 @@ type PostgresMock struct {
 			Data []*dmodels.ValidatorData
 		}
 	}
-	lockCreatePoolValidatorData sync.RWMutex
-	lockDeleteDeFis             sync.RWMutex
-	lockDeleteValidators        sync.RWMutex
-	lockGetCoinByID             sync.RWMutex
-	lockGetCoins                sync.RWMutex
-	lockGetCoinsCount           sync.RWMutex
-	lockGetDEFIs                sync.RWMutex
-	lockGetGovernance           sync.RWMutex
-	lockGetGovernanceCount      sync.RWMutex
-	lockGetLastEpochPoolData    sync.RWMutex
-	lockGetLastPoolData         sync.RWMutex
-	lockGetLiquidityPool        sync.RWMutex
-	lockGetLiquidityPools       sync.RWMutex
-	lockGetLiquidityPoolsCount  sync.RWMutex
-	lockGetPool                 sync.RWMutex
-	lockGetPoolCount            sync.RWMutex
-	lockGetPoolStatistic        sync.RWMutex
-	lockGetPoolValidatorData    sync.RWMutex
-	lockGetPools                sync.RWMutex
-	lockGetValidator            sync.RWMutex
-	lockGetValidatorByVotePK    sync.RWMutex
-	lockGetValidatorCount       sync.RWMutex
-	lockGetValidatorDataCount   sync.RWMutex
-	lockGetValidators           sync.RWMutex
-	lockSaveCoin                sync.RWMutex
-	lockSaveDEFIs               sync.RWMutex
-	lockSaveGovernance          sync.RWMutex
-	lockUpdatePoolData          sync.RWMutex
-	lockUpdateValidators        sync.RWMutex
-	lockUpdateValidatorsData    sync.RWMutex
+	lockCreatePoolValidatorData           sync.RWMutex
+	lockDeleteDeFis                       sync.RWMutex
+	lockDeleteValidators                  sync.RWMutex
+	lockGetCoinByID                       sync.RWMutex
+	lockGetCoins                          sync.RWMutex
+	lockGetCoinsCount                     sync.RWMutex
+	lockGetDEFIs                          sync.RWMutex
+	lockGetGovernance                     sync.RWMutex
+	lockGetGovernanceCount                sync.RWMutex
+	lockGetLastEpochPoolData              sync.RWMutex
+	lockGetLastPoolData                   sync.RWMutex
+	lockGetLastPoolDataWithApyForTenEpoch sync.RWMutex
+	lockGetLiquidityPool                  sync.RWMutex
+	lockGetLiquidityPools                 sync.RWMutex
+	lockGetLiquidityPoolsCount            sync.RWMutex
+	lockGetPool                           sync.RWMutex
+	lockGetPoolCount                      sync.RWMutex
+	lockGetPoolStatistic                  sync.RWMutex
+	lockGetPoolValidatorData              sync.RWMutex
+	lockGetPools                          sync.RWMutex
+	lockGetValidator                      sync.RWMutex
+	lockGetValidatorByVotePK              sync.RWMutex
+	lockGetValidatorCount                 sync.RWMutex
+	lockGetValidatorDataCount             sync.RWMutex
+	lockGetValidators                     sync.RWMutex
+	lockSaveCoin                          sync.RWMutex
+	lockSaveDEFIs                         sync.RWMutex
+	lockSaveGovernance                    sync.RWMutex
+	lockUpdatePoolData                    sync.RWMutex
+	lockUpdateValidators                  sync.RWMutex
+	lockUpdateValidatorsData              sync.RWMutex
 }
 
 // CreatePoolValidatorData calls CreatePoolValidatorDataFunc.
@@ -712,19 +734,19 @@ func (mock *PostgresMock) GetLastEpochPoolDataCalls() []struct {
 }
 
 // GetLastPoolData calls GetLastPoolDataFunc.
-func (mock *PostgresMock) GetLastPoolData(poolID uuid.UUID) (*dmodels.PoolData, error) {
+func (mock *PostgresMock) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	if mock.GetLastPoolDataFunc == nil {
 		panic("PostgresMock.GetLastPoolDataFunc: method is nil but Postgres.GetLastPoolData was just called")
 	}
 	callInfo := struct {
 		PoolID uuid.UUID
 	}{
-		PoolID: poolID,
+		PoolID: PoolID,
 	}
 	mock.lockGetLastPoolData.Lock()
 	mock.calls.GetLastPoolData = append(mock.calls.GetLastPoolData, callInfo)
 	mock.lockGetLastPoolData.Unlock()
-	return mock.GetLastPoolDataFunc(poolID)
+	return mock.GetLastPoolDataFunc(PoolID)
 }
 
 // GetLastPoolDataCalls gets all the calls that were made to GetLastPoolData.
@@ -739,6 +761,37 @@ func (mock *PostgresMock) GetLastPoolDataCalls() []struct {
 	mock.lockGetLastPoolData.RLock()
 	calls = mock.calls.GetLastPoolData
 	mock.lockGetLastPoolData.RUnlock()
+	return calls
+}
+
+// GetLastPoolDataWithApyForTenEpoch calls GetLastPoolDataWithApyForTenEpochFunc.
+func (mock *PostgresMock) GetLastPoolDataWithApyForTenEpoch(poolID uuid.UUID) (*dmodels.PoolData, error) {
+	if mock.GetLastPoolDataWithApyForTenEpochFunc == nil {
+		panic("PostgresMock.GetLastPoolDataWithApyForTenEpochFunc: method is nil but Postgres.GetLastPoolDataWithApyForTenEpoch was just called")
+	}
+	callInfo := struct {
+		PoolID uuid.UUID
+	}{
+		PoolID: poolID,
+	}
+	mock.lockGetLastPoolDataWithApyForTenEpoch.Lock()
+	mock.calls.GetLastPoolDataWithApyForTenEpoch = append(mock.calls.GetLastPoolDataWithApyForTenEpoch, callInfo)
+	mock.lockGetLastPoolDataWithApyForTenEpoch.Unlock()
+	return mock.GetLastPoolDataWithApyForTenEpochFunc(poolID)
+}
+
+// GetLastPoolDataWithApyForTenEpochCalls gets all the calls that were made to GetLastPoolDataWithApyForTenEpoch.
+// Check the length with:
+//     len(mockedPostgres.GetLastPoolDataWithApyForTenEpochCalls())
+func (mock *PostgresMock) GetLastPoolDataWithApyForTenEpochCalls() []struct {
+	PoolID uuid.UUID
+} {
+	var calls []struct {
+		PoolID uuid.UUID
+	}
+	mock.lockGetLastPoolDataWithApyForTenEpoch.RLock()
+	calls = mock.calls.GetLastPoolDataWithApyForTenEpoch
+	mock.lockGetLastPoolDataWithApyForTenEpoch.RUnlock()
 	return calls
 }
 
@@ -933,19 +986,21 @@ func (mock *PostgresMock) GetPoolStatisticCalls() []struct {
 }
 
 // GetPoolValidatorData calls GetPoolValidatorDataFunc.
-func (mock *PostgresMock) GetPoolValidatorData(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error) {
+func (mock *PostgresMock) GetPoolValidatorData(condition *postgres.PoolValidatorDataCondition, epoch uint64) ([]*dmodels.PoolValidatorData, error) {
 	if mock.GetPoolValidatorDataFunc == nil {
 		panic("PostgresMock.GetPoolValidatorDataFunc: method is nil but Postgres.GetPoolValidatorData was just called")
 	}
 	callInfo := struct {
 		Condition *postgres.PoolValidatorDataCondition
+		Epoch     uint64
 	}{
 		Condition: condition,
+		Epoch:     epoch,
 	}
 	mock.lockGetPoolValidatorData.Lock()
 	mock.calls.GetPoolValidatorData = append(mock.calls.GetPoolValidatorData, callInfo)
 	mock.lockGetPoolValidatorData.Unlock()
-	return mock.GetPoolValidatorDataFunc(condition)
+	return mock.GetPoolValidatorDataFunc(condition, epoch)
 }
 
 // GetPoolValidatorDataCalls gets all the calls that were made to GetPoolValidatorData.
@@ -953,9 +1008,11 @@ func (mock *PostgresMock) GetPoolValidatorData(condition *postgres.PoolValidator
 //     len(mockedPostgres.GetPoolValidatorDataCalls())
 func (mock *PostgresMock) GetPoolValidatorDataCalls() []struct {
 	Condition *postgres.PoolValidatorDataCondition
+	Epoch     uint64
 } {
 	var calls []struct {
 		Condition *postgres.PoolValidatorDataCondition
+		Epoch     uint64
 	}
 	mock.lockGetPoolValidatorData.RLock()
 	calls = mock.calls.GetPoolValidatorData
@@ -995,19 +1052,21 @@ func (mock *PostgresMock) GetPoolsCalls() []struct {
 }
 
 // GetValidator calls GetValidatorFunc.
-func (mock *PostgresMock) GetValidator(validatorID string) (*dmodels.ValidatorView, error) {
+func (mock *PostgresMock) GetValidator(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 	if mock.GetValidatorFunc == nil {
 		panic("PostgresMock.GetValidatorFunc: method is nil but Postgres.GetValidator was just called")
 	}
 	callInfo := struct {
 		ValidatorID string
+		Epoch       uint64
 	}{
 		ValidatorID: validatorID,
+		Epoch:       epoch,
 	}
 	mock.lockGetValidator.Lock()
 	mock.calls.GetValidator = append(mock.calls.GetValidator, callInfo)
 	mock.lockGetValidator.Unlock()
-	return mock.GetValidatorFunc(validatorID)
+	return mock.GetValidatorFunc(validatorID, epoch)
 }
 
 // GetValidatorCalls gets all the calls that were made to GetValidator.
@@ -1015,9 +1074,11 @@ func (mock *PostgresMock) GetValidator(validatorID string) (*dmodels.ValidatorVi
 //     len(mockedPostgres.GetValidatorCalls())
 func (mock *PostgresMock) GetValidatorCalls() []struct {
 	ValidatorID string
+	Epoch       uint64
 } {
 	var calls []struct {
 		ValidatorID string
+		Epoch       uint64
 	}
 	mock.lockGetValidator.RLock()
 	calls = mock.calls.GetValidator
@@ -1057,19 +1118,21 @@ func (mock *PostgresMock) GetValidatorByVotePKCalls() []struct {
 }
 
 // GetValidatorCount calls GetValidatorCountFunc.
-func (mock *PostgresMock) GetValidatorCount(condition *postgres.ValidatorCondition) (int64, error) {
+func (mock *PostgresMock) GetValidatorCount(condition *postgres.ValidatorCondition, epoch uint64) (int64, error) {
 	if mock.GetValidatorCountFunc == nil {
 		panic("PostgresMock.GetValidatorCountFunc: method is nil but Postgres.GetValidatorCount was just called")
 	}
 	callInfo := struct {
 		Condition *postgres.ValidatorCondition
+		Epoch     uint64
 	}{
 		Condition: condition,
+		Epoch:     epoch,
 	}
 	mock.lockGetValidatorCount.Lock()
 	mock.calls.GetValidatorCount = append(mock.calls.GetValidatorCount, callInfo)
 	mock.lockGetValidatorCount.Unlock()
-	return mock.GetValidatorCountFunc(condition)
+	return mock.GetValidatorCountFunc(condition, epoch)
 }
 
 // GetValidatorCountCalls gets all the calls that were made to GetValidatorCount.
@@ -1077,9 +1140,11 @@ func (mock *PostgresMock) GetValidatorCount(condition *postgres.ValidatorConditi
 //     len(mockedPostgres.GetValidatorCountCalls())
 func (mock *PostgresMock) GetValidatorCountCalls() []struct {
 	Condition *postgres.ValidatorCondition
+	Epoch     uint64
 } {
 	var calls []struct {
 		Condition *postgres.ValidatorCondition
+		Epoch     uint64
 	}
 	mock.lockGetValidatorCount.RLock()
 	calls = mock.calls.GetValidatorCount
@@ -1088,19 +1153,21 @@ func (mock *PostgresMock) GetValidatorCountCalls() []struct {
 }
 
 // GetValidatorDataCount calls GetValidatorDataCountFunc.
-func (mock *PostgresMock) GetValidatorDataCount(condition *postgres.PoolValidatorDataCondition) (int64, error) {
+func (mock *PostgresMock) GetValidatorDataCount(condition *postgres.PoolValidatorDataCondition, epoch uint64) (int64, error) {
 	if mock.GetValidatorDataCountFunc == nil {
 		panic("PostgresMock.GetValidatorDataCountFunc: method is nil but Postgres.GetValidatorDataCount was just called")
 	}
 	callInfo := struct {
 		Condition *postgres.PoolValidatorDataCondition
+		Epoch     uint64
 	}{
 		Condition: condition,
+		Epoch:     epoch,
 	}
 	mock.lockGetValidatorDataCount.Lock()
 	mock.calls.GetValidatorDataCount = append(mock.calls.GetValidatorDataCount, callInfo)
 	mock.lockGetValidatorDataCount.Unlock()
-	return mock.GetValidatorDataCountFunc(condition)
+	return mock.GetValidatorDataCountFunc(condition, epoch)
 }
 
 // GetValidatorDataCountCalls gets all the calls that were made to GetValidatorDataCount.
@@ -1108,9 +1175,11 @@ func (mock *PostgresMock) GetValidatorDataCount(condition *postgres.PoolValidato
 //     len(mockedPostgres.GetValidatorDataCountCalls())
 func (mock *PostgresMock) GetValidatorDataCountCalls() []struct {
 	Condition *postgres.PoolValidatorDataCondition
+	Epoch     uint64
 } {
 	var calls []struct {
 		Condition *postgres.PoolValidatorDataCondition
+		Epoch     uint64
 	}
 	mock.lockGetValidatorDataCount.RLock()
 	calls = mock.calls.GetValidatorDataCount
@@ -1119,19 +1188,21 @@ func (mock *PostgresMock) GetValidatorDataCountCalls() []struct {
 }
 
 // GetValidators calls GetValidatorsFunc.
-func (mock *PostgresMock) GetValidators(condition *postgres.ValidatorCondition) ([]*dmodels.ValidatorView, error) {
+func (mock *PostgresMock) GetValidators(condition *postgres.ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error) {
 	if mock.GetValidatorsFunc == nil {
 		panic("PostgresMock.GetValidatorsFunc: method is nil but Postgres.GetValidators was just called")
 	}
 	callInfo := struct {
 		Condition *postgres.ValidatorCondition
+		Epoch     uint64
 	}{
 		Condition: condition,
+		Epoch:     epoch,
 	}
 	mock.lockGetValidators.Lock()
 	mock.calls.GetValidators = append(mock.calls.GetValidators, callInfo)
 	mock.lockGetValidators.Unlock()
-	return mock.GetValidatorsFunc(condition)
+	return mock.GetValidatorsFunc(condition, epoch)
 }
 
 // GetValidatorsCalls gets all the calls that were made to GetValidators.
@@ -1139,9 +1210,11 @@ func (mock *PostgresMock) GetValidators(condition *postgres.ValidatorCondition) 
 //     len(mockedPostgres.GetValidatorsCalls())
 func (mock *PostgresMock) GetValidatorsCalls() []struct {
 	Condition *postgres.ValidatorCondition
+	Epoch     uint64
 } {
 	var calls []struct {
 		Condition *postgres.ValidatorCondition
+		Epoch     uint64
 	}
 	mock.lockGetValidators.RLock()
 	calls = mock.calls.GetValidators

@@ -101,15 +101,19 @@ func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
 	db = withCond(db, condition.Condition)
 
 	if condition.Sort != nil {
-		return sortPoolData(db, condition.Sort.PoolSort, condition.Sort.Desc)
+		return sortPoolData(db, condition.Sort.PoolSort, condition.Sort.Desc, condition.Sort.Epoch)
 	}
 
 	return db
 }
 
-func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool) *gorm.DB {
-	db = db.Joins("left join pool_data_view as pool_data on pools.id = pool_data.pool_id").
-		Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE t1.pool_id = pools.id)`).
+func sortPoolData(db *gorm.DB, sort PoolDataSortType, desc bool, epoch uint64) *gorm.DB {
+	if epoch == 10 {
+		db = db.Joins("left join pool_data_view as pool_data on pools.id = pool_data.pool_id")
+	} else {
+		db = db.Joins("left join pool_data as pool_data on pools.id = pool_data.pool_id")
+	}
+	db = db.Where(`pool_data.created_at = (SELECT max(t1.created_at) FROM pool_data t1 WHERE t1.pool_id = pools.id)`).
 		Group("pools.id")
 	switch sort {
 	case PoolAPY:
