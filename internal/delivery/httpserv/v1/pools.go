@@ -19,7 +19,8 @@ import (
 // @Schemes
 // @Description Creates a WS request to get server data for the pool with the pool name specified in the request.
 // @Tags pool
-// @Param name path string true "Name of the pool with strict observance of the case." default(EverSOL)
+// @Param name path string true "Name of the pool with strict observance of the case." default(Eversol)
+// @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
 // @Accept json
 // @Produce json
 // @Success 200 {object} tools.ResponseData{data=pool} "Ok"
@@ -27,10 +28,17 @@ import (
 // @Failure 500 {object} tools.ResponseError "internal server error"
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pool/{name} [get]
-func (h *Handler) GetPool(g *gin.Context, message []byte) (interface{}, error) {
-	name := g.Param("name")
+func (h *Handler) GetPool(ctx *gin.Context, message []byte) (interface{}, error) {
+	name := ctx.Param("name")
 
-	resp, err := h.svc.GetPool(name)
+	q := struct {
+		Epoch uint64 `from:"epoch,default=10"`
+	}{}
+	if err := ctx.ShouldBind(&q); err != nil {
+		return nil, tools.NewStatus(http.StatusBadRequest, err)
+	}
+
+	resp, err := h.svc.GetPool(name, q.Epoch)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		if errors.Is(err, postgres.ErrorRecordNotFounded) {
@@ -51,6 +59,7 @@ func (h *Handler) GetPool(g *gin.Context, message []byte) (interface{}, error) {
 // @Accept json
 // @Produce json
 // @Param name query string false "The name of the pool without strict observance of the case."
+// @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
 // @Param sort query string false "The parameter by the value of which the pools will be sorted." Enums(apy, pool stake, validators, score, skipped slot, token price) default(apy)
 // @Param desc query bool false "Sort in descending order" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
@@ -63,6 +72,7 @@ func (h *Handler) GetPool(g *gin.Context, message []byte) (interface{}, error) {
 func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
+		Epoch  uint64 `from:"epoch,default=10"`
 		Sort   string `form:"sort,default=apy"`
 		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
@@ -72,7 +82,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
 
-	pools, amount, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Limit, q.Offset)
+	pools, amount, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Epoch, q.Limit, q.Offset)
 	if err != nil {
 		h.log.Error("API GetPoolData", zap.Error(err))
 		return nil, tools.NewStatus(http.StatusInternalServerError, err)
@@ -97,6 +107,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // @Schemes
 // @Description Creates a WS request to get current statistics.
 // @Tags pool
+// @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
 // @Accept json
 // @Produce json
 // @Success 200 {object} tools.ResponseData{data=TotalPoolsStatistic} "Ok"
@@ -105,6 +116,13 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // @Failure default {object} tools.ResponseError "default response"
 // @Router /pools-statistic [get]
 func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (interface{}, error) {
+	q := struct {
+		Epoch uint64 `from:"epoch,default=10"`
+	}{}
+	if err := ctx.ShouldBind(&q); err != nil {
+		return nil, tools.NewStatus(http.StatusBadRequest, err)
+	}
+
 	apy, err := h.svc.GetAPY()
 	if err != nil {
 		if errors.Is(err, cache.KeyWasNotFound) {
@@ -121,7 +139,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (inte
 		return nil, err
 	}
 
-	sc, err := h.svc.GetPoolsCurrentStatistic()
+	sc, err := h.svc.GetPoolsCurrentStatistic(q.Epoch)
 	if err != nil {
 		return nil, err
 	}

@@ -32,9 +32,21 @@ func (db *DB) GetPoolCount(cond *Condition) (int64, error) {
 	return count, nil
 }
 
-func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
+func (db *DB) GetLastPoolDataWithApyForTenEpoch(PoolID uuid.UUID) (*dmodels.PoolData, error) {
 	pool := &dmodels.PoolData{}
 	if err := db.DB.Table("pool_data_view as pool_data").Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return pool, nil
+}
+
+func (db *DB) GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error) {
+	pool := &dmodels.PoolData{}
+	if err := db.DB.Table("pool_data").Where(`pool_id = ?`, PoolID).Order("created_at desc").First(pool).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

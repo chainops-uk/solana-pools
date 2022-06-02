@@ -28,8 +28,9 @@ type (
 
 		GetPool(name string) (*dmodels.Pool, error)
 		GetCoinByID(id uuid.UUID) (pool *dmodels.Coin, err error)
-		GetValidator(validatorID string) (*dmodels.ValidatorView, error)
-		GetLastPoolData(poolID uuid.UUID) (*dmodels.PoolData, error)
+		GetValidator(validatorID string, epoch uint64) (*dmodels.ValidatorView, error)
+		GetLastPoolDataWithApyForTenEpoch(poolID uuid.UUID) (*dmodels.PoolData, error)
+		GetLastPoolData(PoolID uuid.UUID) (*dmodels.PoolData, error)
 		GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView, error)
 		GetLastEpochPoolData(PoolID uuid.UUID, currentEpoch uint64) (*dmodels.PoolData, error)
 		GetDEFIs(cond *postgres.DeFiCondition) ([]*dmodels.DEFI, error)
@@ -39,14 +40,14 @@ type (
 		GetCoinsCount(cond *postgres.CoinCondition) (int64, error)
 		GetGovernanceCount(cond *postgres.GovernanceCondition) (int64, error)
 		GetValidatorDataCount(condition *postgres.PoolValidatorDataCondition) (int64, error)
-		GetValidatorCount(condition *postgres.ValidatorCondition) (int64, error)
+		GetValidatorCount(condition *postgres.ValidatorCondition, epoch uint64) (int64, error)
 		GetLiquidityPoolsCount(cond *postgres.Condition) (int64, error)
 
 		GetPools(condition *postgres.PoolCondition) ([]*dmodels.Pool, error)
 		GetCoins(cond *postgres.CoinCondition) ([]*dmodels.Coin, error)
 		GetLiquidityPools(cond *postgres.Condition) ([]*dmodels.LiquidityPool, error)
 		GetGovernance(cond *postgres.GovernanceCondition) ([]*dmodels.Governance, error)
-		GetValidators(condition *postgres.ValidatorCondition) ([]*dmodels.ValidatorView, error)
+		GetValidators(condition *postgres.ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error)
 		GetPoolStatistic(poolID uuid.UUID, aggregate postgres.Aggregate) ([]*dmodels.PoolData, error)
 		GetPoolValidatorData(condition *postgres.PoolValidatorDataCondition) ([]*dmodels.PoolValidatorData, error)
 	}

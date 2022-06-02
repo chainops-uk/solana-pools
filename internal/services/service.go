@@ -25,19 +25,19 @@ type (
 
 	Service interface {
 		GetActiveStake() uint64
-		GetPoolsCurrentStatistic() (*smodels.Statistic, error)
+		GetPoolsCurrentStatistic(epoch uint64) (*smodels.Statistic, error)
 		GetPoolStatistic(name string, aggregate string) ([]*smodels.Pool, error)
 		GetPrice() (decimal.Decimal, error)
 		GetAPY() (decimal.Decimal, error)
 		GetValidators() (int64, error)
-		GetPool(name string) (*smodels.PoolDetails, error)
-		GetPools(name string, sort string, desc bool, from uint64, to uint64) ([]*smodels.PoolDetails, uint64, error)
+		GetPool(name string, epoch uint64) (*smodels.PoolDetails, error)
+		GetPools(name string, sort string, desc bool, epoch uint64, from uint64, to uint64) ([]*smodels.PoolDetails, uint64, error)
 		GetEpoch() (*smodels.EpochInfo, error)
 		GetPoolCoins(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
 		GetGovernance(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Governance, uint64, error)
 		GetCoins(name string, limit uint64, offset uint64) ([]*smodels.Coin, uint64, error)
-		GetAllValidators(validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
-		GetPoolValidators(name string, validatorName string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.PoolValidatorData, uint64, error)
+		GetAllValidators(validatorName string, sort string, desc bool, epoch uint64, epochs []uint64, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error)
+		GetPoolValidators(name string, validatorName string, sort string, desc bool, epoch uint64, limit uint64, offset uint64) ([]*smodels.PoolValidatorData, uint64, error)
 		GetLiquidityPools(name string, limit uint64, offset uint64) ([]*smodels.LiquidityPool, uint64, error)
 		GetAvgSlotTimeMS() (float64, error)
 

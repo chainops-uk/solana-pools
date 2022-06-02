@@ -18,6 +18,7 @@ type ValidatorView struct {
 	Score           int64           `gorm:"column:score"`
 	SkippedSlots    decimal.Decimal `gorm:"column:skipped_slots"`
 	DataCenter      string          `gorm:"column:data_center"`
+	Epoch           uint64          `gorm:"column:epoch"`
 	CreatedAt       time.Time       `gorm:"column:created_at"`
 	UpdatedAt       time.Time       `gorm:"column:updated_at"`
 }
