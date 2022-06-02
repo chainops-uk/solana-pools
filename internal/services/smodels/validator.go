@@ -7,8 +7,9 @@ import (
 )
 
 type Validator struct {
-	Name             string
 	Image            string
+	Name             string
+	Delinquent       bool
 	StakingAccounts  uint64
 	NodePK           string
 	APY              decimal.Decimal
@@ -18,19 +19,22 @@ type Validator struct {
 	Score            int64
 	SkippedSlots     decimal.Decimal
 	DataCenter       string
+	Epoch            uint64
 }
 
 func (v *Validator) Set(vv *dmodels.ValidatorView) *Validator {
-	v.Name = vv.Name
 	v.Image = vv.Image
+	v.Name = vv.Name
+	v.Delinquent = vv.Delinquent
 	v.StakingAccounts = vv.StakingAccounts
-	v.NodePK = vv.ID
+	v.NodePK = vv.NodePK
 	v.APY = vv.APY
-	v.VotePK = vv.VotePK
+	v.VotePK = vv.ID
 	v.TotalActiveStake.SetLamports(vv.ActiveStake)
 	v.Fee = vv.Fee
 	v.Score = vv.Score
 	v.SkippedSlots = vv.SkippedSlots
 	v.DataCenter = vv.DataCenter
+	v.Epoch = vv.Epoch
 	return v
 }

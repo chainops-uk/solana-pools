@@ -8,6 +8,7 @@ import (
 
 type PoolValidatorData struct {
 	Name             string
+	Delinquent       bool
 	Image            string
 	StakingAccounts  uint64
 	NodePK           string
@@ -19,6 +20,7 @@ type PoolValidatorData struct {
 	Score            int64
 	SkippedSlots     decimal.Decimal
 	DataCenter       string
+	Epoch            uint64
 }
 
 func (v *PoolValidatorData) Set(activeStake uint64, vv *dmodels.ValidatorView) *PoolValidatorData {
@@ -27,16 +29,18 @@ func (v *PoolValidatorData) Set(activeStake uint64, vv *dmodels.ValidatorView) *
 		return v
 	}
 	v.Name = vv.Name
+	v.Delinquent = vv.Delinquent
 	v.Image = vv.Image
 	v.StakingAccounts = vv.StakingAccounts
-	v.NodePK = vv.ID
+	v.NodePK = vv.NodePK
 	v.APY = vv.APY
-	v.VotePK = vv.VotePK
+	v.VotePK = vv.ID
 	v.PoolActiveStake.SetLamports(activeStake)
 	v.TotalActiveStake.SetLamports(vv.ActiveStake)
 	v.Fee = vv.Fee
 	v.Score = vv.Score
 	v.SkippedSlots = vv.SkippedSlots
 	v.DataCenter = vv.DataCenter
+	v.Epoch = vv.Epoch
 	return v
 }

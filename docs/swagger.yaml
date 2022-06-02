@@ -231,6 +231,10 @@ definitions:
         type: number
       data_center:
         type: string
+      delinquent:
+        type: boolean
+      epoch:
+        type: integer
       fee:
         type: number
       image:
@@ -638,6 +642,14 @@ paths:
         in: query
         name: vname
         type: string
+      - default: 10
+        description: Epoch aggregation.
+        enum:
+        - 1
+        - 10
+        in: query
+        name: epoch
+        type: number
       - default: apy
         description: sort param
         enum:
@@ -708,12 +720,20 @@ paths:
       description: Creates a WS request to get server data for the pool with the pool
         name specified in the request.
       parameters:
-      - default: EverSOL
+      - default: Eversol
         description: Name of the pool with strict observance of the case.
         in: path
         name: name
         required: true
         type: string
+      - default: 10
+        description: Epoch aggregation.
+        enum:
+        - 1
+        - 10
+        in: query
+        name: epoch
+        type: number
       produces:
       - application/json
       responses:
@@ -755,6 +775,14 @@ paths:
         in: query
         name: name
         type: string
+      - default: 10
+        description: Epoch aggregation.
+        enum:
+        - 1
+        - 10
+        in: query
+        name: epoch
+        type: number
       - default: apy
         description: The parameter by the value of which the pools will be sorted.
         enum:
@@ -822,6 +850,15 @@ paths:
       consumes:
       - application/json
       description: Creates a WS request to get current statistics.
+      parameters:
+      - default: 10
+        description: Epoch aggregation.
+        enum:
+        - 1
+        - 10
+        in: query
+        name: epoch
+        type: number
       produces:
       - application/json
       responses:
@@ -864,6 +901,21 @@ paths:
         in: query
         name: name
         type: string
+      - default: 10
+        description: Epoch aggregation.
+        enum:
+        - 1
+        - 10
+        in: query
+        name: epoch
+        type: number
+      - collectionFormat: multi
+        description: Epochs for filter.
+        in: query
+        items:
+          type: number
+        name: epochs
+        type: array
       - default: apy
         description: sort param
         enum:

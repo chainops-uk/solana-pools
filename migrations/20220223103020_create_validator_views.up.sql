@@ -3,7 +3,7 @@ SELECT v.id,
        v.image,
        v.name,
        v.delinquent,
-       v.vote_pk,
+       v.node_pk,
        vd.staking_accounts,
        vd.active_stake,
        vd.fee,
@@ -11,6 +11,7 @@ SELECT v.id,
        (SELECT avg(score) FROM validator_data where epoch >= vd.epoch-9 AND validator_id = vd.validator_id) as score,
        (SELECT avg(skipped_slots) FROM validator_data where epoch >= vd.epoch-9 AND validator_id = vd.validator_id) as skipped_slots,
        v.data_center,
+       vd.epoch,
        v.created_at,
        v.updated_at
 FROM validator_data vd
@@ -25,7 +26,7 @@ CREATE TABLE IF NOT EXISTS "public"."material_validator_data_view" (
     image               text,
     name                varchar(100),
     delinquent          bool,
-    vote_pk             varchar(44),
+    node_pk             varchar(44),
     staking_accounts    int8,
     active_stake        int8,
     fee                 numeric(5, 2),
@@ -33,6 +34,7 @@ CREATE TABLE IF NOT EXISTS "public"."material_validator_data_view" (
     score               int8,
     skipped_slots       numeric(5, 4),
     data_center         text,
+    epoch               bigint,
     created_at          TIMESTAMP WITH TIME ZONE,
     updated_at          TIMESTAMP WITH TIME ZONE
 );
@@ -48,7 +50,7 @@ BEGIN
         SET image = subquery.image,
             name = subquery.name,
             delinquent = subquery.delinquent,
-            vote_pk = subquery.vote_pk,
+            node_pk = subquery.node_pk,
             staking_accounts = subquery.staking_accounts,
             active_stake = subquery.active_stake,
             fee = subquery.fee,
@@ -56,6 +58,7 @@ BEGIN
             score = subquery.score,
             skipped_slots = subquery.skipped_slots,
             data_center = subquery.data_center,
+            epoch = subquery.epoch,
             updated_at = now()
         FROM (SELECT *
               FROM "public"."validator_view"
@@ -68,7 +71,7 @@ BEGIN
                                                         image,
                                                         name,
                                                         delinquent,
-                                                        vote_pk,
+                                                        node_pk,
                                                         apy,
                                                         staking_accounts,
                                                         active_stake,
@@ -76,13 +79,14 @@ BEGIN
                                                         score,
                                                         skipped_slots,
                                                         data_center,
+                                                        epoch,
                                                         created_at,
                                                         updated_at)
     SELECT validator_view.id,
            validator_view.image,
            validator_view.name,
            validator_view.delinquent,
-           validator_view.vote_pk,
+           validator_view.node_pk,
            validator_view.apy,
            validator_view.staking_accounts,
            validator_view.active_stake,
@@ -90,6 +94,7 @@ BEGIN
            validator_view.score,
            validator_view.skipped_slots,
            validator_view.data_center,
+           validator_view.epoch,
            now(),
            now()
     FROM "public"."validator_view"
@@ -105,3 +110,29 @@ CREATE TRIGGER add_material_validator_data_view_trigger
     ON "public"."validator_data"
     FOR EACH ROW
 EXECUTE PROCEDURE add_material_validator_data_view();
+
+CREATE OR REPLACE VIEW validator_view_current_data
+            (id, image, name, delinquent, node_pk, staking_accounts, active_stake, fee, apy, score, skipped_slots,
+             data_center, epoch, created_at, updated_at)
+as
+SELECT v.id,
+       v.image,
+       v.name,
+       v.delinquent,
+       v.node_pk,
+       vd.staking_accounts,
+       vd.active_stake,
+       vd.fee,
+       vd.apy,
+       vd.score,
+       vd.skipped_slots,
+       v.data_center,
+       vd.epoch,
+       v.created_at,
+       v.updated_at
+FROM validator_data vd
+         JOIN validators v ON v.id::text = vd.validator_id::text
+WHERE ((vd.validator_id::text, vd.updated_at) IN (SELECT validator_data.validator_id,
+                                                         max(validator_data.updated_at) AS max
+                                                  FROM validator_data
+                                                  GROUP BY validator_data.validator_id));

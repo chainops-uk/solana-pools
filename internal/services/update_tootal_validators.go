@@ -61,11 +61,11 @@ func (s Imp) UpdateValidators() error {
 		}
 
 		validators = append(validators, &dmodels.Validator{
-			ID:         v.NodePubKey,
+			ID:         v.VotePubKey,
 			Name:       vInfo.Name,
 			Image:      vInfo.AvatarURL,
 			Delinquent: false,
-			VotePK:     v.VotePubKey,
+			NodePK:     v.NodePubKey,
 			DataCenter: vInfo.DataCenterKey,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
@@ -73,7 +73,7 @@ func (s Imp) UpdateValidators() error {
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
-			ValidatorID:     v.NodePubKey,
+			ValidatorID:     v.VotePubKey,
 			Epoch:           epoch.Result.Epoch,
 			APY:             apy.Truncate(4),
 			StakingAccounts: stakingAccounts,
@@ -107,22 +107,22 @@ func (s Imp) UpdateValidators() error {
 
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
-		validators = append(validators, &dmodels.Validator{
-			ID:         v.NodePubKey,
-			Name:       vInfo.Name,
-			Image:      vInfo.AvatarURL,
-			Delinquent: true,
-			VotePK:     v.VotePubKey,
-			DataCenter: vInfo.DataCenterKey,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
-		})
-
 		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
 
 		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
 			continue
 		}
+
+		validators = append(validators, &dmodels.Validator{
+			ID:         v.VotePubKey,
+			Name:       vInfo.Name,
+			Image:      vInfo.AvatarURL,
+			Delinquent: true,
+			NodePK:     v.VotePubKey,
+			DataCenter: vInfo.DataCenterKey,
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		})
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),

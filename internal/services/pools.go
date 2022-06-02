@@ -13,8 +13,9 @@ import (
 	"time"
 )
 
-func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
-	pd, err := s.Cache.GetPool(name)
+
+func (s *Imp) GetPool(name string, epoch uint64) (*smodels.PoolDetails, error) {
+	pd, err := s.cache.GetPool(name)
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return nil, err
 	}
@@ -29,18 +30,28 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	if dPool == nil {
 		return nil, fmt.Errorf("DAO.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
 	}
-	dLastPoolData, err := s.DAO.GetLastPoolData(dPool.ID)
-	if err != nil {
-		return nil, fmt.Errorf("DAO.GetPoolData: %s", err.Error())
+
+	var dLastPoolData *dmodels.PoolData
+	if epoch == 10 {
+		dLastPoolData, err = s.dao.GetLastPoolDataWithApyForTenEpoch(dPool.ID)
+		if err != nil {
+			return nil, fmt.Errorf("dao.GetLastPoolDataWithApyForTenEpoch: %w", err)
+		}
+	} else {
+		dLastPoolData, err = s.dao.GetLastPoolData(dPool.ID)
+		if err != nil {
+			return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
+		}
 	}
-	dValidators, err := s.DAO.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
+
+	dValidators, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
 	if err != nil {
 		return nil, fmt.Errorf("DAO.GetPoolValidatorData: %s", err.Error())
 	}
 	validatorsS := make([]*smodels.PoolValidatorData, len(dValidators))
 	validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 	for i, v := range dValidators {
-		validatorsD[i], err = s.DAO.GetValidator(v.ValidatorID)
+		validatorsD[i], err = s.dao.GetValidator(v.ValidatorID, epoch)
 		if err != nil {
 			return nil, fmt.Errorf("DAO.GetValidator(%s): %w", v.ValidatorID, err)
 		}
@@ -62,8 +73,9 @@ func (s *Imp) GetPool(name string) (*smodels.PoolDetails, error) {
 	return pd, nil
 }
 
-func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset uint64) ([]*smodels.PoolDetails, uint64, error) {
-	dPools, err := s.DAO.GetPools(&postgres.PoolCondition{
+
+func (s *Imp) GetPools(name string, sort string, desc bool, epoch uint64, limit uint64, offset uint64) ([]*smodels.PoolDetails, uint64, error) {
+	dPools, err := s.dao.GetPools(&postgres.PoolCondition{
 		Condition: &postgres.Condition{
 			Network: postgres.MainNet,
 			Name:    name,
@@ -92,9 +104,16 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 			},
 		}
 
-		dLastPoolData, err := s.DAO.GetLastPoolData(v1.ID)
-		if err != nil {
-			return nil, 0, fmt.Errorf("DAO.GetLastPoolData: %w", err)
+		var dLastPoolData *dmodels.PoolData
+		if epoch == 10 {
+			dLastPoolData, err = s.dao.GetLastPoolDataWithApyForTenEpoch(v1.ID)
+			if err != nil {
+				return nil, 0, fmt.Errorf("dao.GetLastPoolDataWithApyForTenEpoch: %w", err)
+			}
+		} else {
+			dLastPoolData, err = s.dao.GetLastPoolData(v1.ID)
+			if err != nil {
+				return nil, 0, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
 		dValidators, err := s.DAO.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
@@ -104,7 +123,9 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 
 		validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 		for i, v2 := range dValidators {
-			validatorsD[i], err = s.DAO.GetValidator(v2.ValidatorID)
+
+			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID, epoch)
+
 			if err != nil {
 				return nil, 0, fmt.Errorf("DAO.GetValidator: %w", err)
 			}
@@ -129,8 +150,10 @@ func (s *Imp) GetPools(name string, sort string, desc bool, limit uint64, offset
 	return pools, uint64(count), nil
 }
 
-func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
-	stat, err := s.Cache.GetCurrentStatistic()
+
+func (s *Imp) GetPoolsCurrentStatistic(epoch uint64) (*smodels.Statistic, error) {
+	stat, err := s.cache.GetCurrentStatistic()
+
 	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
 		return nil, err
 	}
@@ -162,9 +185,16 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 			},
 		}
 
-		dLastPoolData, err := s.DAO.GetLastPoolData(v1.ID)
-		if err != nil {
-			return nil, fmt.Errorf("DAO.GetLastPoolData: %w", err)
+		var dLastPoolData *dmodels.PoolData
+		if epoch == 10 {
+			dLastPoolData, err = s.dao.GetLastPoolDataWithApyForTenEpoch(v1.ID)
+			if err != nil {
+				return nil, fmt.Errorf("dao.GetLastPoolDataWithApyForTenEpoch: %w", err)
+			}
+		} else {
+			dLastPoolData, err = s.dao.GetLastPoolData(v1.ID)
+			if err != nil {
+				return nil, fmt.Errorf("dao.GetLastPoolData: %w", err)
 		}
 
 		dValidators, err := s.DAO.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}})
@@ -174,7 +204,8 @@ func (s *Imp) GetPoolsCurrentStatistic() (*smodels.Statistic, error) {
 
 		validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
 		for i, v2 := range dValidators {
-			validatorsD[i], err = s.DAO.GetValidator(v2.ValidatorID)
+
+			validatorsD[i], err = s.dao.GetValidator(v2.ValidatorID, epoch)
 			if err != nil {
 				return nil, fmt.Errorf("DAO.GetValidator: %w", err)
 			}

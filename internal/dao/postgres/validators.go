@@ -9,30 +9,42 @@ import (
 
 func (db *DB) GetValidatorByVotePK(key solana.PublicKey) (*dmodels.ValidatorView, error) {
 	validator := &dmodels.ValidatorView{}
-	err := db.Table("public.material_validator_data_view as validators").Where("vote_pk = ?", key.String()).First(validator).Error
+	err := db.Table("public.material_validator_data_view as validators").Where("id = ?", key.String()).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return validator, err
 }
 
-func (db *DB) GetValidator(validatorID string) (*dmodels.ValidatorView, error) {
+func (db *DB) GetValidator(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 	validator := &dmodels.ValidatorView{}
-	err := db.Table("public.material_validator_data_view as validators").Where("id = ?", validatorID).First(validator).Error
+	DB := db.Table("public.validator_view_current_data as validators")
+	if epoch == 10 {
+		DB = db.Table("public.material_validator_data_view as validators")
+	}
+	err := DB.Where("id = ?", validatorID).First(validator).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return validator, err
 }
 
-func (db *DB) GetValidators(condition *ValidatorCondition) ([]*dmodels.ValidatorView, error) {
+func (db *DB) GetValidators(condition *ValidatorCondition, epoch uint64) ([]*dmodels.ValidatorView, error) {
 	validators := make([]*dmodels.ValidatorView, 0)
-	return validators, withValidatorCondition(db.DB.Table("public.material_validator_data_view as validators"), condition).Find(&validators).Error
+	DB := db.Table("public.validator_view_current_data as validators")
+	if epoch == 10 {
+		DB = db.Table("public.material_validator_data_view as validators")
+	}
+	return validators, withValidatorCondition(DB, condition).Find(&validators).Error
 }
 
-func (db *DB) GetValidatorCount(condition *ValidatorCondition) (int64, error) {
+func (db *DB) GetValidatorCount(condition *ValidatorCondition, epoch uint64) (int64, error) {
 	i := int64(0)
-	return i, withValidatorCondition(db.DB.Table("public.material_validator_data_view as validators"), condition).Count(&i).Error
+	DB := db.Table("public.validator_view_current_data as validators")
+	if epoch == 10 {
+		DB = db.Table("public.material_validator_data_view as validators")
+	}
+	return i, withValidatorCondition(DB, condition).Count(&i).Error
 }
 
 func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB {
@@ -43,8 +55,16 @@ func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB
 	if condition.Condition != nil {
 		if condition.Condition.Name != "" {
 			db = db.Where(`validators.name ilike ?`, "%"+condition.Condition.Name+"%")
+			condition.Condition.Name = ""
 		}
-		condition.Condition.Name = ""
+
+		if len(condition.ValidatorIDs) > 0 {
+			db = db.Where(`validators.id in (?)`, condition.ValidatorIDs)
+		}
+	}
+
+	if len(condition.Epochs) > 0 {
+		db = db.Where(`validators.epoch in (?)`, condition.Epochs)
 	}
 
 	db = withCond(db, condition.Condition)

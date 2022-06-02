@@ -44,7 +44,7 @@ func withPoolValidatorDataCondition(db *gorm.DB, condition *PoolValidatorDataCon
 
 	if condition.Sort != nil {
 		db = db.Joins("join material_validator_data_view as validators on validators.id = pool_validator_data.validator_id").
-			Select("pool_validator_data.*")
+			Select("pool_validator_data.id, pool_validator_data.pool_data_id, pool_validator_data.validator_id, pool_validator_data.active_stake, pool_validator_data.created_at, pool_validator_data.updated_at")
 		return sortValidators(db, condition.Sort.ValidatorDataSort, condition.Sort.Desc)
 	}
 

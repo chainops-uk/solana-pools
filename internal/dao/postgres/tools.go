@@ -17,6 +17,7 @@ const (
 
 type ValidatorCondition struct {
 	*Condition
+	Epochs       []uint64
 	PoolDataIDs  []uuid.UUID
 	ValidatorIDs []string
 	Sort         *ValidatorSort
@@ -46,7 +47,7 @@ type Condition struct {
 	IDs     []uuid.UUID
 	Names   []string
 	Name    string
-	Epoch   []uint64
+	Epochs  []uint64
 	Network Network
 	Pagination
 }
