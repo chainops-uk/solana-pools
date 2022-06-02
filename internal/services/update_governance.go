@@ -5,7 +5,7 @@ import (
 )
 
 func (s Imp) UpdateGovernance() error {
-	gov, err := s.dao.GetGovernance(nil)
+	gov, err := s.DAO.GetGovernance(nil)
 	if err != nil {
 		return fmt.Errorf("UpdateGovernance: %w", err)
 	}
@@ -37,7 +37,7 @@ func (s Imp) UpdateGovernance() error {
 		governance.Image = coin.Image.Large
 	}
 
-	if err := s.dao.SaveGovernance(gov...); err != nil {
+	if err := s.DAO.SaveGovernance(gov...); err != nil {
 		return fmt.Errorf("UpdateGovernance: %w", err)
 	}
 

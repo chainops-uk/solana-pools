@@ -7,21 +7,23 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+
 func (s Imp) GetPoolValidators(name string, validatorName string, sort string, desc bool, epoch uint64, limit uint64, offset uint64) ([]*smodels.PoolValidatorData, uint64, error) {
 	pool, err := s.dao.GetPool(name)
+
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetPool: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetPool: %w", err)
 	}
 	if pool == nil {
-		return nil, 0, fmt.Errorf("dao.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
+		return nil, 0, fmt.Errorf("DAO.GetPool(%s): %w", name, postgres.ErrorRecordNotFounded)
 	}
 
-	poolData, err := s.dao.GetLastPoolData(pool.ID)
+	poolData, err := s.DAO.GetLastPoolData(pool.ID)
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetLastPoolDataWithApyForTenEpoch: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetLastPoolData: %w", err)
 	}
 
-	pvd, err := s.dao.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{
+	pvd, err := s.DAO.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{
 		PoolDataIDs: []uuid.UUID{poolData.ID},
 		Sort: &postgres.ValidatorDataSort{
 			ValidatorDataSort: postgres.SearchValidatorDataSort(sort),
@@ -36,19 +38,19 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		},
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetPoolValidatorData: %w", err)
 	}
 
 	arr := make([]*smodels.PoolValidatorData, len(pvd))
 	for i, data := range pvd {
 		val, err := s.dao.GetValidator(data.ValidatorID, epoch)
 		if err != nil {
-			return nil, 0, fmt.Errorf("dao.GetValidator: %w", err)
+			return nil, 0, fmt.Errorf("DAO.GetValidator: %w", err)
 		}
 		arr[i] = (&smodels.PoolValidatorData{}).Set(data.ActiveStake, val)
 	}
 
-	count, err := s.dao.GetValidatorDataCount(&postgres.PoolValidatorDataCondition{
+	count, err := s.DAO.GetValidatorDataCount(&postgres.PoolValidatorDataCondition{
 		PoolDataIDs: []uuid.UUID{
 			poolData.ID,
 		},
@@ -61,11 +63,12 @@ func (s Imp) GetPoolValidators(name string, validatorName string, sort string, d
 		},
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetValidatorDataCount: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetValidatorDataCount: %w", err)
 	}
 
 	return arr, uint64(count), nil
 }
+
 
 func (s Imp) GetAllValidators(validatorName string, sort string, desc bool, epoch uint64, epochs []uint64, limit uint64, offset uint64) ([]*smodels.Validator, uint64, error) {
 	pvd, err := s.dao.GetValidators(&postgres.ValidatorCondition{
@@ -83,7 +86,7 @@ func (s Imp) GetAllValidators(validatorName string, sort string, desc bool, epoc
 		},
 	}, epoch)
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetPoolValidatorData: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetPoolValidatorData: %w", err)
 	}
 
 	arr := make([]*smodels.Validator, len(pvd))
@@ -91,14 +94,14 @@ func (s Imp) GetAllValidators(validatorName string, sort string, desc bool, epoc
 		arr[i] = (&smodels.Validator{}).Set(data)
 	}
 
-	count, err := s.dao.GetValidatorCount(&postgres.ValidatorCondition{
+	count, err := s.DAO.GetValidatorCount(&postgres.ValidatorCondition{
 		Condition: &postgres.Condition{
 			Epochs: epochs,
 			Name:   validatorName,
 		},
 	}, epoch)
 	if err != nil {
-		return nil, 0, fmt.Errorf("dao.GetValidatorDataCount: %w", err)
+		return nil, 0, fmt.Errorf("DAO.GetValidatorDataCount: %w", err)
 	}
 
 	return arr, uint64(count), nil
