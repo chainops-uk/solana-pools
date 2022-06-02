@@ -59,7 +59,7 @@ func (h *Handler) GetPool(ctx *gin.Context, message []byte) (interface{}, error)
 // @Accept json
 // @Produce json
 // @Param name query string false "The name of the pool without strict observance of the case."
-// @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
+// @Param epoch query number true "Epoch aggregation." Enums(1, 10) default(10)
 // @Param sort query string false "The parameter by the value of which the pools will be sorted." Enums(apy, pool stake, validators, score, skipped slot, token price) default(apy)
 // @Param desc query bool false "Sort in descending order" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
@@ -81,6 +81,8 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
+
+	fmt.Println(q.Epoch)
 
 	pools, amount, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Epoch, q.Limit, q.Offset)
 	if err != nil {
