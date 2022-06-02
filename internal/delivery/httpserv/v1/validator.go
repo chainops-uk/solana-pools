@@ -19,7 +19,6 @@ import (
 // @Param pname path string true "Name of the pool with strict observance of the case." default(EverSOL)
 // @Param vname query string false "The name of the validatorData without strict observance of the case."
 // @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
-// @Param epochs query []number false "Epochs for filter."
 // @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
@@ -34,13 +33,12 @@ import (
 func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	name := ctx.Param("pname")
 	q := struct {
-		Name   string   `form:"vname"`
-		Epoch  uint64   `from:"epoch,default=10"`
-		Epochs []uint64 `from:"epochs"`
-		Sort   string   `form:"sort,default=apy"`
-		Desc   bool     `form:"desc,default=true"`
-		Offset uint64   `form:"offset,default=0"`
-		Limit  uint64   `form:"limit,default=10"`
+		Name   string `form:"vname"`
+		Epoch  uint64 `from:"epoch,default=10"`
+		Sort   string `form:"sort,default=apy"`
+		Desc   bool   `form:"desc,default=true"`
+		Offset uint64 `form:"offset,default=0"`
+		Limit  uint64 `form:"limit,default=10"`
 	}{}
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)

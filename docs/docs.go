@@ -587,6 +587,17 @@ var doc = `{
                     },
                     {
                         "enum": [
+                            1,
+                            10
+                        ],
+                        "type": "number",
+                        "default": 10,
+                        "description": "Epoch aggregation.",
+                        "name": "epoch",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
                             "apy",
                             "pool stake",
                             "stake",
@@ -690,11 +701,22 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "EverSOL",
+                        "default": "Eversol",
                         "description": "Name of the pool with strict observance of the case.",
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            1,
+                            10
+                        ],
+                        "type": "number",
+                        "default": 10,
+                        "description": "Epoch aggregation.",
+                        "name": "epoch",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -761,6 +783,17 @@ var doc = `{
                         "type": "string",
                         "description": "The name of the pool without strict observance of the case.",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            1,
+                            10
+                        ],
+                        "type": "number",
+                        "default": 10,
+                        "description": "Epoch aggregation.",
+                        "name": "epoch",
                         "in": "query"
                     },
                     {
@@ -864,6 +897,19 @@ var doc = `{
                     "pool"
                 ],
                 "summary": "WebSocket",
+                "parameters": [
+                    {
+                        "enum": [
+                            1,
+                            10
+                        ],
+                        "type": "number",
+                        "default": 10,
+                        "description": "Epoch aggregation.",
+                        "name": "epoch",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -928,6 +974,27 @@ var doc = `{
                         "type": "string",
                         "description": "The name of the validatorData without strict observance of the case.",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            1,
+                            10
+                        ],
+                        "type": "number",
+                        "default": 10,
+                        "description": "Epoch aggregation.",
+                        "name": "epoch",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Epochs for filter.",
+                        "name": "epochs",
                         "in": "query"
                     },
                     {
@@ -1371,6 +1438,12 @@ var doc = `{
                 },
                 "data_center": {
                     "type": "string"
+                },
+                "delinquent": {
+                    "type": "boolean"
+                },
+                "epoch": {
+                    "type": "integer"
                 },
                 "fee": {
                     "type": "number"
