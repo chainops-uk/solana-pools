@@ -34,7 +34,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 	name := ctx.Param("pname")
 	q := struct {
 		Name   string `form:"vname"`
-		Epoch  uint64 `from:"epoch,default=10"`
+		Epoch  uint64 `form:"epoch,default=10"`
 		Sort   string `form:"sort,default=apy"`
 		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
@@ -90,8 +90,8 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 func (h *Handler) GetAllValidators(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string   `form:"name"`
-		Epoch  uint64   `from:"epoch,default=10"`
-		Epochs []uint64 `from:"epochs"`
+		Epoch  uint64   `form:"epoch,default=10"`
+		Epochs []uint64 `form:"epochs"`
 		Sort   string   `form:"sort,default=apy"`
 		Desc   bool     `form:"desc,default=true"`
 		Offset uint64   `form:"offset,default=0"`

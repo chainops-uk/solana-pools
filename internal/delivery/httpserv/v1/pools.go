@@ -32,7 +32,7 @@ func (h *Handler) GetPool(ctx *gin.Context, message []byte) (interface{}, error)
 	name := ctx.Param("name")
 
 	q := struct {
-		Epoch uint64 `from:"epoch,default=10"`
+		Epoch uint64 `form:"epoch,default=10"`
 	}{}
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
@@ -117,7 +117,7 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 // @Router /pools-statistic [get]
 func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (interface{}, error) {
 	q := struct {
-		Epoch uint64 `from:"epoch,default=10"`
+		Epoch uint64 `form:"epoch,default=10"`
 	}{}
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
