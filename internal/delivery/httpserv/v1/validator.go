@@ -16,7 +16,7 @@ import (
 // @Schemes
 // @Description This list with pool's validators.
 // @Tags validatorData
-// @Param pname path string true "Name of the pool with strict observance of the case." default(EverSOL)
+// @Param pname path string true "Name of the pool with strict observance of the case." default(Eversol)
 // @Param vname query string false "The name of the validatorData without strict observance of the case."
 // @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
 // @Param sort query string false "sort param" Enums(apy, pool stake, stake, fee, score, skipped slot, data center) default(apy)

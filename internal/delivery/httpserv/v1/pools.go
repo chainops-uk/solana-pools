@@ -72,7 +72,7 @@ func (h *Handler) GetPool(ctx *gin.Context, message []byte) (interface{}, error)
 func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
-		Epoch  uint64 `from:"epoch,default=10"`
+		Epoch  uint64 `form:"epoch"`
 		Sort   string `form:"sort,default=apy"`
 		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
@@ -81,8 +81,6 @@ func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	if err := ctx.ShouldBind(&q); err != nil {
 		return nil, tools.NewStatus(http.StatusBadRequest, err)
 	}
-
-	fmt.Println(q.Epoch)
 
 	pools, amount, err := h.svc.GetPools(q.Name, q.Sort, q.Desc, q.Epoch, q.Limit, q.Offset)
 	if err != nil {
@@ -185,7 +183,7 @@ func (h *Handler) GetTotalPoolsStatistic(ctx *gin.Context, message []byte) (inte
 // @Tags pool
 // @Accept json
 // @Produce json
-// @Param name query string true "Name of the pool with strict observance of the case." default(EverSOL)
+// @Param name query string true "Name of the pool with strict observance of the case." default(Eversol)
 // @Param aggregation query string true "Type of data aggregation for a time period" Enums(week, month, quarter, half-year, year)
 // @Success 200 {object} tools.ResponseData{data=[]poolStatistic} "Ok"
 // @Failure 400,404 {object} tools.ResponseError "bad request"

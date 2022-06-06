@@ -35,7 +35,7 @@ func (db *DB) GetValidators(condition *ValidatorCondition, epoch uint64) ([]*dmo
 	if epoch == 10 {
 		DB = db.Table("public.material_validator_data_view as validators")
 	}
-	return validators, withValidatorCondition(DB, condition).Find(&validators).Error
+	return validators, withValidatorCondition(DB, condition).Select("validators.*").Find(&validators).Error
 }
 
 func (db *DB) GetValidatorCount(condition *ValidatorCondition, epoch uint64) (int64, error) {
@@ -65,6 +65,11 @@ func withValidatorCondition(db *gorm.DB, condition *ValidatorCondition) *gorm.DB
 
 	if len(condition.Epochs) > 0 {
 		db = db.Where(`validators.epoch in (?)`, condition.Epochs)
+	}
+
+	if len(condition.PoolDataIDs) > 0 {
+		db = db.Joins("INNER JOIN pool_validator_data pvd ON validators.id = pvd.validator_id")
+		db = db.Where(`pvd.pool_data_id in (?)`, condition.PoolDataIDs)
 	}
 
 	db = withCond(db, condition.Condition)

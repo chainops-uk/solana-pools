@@ -116,19 +116,11 @@ func (s *Imp) GetPools(name string, sort string, desc bool, epoch uint64, limit 
 			}
 		}
 
-		dValidators, err := s.DAO.GetPoolValidatorData(&postgres.PoolValidatorDataCondition{PoolDataIDs: []uuid.UUID{dLastPoolData.ID}}, epoch)
+		validatorsD, err := s.DAO.GetValidators(&postgres.ValidatorCondition{
+			PoolDataIDs: []uuid.UUID{dLastPoolData.ID},
+		}, epoch)
 		if err != nil {
-			return nil, 0, fmt.Errorf("DAO.GetPoolValidatorData: %w", err)
-		}
-
-		validatorsD := make([]*dmodels.ValidatorView, len(dValidators))
-		for i, v2 := range dValidators {
-
-			validatorsD[i], err = s.DAO.GetValidator(v2.ValidatorID, epoch)
-
-			if err != nil {
-				return nil, 0, fmt.Errorf("DAO.GetValidator: %w", err)
-			}
+			return nil, 0, fmt.Errorf("DAO.GetValidator: %w", err)
 		}
 
 		coin, err := s.DAO.GetCoinByID(v1.CoinID)

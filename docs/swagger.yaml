@@ -575,7 +575,7 @@ paths:
       - application/json
       description: The pool statistic for the specified aggregation.
       parameters:
-      - default: EverSOL
+      - default: Eversol
         description: Name of the pool with strict observance of the case.
         in: query
         name: name
@@ -631,7 +631,7 @@ paths:
       - application/json
       description: This list with pool's validators.
       parameters:
-      - default: EverSOL
+      - default: Eversol
         description: Name of the pool with strict observance of the case.
         in: path
         name: pname
@@ -782,6 +782,7 @@ paths:
         - 10
         in: query
         name: epoch
+        required: true
         type: number
       - default: apy
         description: The parameter by the value of which the pools will be sorted.

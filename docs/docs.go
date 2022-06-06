@@ -487,7 +487,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "EverSOL",
+                        "default": "Eversol",
                         "description": "Name of the pool with strict observance of the case.",
                         "name": "name",
                         "in": "query",
@@ -573,7 +573,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "EverSOL",
+                        "default": "Eversol",
                         "description": "Name of the pool with strict observance of the case.",
                         "name": "pname",
                         "in": "path",
@@ -794,7 +794,8 @@ var doc = `{
                         "default": 10,
                         "description": "Epoch aggregation.",
                         "name": "epoch",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "enum": [

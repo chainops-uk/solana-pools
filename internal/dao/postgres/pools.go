@@ -100,9 +100,9 @@ func withPoolCondition(db *gorm.DB, condition *PoolCondition) *gorm.DB {
 
 	db = withCond(db, condition.Condition)
 
-	/*	if condition.Sort != nil {
+	if condition.Sort != nil {
 		return sortPoolData(db, condition.Sort.PoolSort, condition.Sort.Desc, condition.Sort.Epoch)
-	}*/
+	}
 
 	return db
 }
