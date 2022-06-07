@@ -10,7 +10,7 @@ const (
 	ParrotPool   = "Parrot"
 	MarinadePool = "Marinade"
 	SolidoPool   = "Solido"
-	EverSOL      = "EverSOL"
+	EverSOL      = "Eversol"
 	JPool        = "JPool"
 	Socean       = "Socean"
 	DaoPool      = "daoPool"
