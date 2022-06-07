@@ -72,7 +72,7 @@ func (h *Handler) GetPool(ctx *gin.Context, message []byte) (interface{}, error)
 func (h *Handler) GetPools(ctx *gin.Context) (interface{}, error) {
 	q := struct {
 		Name   string `form:"name"`
-		Epoch  uint64 `form:"epoch"`
+		Epoch  uint64 `form:"epoch,default=10"`
 		Sort   string `form:"sort,default=apy"`
 		Desc   bool   `form:"desc,default=true"`
 		Offset uint64 `form:"offset,default=0"`
