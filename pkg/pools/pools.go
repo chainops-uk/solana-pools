@@ -1,7 +1,6 @@
 package pools
 
 import (
-	"fmt"
 	"github.com/everstake/solana-pools/pkg/pools/marinade"
 	"github.com/everstake/solana-pools/pkg/pools/parrot"
 	"github.com/everstake/solana-pools/pkg/pools/solido"
@@ -31,9 +30,7 @@ func (f Factory) GetPool(name string) (p Pool, err error) {
 		return marinade.New(f.solanaRPC), nil
 	case types.SolidoPool:
 		return solido.New(f.solanaRPC), nil
-	case types.EverSOL, types.Socean, types.JPool, types.DaoPool:
-		return stdpool.New(f.solanaRPC), nil
 	default:
-		return nil, fmt.Errorf("pool %s not found", name)
+		return stdpool.New(f.solanaRPC), nil
 	}
 }
