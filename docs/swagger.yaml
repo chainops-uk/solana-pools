@@ -247,6 +247,8 @@ definitions:
         type: integer
       skipped_slots:
         type: number
+      staking_accounts:
+        type: integer
       total_active_stake:
         type: number
       vote_pk:
@@ -272,6 +274,8 @@ definitions:
         type: integer
       skipped_slots:
         type: number
+      staking_accounts:
+        type: integer
       total_active_stake:
         type: number
       vote_pk:

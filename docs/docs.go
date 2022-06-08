@@ -1464,6 +1464,9 @@ var doc = `{
                 "skipped_slots": {
                     "type": "number"
                 },
+                "staking_accounts": {
+                    "type": "integer"
+                },
                 "total_active_stake": {
                     "type": "number"
                 },
@@ -1501,6 +1504,9 @@ var doc = `{
                 },
                 "skipped_slots": {
                     "type": "number"
+                },
+                "staking_accounts": {
+                    "type": "integer"
                 },
                 "total_active_stake": {
                     "type": "number"
