@@ -129,6 +129,7 @@ type validator struct {
 	APY              float64 `json:"apy"`
 	VotePK           string  `json:"vote_pk"`
 	TotalActiveStake float64 `json:"total_active_stake"`
+	StakingAccounts  uint64  `json:"staking_accounts"`
 	Fee              float64 `json:"fee"`
 	Score            int64   `json:"score"`
 	SkippedSlots     float64 `json:"skipped_slots"`
@@ -144,6 +145,7 @@ func (v *validator) Set(validator *smodels.Validator) *validator {
 	v.APY, _ = validator.APY.Float64()
 	v.VotePK = validator.VotePK
 	v.TotalActiveStake, _ = validator.TotalActiveStake.Float64()
+	v.StakingAccounts = validator.StakingAccounts
 	v.Fee, _ = validator.Fee.Float64()
 	v.Score = validator.Score
 	v.SkippedSlots, _ = validator.SkippedSlots.Float64()
@@ -160,6 +162,7 @@ type validatorData struct {
 	VotePK           string  `json:"vote_pk"`
 	PoolActiveStake  float64 `json:"pool_active_stake"`
 	TotalActiveStake float64 `json:"total_active_stake"`
+	StakingAccounts  uint64  `json:"staking_accounts"`
 	Fee              float64 `json:"fee"`
 	Score            int64   `json:"score"`
 	SkippedSlots     float64 `json:"skipped_slots"`
@@ -174,6 +177,7 @@ func (v *validatorData) Set(validator *smodels.PoolValidatorData) *validatorData
 	v.VotePK = validator.VotePK
 	v.PoolActiveStake, _ = validator.PoolActiveStake.Float64()
 	v.TotalActiveStake, _ = validator.TotalActiveStake.Float64()
+	v.StakingAccounts = validator.StakingAccounts
 	v.Fee, _ = validator.Fee.Float64()
 	v.Score = validator.Score
 	v.SkippedSlots, _ = validator.SkippedSlots.Float64()
