@@ -149,7 +149,7 @@ func sortValidator(db *gorm.DB, sort ValidatorSortType, desc bool) *gorm.DB {
 				},
 			},
 		})
-	case StakingAccount:
+	case StakingAccounts:
 		return db.Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{

@@ -158,7 +158,7 @@ const (
 	ValidatorScore
 	ValidatorSkippedSlot
 	ValidatorDataCenter
-	StakingAccount
+	StakingAccounts
 )
 
 func SearchValidatorSort(sort string) ValidatorSortType {
@@ -175,8 +175,8 @@ func SearchValidatorSort(sort string) ValidatorSortType {
 		return ValidatorSkippedSlot
 	case "data center":
 		return ValidatorDataCenter
-	case "staking account":
-		return StakingAccount
+	case "staking accounts":
+		return StakingAccounts
 	default:
 		return ValidatorAPY
 	}
