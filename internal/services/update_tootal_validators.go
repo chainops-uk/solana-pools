@@ -126,7 +126,7 @@ func (s Imp) UpdateValidators() error {
 
 		validatorsData = append(validatorsData, &dmodels.ValidatorData{
 			ID:              uuid.NewV1(),
-			ValidatorID:     v.NodePubKey,
+			ValidatorID:     v.VotePubKey,
 			Epoch:           epoch.Result.Epoch,
 			APY:             apy.Truncate(4),
 			StakingAccounts: stakingAccounts,

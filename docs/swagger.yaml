@@ -930,7 +930,7 @@ paths:
         - score
         - skipped slot
         - data center
-        - staking account
+        - staking accounts
         in: query
         name: sort
         type: string
