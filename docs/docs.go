@@ -1005,7 +1005,8 @@ var doc = `{
                             "fee",
                             "score",
                             "skipped slot",
-                            "data center"
+                            "data center",
+                            "staking account"
                         ],
                         "type": "string",
                         "default": "apy",

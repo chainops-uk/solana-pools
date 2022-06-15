@@ -76,7 +76,7 @@ func (h *Handler) GetPoolValidators(ctx *gin.Context) (interface{}, error) {
 // @Param name query string false "The name of the validatorData without strict observance of the case."
 // @Param epoch query number false "Epoch aggregation." Enums(1, 10) default(10)
 // @Param epochs query []number false "Epochs for filter."
-// @Param sort query string false "sort param" Enums(apy, stake, fee, score, skipped slot, data center) default(apy)
+// @Param sort query string false "sort param" Enums(apy, stake, fee, score, skipped slot, data center, staking account) default(apy)
 // @Param desc query bool false "desc" default(true)
 // @Param offset query number true "offset for aggregation" default(0)
 // @Param limit query number true "limit for aggregation" default(10)
