@@ -118,7 +118,7 @@ func (s Imp) UpdateValidators() error {
 			Name:       vInfo.Name,
 			Image:      vInfo.AvatarURL,
 			Delinquent: true,
-			NodePK:     v.VotePubKey,
+			NodePK:     v.NodePubKey,
 			DataCenter: vInfo.DataCenterKey,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
