@@ -56,10 +56,6 @@ func (s Imp) UpdateValidators() error {
 
 		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
 
-		if !fee.Equal(decimal.NewFromInt(1)) && apy.Equal(decimal.Zero) {
-			continue
-		}
-
 		validators = append(validators, &dmodels.Validator{
 			ID:         v.VotePubKey,
 			Name:       vInfo.Name,
