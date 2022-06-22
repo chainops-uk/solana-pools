@@ -54,6 +54,14 @@ func (s Imp) UpdateValidators() error {
 
 		apy = apy.Mul(decimal.NewFromFloat(correlation))
 
+		if apy.Equals(decimal.Zero) {
+			v, err := s.DAO.GetValidator(v.VotePubKey, 1)
+			if err != nil {
+				return fmt.Errorf("s.DAO.GetValidator: %w", err)
+			}
+			apy = v.APY
+		}
+
 		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
 
 		validators = append(validators, &dmodels.Validator{
