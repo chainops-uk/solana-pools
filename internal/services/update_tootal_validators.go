@@ -59,7 +59,12 @@ func (s Imp) UpdateValidators() error {
 			if err != nil {
 				return fmt.Errorf("s.DAO.GetValidator: %w", err)
 			}
-			apy = v.APY
+			if v != nil {
+				apy = v.APY
+			} else {
+				apy = decimal.Zero
+			}
+
 		}
 
 		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)
