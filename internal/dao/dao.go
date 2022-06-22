@@ -17,6 +17,7 @@ type (
 	}
 	Postgres interface {
 		CreatePoolValidatorData(pools ...*dmodels.PoolValidatorData) error
+		CreateSlotTime(slotTime ...*dmodels.SlotTime) error
 		SaveGovernance(gov ...*dmodels.Governance) error
 		SaveCoin(coin ...*dmodels.Coin) error
 		SaveDEFIs(defiData ...*dmodels.DEFI) error
@@ -45,6 +46,7 @@ type (
 		GetValidatorCount(condition *postgres.ValidatorCondition, epoch uint64) (int64, error)
 		GetLiquidityPoolsCount(cond *postgres.Condition) (int64, error)
 
+		GetSlotTime(cond *postgres.SlotTimeCondition) ([]*dmodels.SlotTime, error)
 		GetPools(condition *postgres.PoolCondition) ([]*dmodels.Pool, error)
 		GetCoins(cond *postgres.CoinCondition) ([]*dmodels.Coin, error)
 		GetLiquidityPools(cond *postgres.Condition) ([]*dmodels.LiquidityPool, error)

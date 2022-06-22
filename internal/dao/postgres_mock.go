@@ -24,6 +24,9 @@ var _ Postgres = &PostgresMock{}
 // 			CreatePoolValidatorDataFunc: func(pools ...*dmodels.PoolValidatorData) error {
 // 				panic("mock out the CreatePoolValidatorData method")
 // 			},
+// 			CreateSlotTimeFunc: func(slotTime ...*dmodels.SlotTime) error {
+// 				panic("mock out the CreateSlotTime method")
+// 			},
 // 			DeleteDeFisFunc: func(cond *postgres.DeFiCondition) error {
 // 				panic("mock out the DeleteDeFis method")
 // 			},
@@ -81,6 +84,9 @@ var _ Postgres = &PostgresMock{}
 // 			GetPoolsFunc: func(condition *postgres.PoolCondition) ([]*dmodels.Pool, error) {
 // 				panic("mock out the GetPools method")
 // 			},
+// 			GetSlotTimeFunc: func(cond *postgres.SlotTimeCondition) ([]*dmodels.SlotTime, error) {
+// 				panic("mock out the GetSlotTime method")
+// 			},
 // 			GetValidatorFunc: func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error) {
 // 				panic("mock out the GetValidator method")
 // 			},
@@ -123,6 +129,9 @@ var _ Postgres = &PostgresMock{}
 type PostgresMock struct {
 	// CreatePoolValidatorDataFunc mocks the CreatePoolValidatorData method.
 	CreatePoolValidatorDataFunc func(pools ...*dmodels.PoolValidatorData) error
+
+	// CreateSlotTimeFunc mocks the CreateSlotTime method.
+	CreateSlotTimeFunc func(slotTime ...*dmodels.SlotTime) error
 
 	// DeleteDeFisFunc mocks the DeleteDeFis method.
 	DeleteDeFisFunc func(cond *postgres.DeFiCondition) error
@@ -181,6 +190,9 @@ type PostgresMock struct {
 	// GetPoolsFunc mocks the GetPools method.
 	GetPoolsFunc func(condition *postgres.PoolCondition) ([]*dmodels.Pool, error)
 
+	// GetSlotTimeFunc mocks the GetSlotTime method.
+	GetSlotTimeFunc func(cond *postgres.SlotTimeCondition) ([]*dmodels.SlotTime, error)
+
 	// GetValidatorFunc mocks the GetValidator method.
 	GetValidatorFunc func(validatorID string, epoch uint64) (*dmodels.ValidatorView, error)
 
@@ -220,6 +232,11 @@ type PostgresMock struct {
 		CreatePoolValidatorData []struct {
 			// Pools is the pools argument value.
 			Pools []*dmodels.PoolValidatorData
+		}
+		// CreateSlotTime holds details about calls to the CreateSlotTime method.
+		CreateSlotTime []struct {
+			// SlotTime is the slotTime argument value.
+			SlotTime []*dmodels.SlotTime
 		}
 		// DeleteDeFis holds details about calls to the DeleteDeFis method.
 		DeleteDeFis []struct {
@@ -322,6 +339,11 @@ type PostgresMock struct {
 			// Condition is the condition argument value.
 			Condition *postgres.PoolCondition
 		}
+		// GetSlotTime holds details about calls to the GetSlotTime method.
+		GetSlotTime []struct {
+			// Cond is the cond argument value.
+			Cond *postgres.SlotTimeCondition
+		}
 		// GetValidator holds details about calls to the GetValidator method.
 		GetValidator []struct {
 			// ValidatorID is the validatorID argument value.
@@ -387,6 +409,7 @@ type PostgresMock struct {
 		}
 	}
 	lockCreatePoolValidatorData           sync.RWMutex
+	lockCreateSlotTime                    sync.RWMutex
 	lockDeleteDeFis                       sync.RWMutex
 	lockDeleteValidators                  sync.RWMutex
 	lockGetCoinByID                       sync.RWMutex
@@ -406,6 +429,7 @@ type PostgresMock struct {
 	lockGetPoolStatistic                  sync.RWMutex
 	lockGetPoolValidatorData              sync.RWMutex
 	lockGetPools                          sync.RWMutex
+	lockGetSlotTime                       sync.RWMutex
 	lockGetValidator                      sync.RWMutex
 	lockGetValidatorByVotePK              sync.RWMutex
 	lockGetValidatorCount                 sync.RWMutex
@@ -447,6 +471,37 @@ func (mock *PostgresMock) CreatePoolValidatorDataCalls() []struct {
 	mock.lockCreatePoolValidatorData.RLock()
 	calls = mock.calls.CreatePoolValidatorData
 	mock.lockCreatePoolValidatorData.RUnlock()
+	return calls
+}
+
+// CreateSlotTime calls CreateSlotTimeFunc.
+func (mock *PostgresMock) CreateSlotTime(slotTime ...*dmodels.SlotTime) error {
+	if mock.CreateSlotTimeFunc == nil {
+		panic("PostgresMock.CreateSlotTimeFunc: method is nil but Postgres.CreateSlotTime was just called")
+	}
+	callInfo := struct {
+		SlotTime []*dmodels.SlotTime
+	}{
+		SlotTime: slotTime,
+	}
+	mock.lockCreateSlotTime.Lock()
+	mock.calls.CreateSlotTime = append(mock.calls.CreateSlotTime, callInfo)
+	mock.lockCreateSlotTime.Unlock()
+	return mock.CreateSlotTimeFunc(slotTime...)
+}
+
+// CreateSlotTimeCalls gets all the calls that were made to CreateSlotTime.
+// Check the length with:
+//     len(mockedPostgres.CreateSlotTimeCalls())
+func (mock *PostgresMock) CreateSlotTimeCalls() []struct {
+	SlotTime []*dmodels.SlotTime
+} {
+	var calls []struct {
+		SlotTime []*dmodels.SlotTime
+	}
+	mock.lockCreateSlotTime.RLock()
+	calls = mock.calls.CreateSlotTime
+	mock.lockCreateSlotTime.RUnlock()
 	return calls
 }
 
@@ -1048,6 +1103,37 @@ func (mock *PostgresMock) GetPoolsCalls() []struct {
 	mock.lockGetPools.RLock()
 	calls = mock.calls.GetPools
 	mock.lockGetPools.RUnlock()
+	return calls
+}
+
+// GetSlotTime calls GetSlotTimeFunc.
+func (mock *PostgresMock) GetSlotTime(cond *postgres.SlotTimeCondition) ([]*dmodels.SlotTime, error) {
+	if mock.GetSlotTimeFunc == nil {
+		panic("PostgresMock.GetSlotTimeFunc: method is nil but Postgres.GetSlotTime was just called")
+	}
+	callInfo := struct {
+		Cond *postgres.SlotTimeCondition
+	}{
+		Cond: cond,
+	}
+	mock.lockGetSlotTime.Lock()
+	mock.calls.GetSlotTime = append(mock.calls.GetSlotTime, callInfo)
+	mock.lockGetSlotTime.Unlock()
+	return mock.GetSlotTimeFunc(cond)
+}
+
+// GetSlotTimeCalls gets all the calls that were made to GetSlotTime.
+// Check the length with:
+//     len(mockedPostgres.GetSlotTimeCalls())
+func (mock *PostgresMock) GetSlotTimeCalls() []struct {
+	Cond *postgres.SlotTimeCondition
+} {
+	var calls []struct {
+		Cond *postgres.SlotTimeCondition
+	}
+	mock.lockGetSlotTime.RLock()
+	calls = mock.calls.GetSlotTime
+	mock.lockGetSlotTime.RUnlock()
 	return calls
 }
 

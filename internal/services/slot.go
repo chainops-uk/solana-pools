@@ -2,27 +2,27 @@ package services
 
 import (
 	"context"
-	"errors"
-	"github.com/everstake/solana-pools/internal/dao/cache"
+	"github.com/everstake/solana-pools/internal/dao/dmodels"
+	"github.com/everstake/solana-pools/internal/dao/postgres"
 	"time"
 )
 
 func (s Imp) GetAvgSlotTimeMS() (float64, error) {
-	arr, err := s.Cache.GetSlotArr()
-	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
+	arr, err := s.DAO.GetSlotTime(&postgres.SlotTimeCondition{
+		Limit:  24,
+		Offset: 0,
+	})
+	if err != nil {
 		return 0, err
-	}
-	if errors.Is(err, cache.KeyWasNotFound) {
-		return 550, nil
 	}
 
 	var sum float64
 	var count int
 	for _, f := range arr {
-		if f != 0 {
+		if f.SlotTime != 0 {
 			count++
 		}
-		sum += f
+		sum += f.SlotTime
 	}
 
 	if count == 0 || sum == 0 {
@@ -66,27 +66,13 @@ rep:
 		return err
 	}
 
-	arr, err := s.Cache.GetSlotArr()
-	if err != nil && !errors.Is(err, cache.KeyWasNotFound) {
+	if err := s.DAO.CreateSlotTime(&dmodels.SlotTime{
+		SlotTime:  (1 / sps) * 1000,
+		Epoch:     ei2.Result.Epoch,
+		CreatedAt: time.Now(),
+	}); err != nil {
 		return err
 	}
-
-	for i, _ := range arr {
-		if arr[i] == 0 {
-
-			arr[i] = (1 / sps) * 1000
-
-			if i < 23 {
-				arr[i+1] = 0
-			} else {
-				arr[0] = 0
-			}
-			break
-		}
-
-	}
-
-	s.Cache.SetSlotArr(arr)
 
 	return nil
 }

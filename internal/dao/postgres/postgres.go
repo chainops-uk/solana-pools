@@ -27,6 +27,7 @@ var autoMigrateModels = []interface{}{
 	&dmodels.Governance{},
 	&dmodels.LiquidityPool{},
 	&dmodels.DEFI{},
+	&dmodels.SlotTime{},
 }
 
 func NewDB(dsn string) (db *DB, err error) {
