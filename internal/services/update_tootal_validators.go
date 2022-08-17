@@ -64,7 +64,6 @@ func (s Imp) UpdateValidators() error {
 			} else {
 				apy = decimal.Zero
 			}
-
 		}
 
 		fee := decimal.NewFromFloat(float64(vInfo.Commission) / 100.0)

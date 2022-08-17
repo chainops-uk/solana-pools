@@ -291,7 +291,10 @@ func updateSaber(s *Imp) error {
 							SaleCoinID:      poolCoin.ID,
 							BuyCoinID:       d.ID,
 							Liquidity:       v.Stats.TvlPC,
-							APY:             decimal.NewFromInt(0),
+							APY: decimal.NewFromFloat(v.Stats.Vol24H * d.USD).
+								Mul(decimal.NewFromFloat(0.0004)).
+								Div(decimal.NewFromFloat(v.Stats.TvlCoin*poolCoin.USD + v.Stats.TvlPC*d.USD)).
+								Mul(decimal.NewFromInt(365)),
 						})
 					}
 				}

@@ -4,6 +4,7 @@ import (
 	"github.com/everstake/solana-pools/config"
 	"github.com/everstake/solana-pools/internal/dao"
 	"github.com/everstake/solana-pools/internal/dao/cache"
+	"github.com/everstake/solana-pools/internal/dao/dmodels"
 	"github.com/everstake/solana-pools/internal/services/smodels"
 	"github.com/everstake/solana-pools/pkg/atrix"
 	"github.com/everstake/solana-pools/pkg/orca"
@@ -52,6 +53,7 @@ type (
 	}
 	Imp struct {
 		rpcClients    map[config.Network]*client.Client
+		delinquents   chan *dmodels.Validator
 		Cache         *cache.Cache
 		cfg           config.Env
 		DAO           dao.DAO
